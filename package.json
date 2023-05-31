@@ -1,0 +1,15 @@
+{
+  "name": "fitneat-shared",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf ./dist && tsc"
+  },
+  "devDependencies": {
+    "openapi3-ts": "^4.1.2",
+    "tsup": "6.7.0",
+    "typescript": "^5.0.4"
+  },
+  "files": [
+    "dist"
+  ]
+}
