@@ -1,5 +1,5 @@
-import { ResponseValidationException } from '../classes'
-import type { raw, openapi } from "../types"
+import { ResponseValidationException } from '../../../../src/classes'
+import type { raw, openapi } from "../../core/types"
 
 export const responseValidator: openapi.validation.ResponseValidator = (
     specificaton: raw.OpenAPIObject,
@@ -13,7 +13,7 @@ export const responseValidator: openapi.validation.ResponseValidator = (
     const pathItem: raw.PathItemObject | undefined = specificaton.paths?.[pathId]
     if (!pathItem) throw new ResponseValidationException('path/not-found', pathId)
     
-    const operation: raw.OperationObject | undefined = pathItem[method]
+    const operation: raw.OperationObject | undefined = pathItem[method as raw.HttpMethod]
     if (!operation) throw new ResponseValidationException('operation/not-found', JSON.stringify({ pathId, method }))
     
     const response = operation.responses[`${statusCode}`] ?? operation.responses['default']

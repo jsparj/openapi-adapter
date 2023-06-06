@@ -1,2 +1,2 @@
-export * from './classes'
-export * from './types'
+export * from '../packages/fetch/classes'
+export * from '../core/types'

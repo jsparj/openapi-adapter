@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": ".",
+    "rootDir": ".",
+    "paths": {
+      "@openapi-adapter/core": ["../core"],
+      "@openapi-adapter/iterated": ["./"]
+    }
+  },
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    {
+      "path": "../core/tsconfig.build.json"
+    }
+  ]
+}

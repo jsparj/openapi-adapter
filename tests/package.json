@@ -1,0 +1,12 @@
+{
+  "name": "@openapi-adapter/tests",
+  "description": "Tests for @openapi-adapter",
+  "scripts": {
+    "test:js": "jest",
+    "test:types": "tsc"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "jest": "29.5.0"
+  }
+}

@@ -1,4 +1,4 @@
-import type { openapi } from "../types"
+import type { openapi } from "../../core/types"
 
 
 export function buildHeaders(

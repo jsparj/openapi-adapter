@@ -1,0 +1,27 @@
+{
+  "name": "@openapi-adapter/iterated",
+  "version": "0.1.1",
+  "description": "Iterated openapi path & component map for @openapi-adapter - Create typescript APIs that reflect OpenAPI 3.x perfectly.",
+  "author": "Joona Parjanen",
+  "license": "MIT",
+  "keywords": [
+    "api",
+    "client",
+    "openapi",
+    "rest",
+    "swagger",
+    "typescript",
+    "type validation"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsparj/openapi-adapter.git",
+    "directory": "packages/iterated"
+  },
+  "peerDependencies": {
+    "@openapi-adapter/core": "^0.1.1"
+  }
+}

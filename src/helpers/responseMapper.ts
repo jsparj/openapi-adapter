@@ -1,5 +1,5 @@
 import { HttpStatusLabels } from "../enums"
-import type { raw, openapi } from "../types"
+import type { raw, openapi } from "../../core/types"
 
 export async function responseMapper<
     NS extends string,
