@@ -3,7 +3,7 @@ import type {adapter, specification} from '../../types'
 export abstract class CoreOpenApiAdapter<
     NS extends string,
     T extends adapter.path.Map<any>,
-    ISerializer extends adapter.ISerializer<any,any>,
+    ISerializer extends adapter.ISerializer<any>,
 > implements adapter.IFetch<NS, T>
 {
     protected readonly namespace: NS

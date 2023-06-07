@@ -1,6 +1,9 @@
+import { DefaultSerializer } from '../../../../packages/fetch/src/classes/DefaultSerializer'
 import {serializeToString} from '../../../../packages/fetch/src/helpers/serializer/serializeToString'
 
 describe('fetch/helpers/serializer/serializeToString', () => {
+    const constants = DefaultSerializer.DEFAULT_VALUE_CONSTANTS
+
     test('object', () => {
         const serializedString = serializeToString({ 
             string: 'string',
@@ -14,32 +17,32 @@ describe('fetch/helpers/serializer/serializeToString', () => {
                 null: null,
                 undefined: undefined,
             }
-        })
+        },constants)
         expect(serializedString).toEqual('{"string":"string","number":1234,"null":null,"array":["string",234,null],"object":{"string":"string","number":1234,"null":null}}')
     })
 
     test('array', () => {
-        const serializedString = serializeToString(['string', 234, null])
+        const serializedString = serializeToString(['string', 234, null],constants)
         expect(serializedString).toEqual('["string",234,null]')
     })
 
     test('string', ()=> {
-        const serializedString = serializeToString('__string__')
+        const serializedString = serializeToString('__string__',constants)
         expect(serializedString).toEqual('__string__')
     })
 
     test('number', ()=> {
-        const serializedString = serializeToString(354)
+        const serializedString = serializeToString(354,constants)
         expect(serializedString).toEqual('354')
     })
 
     test('null', ()=> {
-        const serializedString = serializeToString(null)
+        const serializedString = serializeToString(null,constants)
         expect(serializedString).toEqual('null')
     })
 
     test('undefined', ()=> {
-        const serializedString = serializeToString(undefined)
+        const serializedString = serializeToString(undefined,constants)
         expect(serializedString).toEqual('')
     })
 }) 

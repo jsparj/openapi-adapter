@@ -1,51 +1,38 @@
-import { adapter, CoreSerializer, specification } from "@openapi-adapter/core";
-import { pathStringSerializer, queryStringSerializer, headerParameterSerializer } from "../helpers/serializer";
-import { fetchAdapter } from "../../types";
+import { adapter, CoreSerializer, utility } from "@openapi-adapter/core";
+import { pathStringSerializer, queryStringSerializer, headerParameterSerializer, requestBodySerializer } from "../helpers/serializer";
+import { overrideDeep } from "../helpers";
+
+
 
 export class DefaultSerializer
-    extends CoreSerializer<string, BodyInit | undefined>
-    implements fetchAdapter.ISerializer
-{
-    public override pathParameters(
-        pathId: string,
-        parameters: Record<string, adapter.component.PathParameter> | undefined
-    ): string
-    {
-        if (!parameters) return pathId;
+    extends CoreSerializer<BodyInit|null|undefined>
+{   
+    public static readonly DEFAULT_VALUE_CONSTANTS: adapter.serializer.ValueConstants = {
+        falseString: 'false',
+        trueString: 'true',
+        nullString: 'null',
+        undefinedString: ''
+    }
 
-        let output = pathId
-        let pathKey: string | undefined = undefined
-        
-        while(pathKey = /{(.*?)}/.exec(output)?.[0])
-        {   
-            const template = pathKey.substring(1,pathKey.length-1)
-            const keyPrefix = /^[^\w]*/.exec(template)?.[0] as '.' | ';' | ''
-            const key = /[^\W]+/.exec(template)?.[0]
-            const explode = /\w+\*$/.test(template)
-            
-            if (key === undefined) throw new Error(`pathId[${pathId}] contains template[${pathKey}] that is not valid in OpenApi 3.x definition.`)
-            
-            if (!(keyPrefix === '' || keyPrefix === '.' || keyPrefix === ';'))
-                throw new Error(`pathId[${pathId}] contains keyPrefix[${typeof keyPrefix}] for key[${key}] that is not valid in OpenApi 3.x definition.`)
-            
-            const parameterValue = parameters[key]
-
-            if (parameterValue === undefined) 
-                throw new Error(`pathId[${pathId}] doesn't have path parameter for key[${key}].`)
-
-            const pathVariable =  pathStringSerializer(
-                key,
-                parameterValue,
-                !!keyPrefix?keyPrefix:undefined,
-                explode
-            )
-            output = output.replace(
-                pathKey,
-                pathVariable
-            )
+    public static readonly DEFAULT_SETTINGS: adapter.serializer.Settings<BodyInit | null | undefined> = {
+        pathString: {
+            constants: DefaultSerializer.DEFAULT_VALUE_CONSTANTS
+        },
+        queryString: {
+            constants: DefaultSerializer.DEFAULT_VALUE_CONSTANTS
+        },
+        header: {
+            constants: DefaultSerializer.DEFAULT_VALUE_CONSTANTS
+        },
+        requestBody: {
+            defaultSerializer: requestBodySerializer
         }
+    } 
 
-        return output
+    constructor(settings?: utility.DeepPartial<adapter.serializer.Settings<BodyInit | null | undefined>>) {
+        super(overrideDeep<adapter.serializer.Settings<BodyInit | null | undefined>>(
+            DefaultSerializer.DEFAULT_SETTINGS, settings ?? {}
+        ))
     }
 
     public override headerParameters(
@@ -59,12 +46,63 @@ export class DefaultSerializer
         
         for (let i = 0; i < headerKeys.length; i++)
         {
-            headers[headerKeys[i]] = headerParameterSerializer(parameters[headerKeys[i]])
+            headers[headerKeys[i]] = headerParameterSerializer(
+                parameters[headerKeys[i]],
+                this.settings.header
+            )
         }
         return headers
     }
 
-    public override queryParameters(
+    public override pathString(
+        pathId: string,
+        parameters: Record<string, adapter.component.PathParameter> | undefined
+    ): string
+    {
+        if (!parameters) return pathId;
+
+        let output = pathId
+        let pathKey: string | undefined = undefined
+        
+        while (pathKey = /{(.*?)}/.exec(output)?.[0]) {
+            const template = pathKey.substring(1, pathKey.length - 1)
+            const templatePrefix = /^[^\w]*/.exec(template)?.[0] as '.' | ';' | ''
+            const key = /[^\W]+/.exec(template)?.[0]
+            const explode = /\w+\*$/.test(template)
+            
+            if (key === undefined) throw new Error(`pathId[${pathId}] contains template[${pathKey}] that is not valid in OpenApi 3.x definition.`)
+             
+            const parameterValue = parameters[key]
+
+            if (parameterValue === undefined)
+                throw new Error(`pathId[${pathId}] doesn't have path parameter for key[${key}].`)
+
+            let style: 'simple'|'label'|'matrix'
+            switch (templatePrefix) {
+                case '': style = 'simple'; break
+                case '.': style = 'label'; break
+                case ';': style = 'matrix'; break
+
+                default:
+                    throw new Error(`Unknown templatePrefix[${templatePrefix}]`)
+            }
+
+            output = output.replace(
+                pathKey,
+                pathStringSerializer(
+                    key,
+                    parameterValue,
+                    style,
+                    explode,
+                    this.settings.pathString
+                )
+            )
+        }
+
+        return output
+    }
+
+    public override queryString(
         parameters: Record<string, adapter.component.QueryParameter> | undefined
     ): string
     {
@@ -75,13 +113,22 @@ export class DefaultSerializer
 
         for (let i = 0; i < queryKeys.length; i++)
         {
-            querySections.push(queryStringSerializer(queryKeys[i],parameters[queryKeys[i]])) 
+            querySections.push(
+                queryStringSerializer(
+                    queryKeys[i],
+                    parameters[queryKeys[i]],
+                    this.settings.queryString
+                )
+            ) 
         }
         
         return `?${querySections.join('&')}`
     }
-
-    public override body(body: adapter.component.RequestBody, mediaType: specification.MediaType): BodyInit | undefined {
-        throw new Error("Method not implemented.");
+    
+    public override requestBody(body: adapter.component.RequestBody): BodyInit | null | undefined {
+        const { mediaType, value } = body
+        const serializerOverride = this.settings.requestBody.serializerOverrides?.[mediaType]
+        if (serializerOverride !== undefined) return serializerOverride(value)
+        return this.settings.requestBody.defaultSerializer(mediaType, value)
     }
 }

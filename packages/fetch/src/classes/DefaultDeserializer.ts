@@ -15,7 +15,7 @@ export class DefaultDerializer extends CoreDeserializer
         )
     }
 
-    data<T>(data: adapter.component.SchemaObject, mediaType: specification.MediaType): T {
+    responseData<T>(data: adapter.component.SchemaObject, mediaType: specification.MediaType): T {
         throw new Error("Method not implemented.");
     }
     headerParameters<T>(parameters: Record<string, string> | undefined): T {

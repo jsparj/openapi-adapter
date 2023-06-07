@@ -1,24 +1,28 @@
 import type {adapter, specification} from '../../types'
-export abstract class CoreSerializer<SerializedQueryParameters, SerializedBody>
-    implements adapter.ISerializer<SerializedQueryParameters, SerializedBody>
+export abstract class CoreSerializer<SerializedRequestBody>
+    implements adapter.ISerializer<SerializedRequestBody>
 {
-    public abstract pathParameters(
+    protected readonly settings: adapter.serializer.Settings<SerializedRequestBody>
+
+    constructor(settings: adapter.serializer.Settings<SerializedRequestBody>)
+    {
+        this.settings = settings
+    }
+
+    public abstract pathString(
         pathId: string,
         parameters: Record<string, adapter.component.PathParameter> | undefined
     ): string
 
-    public abstract queryParameters(
+    public abstract queryString(
         parameters: Record<string, adapter.component.QueryParameter> | undefined
-    ): SerializedQueryParameters
+    ): string
 
     public abstract headerParameters(
         parameters: Record<string, adapter.component.HeaderParameter> | undefined
     ): Record<string, string> 
 
-    public abstract body(
-        body: adapter.component.RequestBody,
-        mediaType: specification.MediaType
-    ): SerializedBody
+    public abstract requestBody(body: adapter.component.RequestBody): SerializedRequestBody
 
 
     public static defaultQuerySerialization: Required<adapter.component.QueryParameterSerialization> = {
@@ -28,7 +32,7 @@ export abstract class CoreSerializer<SerializedQueryParameters, SerializedBody>
         mediaType: 'application/json',
     }
 
-    public static defaulHeaderSerialization: Required<adapter.component.HeaderParameterSerialization> = {
+    public static defaultHeaderSerialization: Required<adapter.component.HeaderParameterSerialization> = {
         explode: false,
         mediaType: 'application/json',
     }

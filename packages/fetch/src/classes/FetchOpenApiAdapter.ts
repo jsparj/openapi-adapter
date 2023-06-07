@@ -6,7 +6,7 @@ import { DefaultDerializer } from './DefaultDeserializer';
 export abstract class FetchOpenApiAdapter<
     NS extends string,
     T extends adapter.path.Map<any>
-> extends CoreOpenApiAdapter<NS, T, fetchAdapter.ISerializer>
+> extends CoreOpenApiAdapter<NS, T, adapter.ISerializer<BodyInit|null|undefined>>
 {
     protected readonly settings: fetchAdapter.Settings
     protected readonly deserializer: adapter.IDeserializer
@@ -15,7 +15,7 @@ export abstract class FetchOpenApiAdapter<
     constructor(
         namespace: NS,
         settings: fetchAdapter.Settings,
-        serializer?: fetchAdapter.ISerializer,
+        serializer?: adapter.ISerializer<BodyInit | null | undefined>,
         deserializer?: adapter.IDeserializer,
         responseValidator?: adapter.IResponseValidator
     )
@@ -38,14 +38,14 @@ export abstract class FetchOpenApiAdapter<
         body: adapter.component.RequestBody,
         responseOptions?: adapter.response.Options
     ): Promise<adapter.response.Result> {
-        const path = this.serializer.pathParameters(pathId, pathParams);
-        const queryString = this.serializer.queryParameters(query);
+        const path = this.serializer.pathString(pathId, pathParams);
+        const queryString = this.serializer.queryString(query);
 
         const result = await fetch(
             `${this.settings.host}${path}${queryString}`,
             {
                 method,
-                body: this.serializer.body(body),
+                body: this.serializer.requestBody(body),
                 headers: {
                     ...this.settings.globalRequestHeaders,
                     ...this.serializer.headerParameters(headers),
@@ -63,7 +63,7 @@ export abstract class FetchOpenApiAdapter<
                 responseHeaders,
                 responseOptions?.overrides?.headerMediaTypes
             ),
-            data: this.deserializer.data(
+            data: this.deserializer.responseData(
                 await result.json(),
                 responseOptions?.overrides?.dataMediaType
             ),

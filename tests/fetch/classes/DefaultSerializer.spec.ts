@@ -50,39 +50,38 @@ describe('fetch/classes/DefaultSerializer', () => {
         }
         test('simple:explode=true', () => {
             const pathId = '/v1/number/{num*}/string/{str*}/array/{arr*}/object/{obj*}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu%23sd%40as4/object/number=5,string=c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number=5,string=c.hsu#sd@as4/index')
         })
 
         test('simple:explode=false', () => {
             const pathId = '/v1/number/{num}/string/{str}/array/{arr}/object/{obj}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu%23sd%40as4/object/number,5,string,c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number,5,string,c.hsu#sd@as4/index')
         })
-
 
         test('label:explode=true', () => {
             const pathId = '/v1/number/{.num*}/string/{.str*}/array/{.arr*}/object/{.obj*}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5.c.hsu%23sd%40as4/object/.number=5.string=c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5.c.hsu#sd@as4/object/.number=5.string=c.hsu#sd@as4/index')
         })
 
         test('label:explode=false', () => {
             const pathId = '/v1/number/{.num}/string/{.str}/array/{.arr}/object/{.obj}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5,c.hsu%23sd%40as4/object/.number,5,string,c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5,c.hsu#sd@as4/object/.number,5,string,c.hsu#sd@as4/index')
         })
 
         test('matrix:explode=true', () => {
             const pathId = '/v1/number/{;num*}/string/{;str*}/array/{;arr*}/object/{;obj*}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5;arr=c.hsu%23sd%40as4/object/;number=5;string=c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5;arr=c.hsu#sd@as4/object/;number=5;string=c.hsu#sd@as4/index')
         })
 
         test('matrix:explode=false', () => {
             const pathId = '/v1/number/{;num}/string/{;str}/array/{;arr}/object/{;obj}/index'
-            const path = serializer.pathParameters(pathId, pathParams)
-            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5,c.hsu%23sd%40as4/object/;obj=number,5,string,c.hsu%23sd%40as4/index')
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5,c.hsu#sd@as4/object/;obj=number,5,string,c.hsu#sd@as4/index')
         })
     })
 
@@ -140,7 +139,7 @@ describe('fetch/classes/DefaultSerializer', () => {
                     value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
                 },
             }
-            const queryString = serializer.queryParameters(queryParams);
+            const queryString = serializer.queryString(queryParams);
             expect(queryString).toEqual(
                 '?form_number=1234&form_boolean=false' +
                 '&form_string=dgsyds%23..' +
@@ -191,7 +190,7 @@ describe('fetch/classes/DefaultSerializer', () => {
                     value: ['dhvu%32#sadf4545@',354,undefined]
                 },
             }
-            const queryString = serializer.queryParameters(queryParams);
+            const queryString = serializer.queryString(queryParams);
             expect(queryString).toEqual(
                 '?spaceDelimited_array=dhvu%32%23sadf4545%40' +
                 '&spaceDelimited_array=354' +
@@ -235,7 +234,7 @@ describe('fetch/classes/DefaultSerializer', () => {
                     value: ['dhvu%32#sadf4545@',354,undefined]
                 },
             }
-            const queryString = serializer.queryParameters(queryParams);
+            const queryString = serializer.queryString(queryParams);
             expect(queryString).toEqual(
                 '?pipeDelimited_array=dhvu%32%23sadf4545%40' +
                 '&pipeDelimited_array=354&pipeDelimited_array=' +
@@ -263,7 +262,7 @@ describe('fetch/classes/DefaultSerializer', () => {
                     value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
                 }
             }
-            const queryString = serializer.queryParameters(queryParams);
+            const queryString = serializer.queryString(queryParams);
             expect(queryString).toEqual(
                 '?deepObject[abc]=dhvu%32%23sadf4545%40' +
                 '&deepObject[dfg]=354' +
@@ -273,5 +272,26 @@ describe('fetch/classes/DefaultSerializer', () => {
                 '&deepObject_allowReserved[hij]=' 
             )
         })
+    })
+
+    describe('requestBody', () => {
+
+        test('number', () => {
+            const serialized = serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: 4
+            })    
+            expect(serialized).toEqual('4')
+        })
+
+        test('null', () => {
+            const serialized = serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: null
+            })    
+            expect(serialized).toEqual(null)
+        })
+
+        
     })
 }) 

@@ -21,16 +21,15 @@ export namespace adapter {
             requestParams: RequestParams<T, PathId, HttpMethod>
         ): Promise<Responses<NS, T, PathId, HttpMethod>>
     }
-
-    export interface ISerializer<SerializedQueryParameters,SerializedBody> {
-        pathParameters(pathId: string, parameters: Record<string, component.PathParameter> | undefined): string
-        queryParameters(parameters: Record<string, component.QueryParameter> | undefined): SerializedQueryParameters
+    export interface ISerializer<SerializedRequestBody> {
+        pathString(pathId: string, parameters: Record<string, component.PathParameter> | undefined): string
+        queryString(parameters: Record<string, component.QueryParameter> | undefined): string
         headerParameters(parameters: Record<string, component.HeaderParameter> | undefined): Record<string, string> 
-        body(body: component.RequestBody,mediaType: specification.MediaType): SerializedBody
+        requestBody(body: component.RequestBody): SerializedRequestBody
     }
 
     export interface IDeserializer {
-        data<T>(
+        responseData<T>(
             data: unknown,
             mediaTypeOverride?: specification.MediaType
         ): T
@@ -134,8 +133,11 @@ export namespace adapter {
             mediaType?: specification.MediaType
         }
 
-            
-        export type RequestBody = ContentObject 
+        export type RequestBody = {
+            mediaType: specification.MediaType
+            value: SchemaObject
+        }
+
         export type ResponseBody = ContentObject
     }
     
@@ -166,6 +168,44 @@ export namespace adapter {
         }> = T
     }
 
+    export namespace serializer {
+        export type Settings<SerializedRequestBody> = {
+            pathString: PathStringOptions
+            queryString: QueryStringOptions 
+            header: HeaderOptions
+            requestBody: RequestBodyOptions<SerializedRequestBody>
+        }
+
+        export type PathStringOptions = {
+            constants: ValueConstants
+            contentObjectSerializer?: (pathParameter: component.ContentObject) => string
+        }
+
+        export type QueryStringOptions = {
+            constants: ValueConstants
+            contentObjectSerializer?: (queryParameter: component.ContentObject) => string
+        }
+
+        export type HeaderOptions = {
+            constants: ValueConstants
+            contentObjectSerializer?: (headerParameter: component.ContentObject) => string
+        }
+
+        export type RequestBodyOptions<SerializedRequestBody> = {
+            defaultSerializer: (mediaType: specification.MediaType, body: component.SchemaObject) => SerializedRequestBody;
+            serializerOverrides?: {
+                [mediaType in specification.MediaType]?: (body: component.SchemaObject) => SerializedRequestBody;
+            }
+        }
+
+        export type ValueConstants = {
+            nullString: string
+            undefinedString: string
+            trueString: string
+            falseString: string
+        }
+    }
+
     export namespace deserializer {
         export type Settings = {
             response: {
@@ -176,8 +216,6 @@ export namespace adapter {
     }
 
     export namespace request {
-
-
 
         export type Object<T extends {
             pathParams: Record<string, component.PathParameter>

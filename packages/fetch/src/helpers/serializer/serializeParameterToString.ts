@@ -1,8 +1,9 @@
-import {serializeToString} from './serializeToString'
+import type { adapter } from '@openapi-adapter/core';
+import { serializeToString } from './serializeToString'
 
-export function serializeParameterToString(value: unknown, allowReserved: boolean): string
+export function serializeParameterToString(value: unknown, allowReserved: boolean, constants: adapter.serializer.ValueConstants): string
 {
-    let serialized = serializeToString(value)
+    let serialized = serializeToString(value, constants)
     if (allowReserved) return serialized
     
     const utf8CodeUnits: Record<string,string> = {

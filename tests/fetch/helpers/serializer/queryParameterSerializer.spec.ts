@@ -1,9 +1,12 @@
-import { adapter } from '@openapi-adapter/core/dist'
+import type { adapter } from '@openapi-adapter/core/dist'
 import {queryStringSerializer} from '../../../../packages/fetch/src/helpers/serializer/queryStringSerializer'
+import { DefaultSerializer } from '../../../../packages/fetch/src/classes/DefaultSerializer'
 
 
 
 describe('fetch/helpers/serializer/queryParameterSerializer', () => {
+    const options = DefaultSerializer.DEFAULT_SETTINGS.queryString
+
     describe('explode:true', () => {
         describe('style:form', () => {
             const style = 'form'
@@ -11,37 +14,37 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    const serialized = queryStringSerializer('key', 234)
+                    const serialized = queryStringSerializer('key', 234, options)
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryStringSerializer('key', '_#_s.tring@')
+                    const serialized = queryStringSerializer('key', '_#_s.tring@', options)
                     expect(serialized).toEqual('key=_%23_s.tring%40')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryStringSerializer('key', true)
+                    const serialized = queryStringSerializer('key', true, options)
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryStringSerializer('key', undefined)
+                    const serialized = queryStringSerializer('key', undefined, options)
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    const serialized = queryStringSerializer('key',  null)
+                    const serialized = queryStringSerializer('key',  null, options)
                     expect(serialized).toEqual('key=null')
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', [123,'@a#.sd'])
+                    const serialized = queryStringSerializer('key', [123,'@a#.sd'], options)
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key', { asdf: '@a#.sd', yes: true } )
+                    const serialized = queryStringSerializer('key', { asdf: '@a#.sd', yes: true }, options)
                     expect(serialized).toEqual('asdf=%40a%23.sd&yes=true')
                 })
             })
@@ -53,37 +56,37 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
 
                 it('number', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__,  value: 234})
+                    const serialized = queryStringSerializer('key', {__serialization__,  value: 234}, options)
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'}, options)
                     expect(serialized).toEqual('key=_#_s.tring@')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: true})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: true}, options)
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined}, options)
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: null})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: null}, options)
                     expect(serialized).toEqual('key=null')
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key', { __serialization__, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryStringSerializer('key', { __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('asdf=@a#.sd&yes=true')
                 })
             })
@@ -100,32 +103,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
 
@@ -135,32 +138,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
         })
@@ -175,32 +178,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
 
@@ -211,32 +214,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
         })
@@ -251,31 +254,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__,value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__,value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key[asdf]=@a#.sd&key[yes]=true')
                 })
             })
@@ -286,31 +289,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key[asdf]=%40a%23.sd&key[yes]=true')
                 })
             })
@@ -329,38 +332,38 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: 234})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: 234}, options)
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'}, options)
                     expect(serialized).toEqual('key=_#_s.tring@')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: true})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: true}, options)
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined}, options)
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: null})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: null}, options)
                     expect(serialized).toEqual('key=null')
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123,@a#.sd')
                 })
 
                 it('object', () => {
                     const serialized = queryStringSerializer('key',
-                        { __serialization__, value: { asdf: '@a#.sd', yes: true } })
+                        { __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key=asdf,@a#.sd,yes,true')
                 })
             })
@@ -372,38 +375,38 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: 234})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: 234}, options)
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: '_#_s.tring@'}, options)
                     expect(serialized).toEqual('key=_%23_s.tring%40')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: true})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: true}, options)
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: undefined}, options)
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: null})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: null}, options)
                     expect(serialized).toEqual('key=null')
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123,%40a%23.sd')
                 })
 
                 it('object', () => {
                     const serialized = queryStringSerializer('key',
-                        { __serialization__, value: { asdf: '@a#.sd', yes: true } })
+                        { __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key=asdf,%40a%23.sd,yes,true')
                 })
             })
@@ -420,32 +423,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123%20@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
 
@@ -457,32 +460,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123%20%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
         })
@@ -498,32 +501,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', { __serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', { __serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123|@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
 
@@ -535,32 +538,32 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})
+                    const serialized = queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)
                     expect(serialized).toEqual('key=123|%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } }, options)).toThrow()
                 })
             })
         })
@@ -576,31 +579,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryStringSerializer('key',{__serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key[asdf]=@a#.sd&key[yes]=true')
                 })
             })
@@ -612,31 +615,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 }
                 
                 it('number', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: 234}, options)).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: true})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: true}, options)).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: undefined}, options)).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: null})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: null}, options)).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryStringSerializer('key', {__serialization__, value: [123,'@a#.sd']}, options)).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryStringSerializer('key',{ __serialization__, value: { asdf: '@a#.sd', yes: true } }, options)
                     expect(serialized).toEqual('key[asdf]=%40a%23.sd&key[yes]=true')
                 })
             })
