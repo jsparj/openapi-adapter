@@ -1,7 +1,7 @@
-import { DeepPartial } from 'src/types/utility';
+import { utility } from '@openapi-adapter/core';
 import {isObject} from './isObject'
 
-export function overrideDeep<T extends object>(target: T, ...sources: DeepPartial<T>[]): T {
+export function overrideDeep<T extends object>(target: T, ...sources: utility.DeepPartial<T>[]): T {
   if (!sources.length) return target;
   const _target: Record<string,any> = { ...target }
   const source = sources.shift();

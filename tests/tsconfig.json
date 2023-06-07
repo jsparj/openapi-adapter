@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
     "noEmit": true,
+    "esModuleInterop": true,
     "types": ["jest"],
+    "strict": true,
     "paths": {
       "@openapi-adapter/axios": ["../packages/axios"],
+      "@openapi-adapter/axios/*": ["../packages/axios/*"],
       "@openapi-adapter/core": ["../packages/core"],
+      "@openapi-adapter/core/*": ["../packages/core/*"],
       "@openapi-adapter/fetch": ["../packages/fetch"],
-      "@openapi-adapter/iterated": ["../packages/iterated"]
+      "@openapi-adapter/fetch/*": ["../packages/fetch/*"],
+      "@openapi-adapter/iterated": ["../packages/iterated"],
+      "@openapi-adapter/iterated/*": ["../packages/iterated/*"]
     }
   }
 }

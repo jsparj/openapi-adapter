@@ -94,12 +94,12 @@ export namespace adapter {
         : never
 
     export namespace component {
-        export type SchemaObject = Primitive | unknown[] | object
+        export type SchemaObject = Primitive | unknown[] | object | undefined
         export type ContentObject = {
             [mediaType in specification.MediaType]?: SchemaObject
         } | undefined
 
-        export type PathParameter = SchemaObject
+        export type PathParameter = Exclude<SchemaObject,undefined>
 
         export type QueryParameter = {
             style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>

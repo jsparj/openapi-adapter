@@ -1,5 +1,5 @@
 import { adapter, CoreSerializer } from "@openapi-adapter/core";
-import { pathParameterSerializer, queryParameterSerializer } from "../helpers/uri";
+import { pathParameterSerializer, queryParameterSerializer } from "../helpers/serializer";
 import { fetchAdapter } from "../types";
 
 export class DefaultSerializer

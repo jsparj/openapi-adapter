@@ -6,10 +6,5 @@
   "compilerOptions": {
     "outDir": ".",
     "rootDir": "."
-  },
-  "references": [
-    {
-      "path": "./tsconfig.build.json"
-    }
-  ]
+  }
 }
