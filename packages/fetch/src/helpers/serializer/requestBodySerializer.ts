@@ -1,17 +1,17 @@
 import type { adapter, specification } from "@openapi-adapter/core";
 
 export function requestBodySerializer(
-    mediaType: specification.MediaType,
     body: adapter.component.SchemaObject,
-): BodyInit | null | undefined
+    mediaType: specification.MediaType,
+): Promise<BodyInit | null | undefined>
 {
-    if (body === null || body === undefined) return body
+    if (body === null || body === undefined) return Promise.resolve(body)
     switch (mediaType)
     {
         case 'application/json':
-            return JSON.stringify(body)
+            return Promise.resolve(JSON.stringify(body))
         
         default: 
-            throw new Error(`Unsupported mediatype[${mediaType}] for requestBodySerializer, define your own serializer for this MediaType.`)
+            throw new Error(`Unsupported mediatype[${mediaType}] for requestBodySerializer, define your own serializer for this MediaType in settings.`)
     }
 }

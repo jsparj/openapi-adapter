@@ -1,24 +1,33 @@
-import { adapter, specification, CoreDeserializer } from "@openapi-adapter/core";
+import { adapter, specification, CoreDeserializer, utility } from "@openapi-adapter/core";
+import { overrideDeep, responseContentDeserializer } from "../helpers";
 
-export class DefaultDerializer extends CoreDeserializer
+export namespace DefaultDerializer {
+    export type RawResponseContent = ReadableStream<Uint8Array> | null
+    export type Interface = adapter.IDeserializer<RawResponseContent>
+    export type Settings = adapter.deserializer.Settings<RawResponseContent>
+}
+
+export class DefaultDerializer
+    extends CoreDeserializer<DefaultDerializer.RawResponseContent>
+    implements DefaultDerializer.Interface
 {
-    constructor(settings?: adapter.deserializer.Settings)
+    constructor(settings?: utility.DeepPartial<DefaultDerializer.Settings>)
     {
         super(
-            settings ??
-            {
-                response: {
-                    bodyMediaType: 'application/json',
-                    headerMediaType: 'application/json',
-                }
-            }
+            overrideDeep<DefaultDerializer.Settings>(
+                {
+                    responseContent:{
+                        defaultDeserializer: responseContentDeserializer,
+                    }
+                },
+                settings ?? {}
+            )
         )
     }
 
-    responseData<T>(data: adapter.component.SchemaObject, mediaType: specification.MediaType): T {
-        throw new Error("Method not implemented.");
-    }
-    headerParameters<T>(parameters: Record<string, string> | undefined): T {
-        throw new Error("Method not implemented.");
+    public responseContent(content: DefaultDerializer.RawResponseContent, mediaType: specification.MediaType): Promise<unknown> {
+        const deserializerOverride = this.settings.responseContent.deserializerOverrides?.[mediaType]
+        if (deserializerOverride !== undefined) return deserializerOverride(content)
+        return this.settings.responseContent.defaultDeserializer(content, mediaType)
     }
 }

@@ -2,10 +2,14 @@ import { adapter, CoreSerializer, utility } from "@openapi-adapter/core";
 import { pathStringSerializer, queryStringSerializer, headerParameterSerializer, requestBodySerializer } from "../helpers/serializer";
 import { overrideDeep } from "../helpers";
 
-
-
+export namespace DefaultSerializer {
+    export type SerializedRequestBody = BodyInit | null | undefined
+    export type Interface = adapter.ISerializer<SerializedRequestBody>
+    export type Settings = adapter.serializer.Settings<SerializedRequestBody>
+}
 export class DefaultSerializer
-    extends CoreSerializer<BodyInit|null|undefined>
+    extends CoreSerializer<DefaultSerializer.SerializedRequestBody>
+    implements DefaultSerializer.Interface
 {   
     public static readonly DEFAULT_VALUE_CONSTANTS: adapter.serializer.ValueConstants = {
         falseString: 'false',
@@ -14,7 +18,7 @@ export class DefaultSerializer
         undefinedString: ''
     }
 
-    public static readonly DEFAULT_SETTINGS: adapter.serializer.Settings<BodyInit | null | undefined> = {
+    public static readonly DEFAULT_SETTINGS: DefaultSerializer.Settings = {
         pathString: {
             constants: DefaultSerializer.DEFAULT_VALUE_CONSTANTS
         },
@@ -29,8 +33,8 @@ export class DefaultSerializer
         }
     } 
 
-    constructor(settings?: utility.DeepPartial<adapter.serializer.Settings<BodyInit | null | undefined>>) {
-        super(overrideDeep<adapter.serializer.Settings<BodyInit | null | undefined>>(
+    constructor(settings?: utility.DeepPartial<DefaultSerializer.Settings>) {
+        super(overrideDeep<DefaultSerializer.Settings>(
             DefaultSerializer.DEFAULT_SETTINGS, settings ?? {}
         ))
     }
@@ -125,10 +129,10 @@ export class DefaultSerializer
         return `?${querySections.join('&')}`
     }
     
-    public override requestBody(body: adapter.component.RequestBody): BodyInit | null | undefined {
+    public override requestBody(body: adapter.component.RequestBody): Promise<DefaultSerializer.SerializedRequestBody> {
         const { mediaType, value } = body
         const serializerOverride = this.settings.requestBody.serializerOverrides?.[mediaType]
         if (serializerOverride !== undefined) return serializerOverride(value)
-        return this.settings.requestBody.defaultSerializer(mediaType, value)
+        return this.settings.requestBody.defaultSerializer(value, mediaType)
     }
 }

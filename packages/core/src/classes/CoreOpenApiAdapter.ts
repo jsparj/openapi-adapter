@@ -21,12 +21,14 @@ export abstract class CoreOpenApiAdapter<
     public async request<
         PathId extends keyof T = keyof T,
         HttpMethod extends keyof T[PathId] = keyof T[PathId],
+        ContentMediaType extends adapter.response.ContentType<T,PathId,HttpMethod> = adapter.response.ContentType<T,PathId,HttpMethod>
     >(
         pathId: PathId,
         method: HttpMethod,
-        request: adapter.RequestParams<T, PathId, HttpMethod>,
-        responseOptions?: adapter.response.Options
-    ): Promise<adapter.Responses<NS, T, PathId, HttpMethod>> {
+        request: adapter.request.Params<T, PathId, HttpMethod>,
+        contentType?: ContentMediaType
+    ): Promise<adapter.Responses<NS, T, PathId, HttpMethod, ContentMediaType>> {
+
         const {
             pathParams,
             headers,
@@ -41,7 +43,7 @@ export abstract class CoreOpenApiAdapter<
             headers,
             query,
             body,
-            responseOptions
+            contentType as undefined | specification.MediaType
         )
 
         const response: adapter.response.GenericRespose = {
@@ -50,7 +52,7 @@ export abstract class CoreOpenApiAdapter<
             data: responseResult.data
         }
 
-        return response as unknown as adapter.Responses<NS, T, PathId, HttpMethod>
+        return response as unknown as adapter.Responses<NS, T, PathId, HttpMethod, ContentMediaType>
     }
 
     protected abstract handleRequestAndDeserialization(
@@ -60,7 +62,7 @@ export abstract class CoreOpenApiAdapter<
         headers: Record<string, adapter.component.HeaderParameter> | undefined,
         query: Record<string, adapter.component.QueryParameter> | undefined,
         body: unknown,
-        responseOptions?: adapter.response.Options
+        contentType?: specification.MediaType
     ): Promise<adapter.response.Result> 
 
     private resolveStatusCode(statusCode: number): Pick<adapter.response.GenericRespose, 'type' | 'code' | 'status' >

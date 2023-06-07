@@ -1,28 +1,40 @@
-import { CoreOpenApiAdapter, adapter, specification } from '@openapi-adapter/core';
-import { fetchAdapter } from '../../types';
+import { CoreOpenApiAdapter, adapter, specification, utility } from '@openapi-adapter/core';
 import { DefaultSerializer } from './DefaultSerializer';
 import { DefaultDerializer } from './DefaultDeserializer';
 
+export namespace FetchOpenApiAdapter {
+    export type SerializedRequestBody = BodyInit | null | undefined
+    export type Settings = {
+        host: string,
+        globalRequestHeaders?: Record<string, string> 
+        requestInit?: Partial<Omit<
+            RequestInit,
+            'method' | 'body' | 'headers'
+        >> 
+        deserializerSettings?: utility.DeepPartial<DefaultDerializer.Settings>
+        serializerSettings?: utility.DeepPartial<DefaultSerializer.Settings>
+    }
+}
 export abstract class FetchOpenApiAdapter<
     NS extends string,
     T extends adapter.path.Map<any>
-> extends CoreOpenApiAdapter<NS, T, adapter.ISerializer<BodyInit|null|undefined>>
+> extends CoreOpenApiAdapter<NS, T, DefaultSerializer.Interface>
 {
-    protected readonly settings: fetchAdapter.Settings
-    protected readonly deserializer: adapter.IDeserializer
+    protected readonly settings: FetchOpenApiAdapter.Settings
+    protected readonly deserializer: DefaultDerializer.Interface
     protected readonly responseValidator?: adapter.IResponseValidator
     
     constructor(
         namespace: NS,
-        settings: fetchAdapter.Settings,
-        serializer?: adapter.ISerializer<BodyInit | null | undefined>,
-        deserializer?: adapter.IDeserializer,
+        settings: FetchOpenApiAdapter.Settings,
+        serializer?: DefaultSerializer.Interface,
+        deserializer?: DefaultDerializer.Interface,
         responseValidator?: adapter.IResponseValidator
     )
     {
         super(
             namespace,
-            serializer ?? new DefaultSerializer()
+            serializer ?? new DefaultSerializer(settings.serializerSettings)
         )
         this.settings = settings;
         this.deserializer = deserializer ?? new DefaultDerializer(settings.deserializerSettings)
@@ -36,7 +48,7 @@ export abstract class FetchOpenApiAdapter<
         headers: Record<string, adapter.component.HeaderParameter> | undefined,
         query: Record<string, adapter.component.QueryParameter> | undefined,
         body: adapter.component.RequestBody,
-        responseOptions?: adapter.response.Options
+        contentType?: specification.MediaType
     ): Promise<adapter.response.Result> {
         const path = this.serializer.pathString(pathId, pathParams);
         const queryString = this.serializer.queryString(query);
@@ -45,7 +57,7 @@ export abstract class FetchOpenApiAdapter<
             `${this.settings.host}${path}${queryString}`,
             {
                 method,
-                body: this.serializer.requestBody(body),
+                body: await this.serializer.requestBody(body),
                 headers: {
                     ...this.settings.globalRequestHeaders,
                     ...this.serializer.headerParameters(headers),
@@ -59,13 +71,10 @@ export abstract class FetchOpenApiAdapter<
         
         const responseResult: adapter.response.Result = {
             statusCode: result.status,
-            headers: this.deserializer.headerParameters(
-                responseHeaders,
-                responseOptions?.overrides?.headerMediaTypes
-            ),
-            data: this.deserializer.responseData(
-                await result.json(),
-                responseOptions?.overrides?.dataMediaType
+            headers: responseHeaders,
+            data: this.deserializer.responseContent(
+                result.body,
+                contentType
             ),
         }
 

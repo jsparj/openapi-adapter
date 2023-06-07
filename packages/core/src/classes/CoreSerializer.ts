@@ -22,7 +22,7 @@ export abstract class CoreSerializer<SerializedRequestBody>
         parameters: Record<string, adapter.component.HeaderParameter> | undefined
     ): Record<string, string> 
 
-    public abstract requestBody(body: adapter.component.RequestBody): SerializedRequestBody
+    public abstract requestBody(body: adapter.component.RequestBody): Promise<SerializedRequestBody>
 
 
     public static defaultQuerySerialization: Required<adapter.component.QueryParameterSerialization> = {

@@ -1,5 +1,5 @@
 import { adapter } from "@openapi-adapter/core";
-import {serializeParameterToString} from './serializeParameterToString'
+import { serializeParameterToString } from './serializeParameterToString'
 
 export function pathStringSerializer(
     key: string,

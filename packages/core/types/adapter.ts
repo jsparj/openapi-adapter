@@ -8,36 +8,34 @@ export namespace adapter {
         /**
          * This action lets you do requests against `adapter.path.Map`that you have provided.
          * <para>Have request parameters and response has full support for intellisence and matches perfectly to provided api definition.</para>
-         * @param pathId available pathIds to provided OpenApi 3.x path map in `paths/*`
-         * @param method available HttpMethods for provided `pathId`
-         * @param requestParams request parameters for provided `pathId` and `method`
+         * @param pathId Available pathIds to provided OpenApi 3.x path map in `paths/*`
+         * @param method Available HttpMethods for provided `pathId`
+         * @param requestParams Request parameters for provided `pathId` and `method`
+         * @param contentType (optional) Available content media types, default content-type header will be used if this is not provided.
          */
         request<
             PathId extends keyof T = keyof T,
-            HttpMethod extends keyof T[PathId] = keyof T[PathId]
+            HttpMethod extends keyof T[PathId] = keyof T[PathId],
+            ContentMediaType extends response.ContentType<T,PathId,HttpMethod> = response.ContentType<T,PathId,HttpMethod>
         >(
             pathId: PathId,
             method: HttpMethod,
-            requestParams: RequestParams<T, PathId, HttpMethod>
-        ): Promise<Responses<NS, T, PathId, HttpMethod>>
+            requestParams: request.Params<T, PathId, HttpMethod>,
+            contentType?: ContentMediaType
+        ): Promise<Responses<NS, T, PathId, HttpMethod, ContentMediaType>>
     }
     export interface ISerializer<SerializedRequestBody> {
         pathString(pathId: string, parameters: Record<string, component.PathParameter> | undefined): string
         queryString(parameters: Record<string, component.QueryParameter> | undefined): string
         headerParameters(parameters: Record<string, component.HeaderParameter> | undefined): Record<string, string> 
-        requestBody(body: component.RequestBody): SerializedRequestBody
+        requestBody(body: component.RequestBody): Promise<SerializedRequestBody>
     }
 
-    export interface IDeserializer {
-        responseData<T>(
-            data: unknown,
+    export interface IDeserializer<RawResponseContent> {
+        responseContent(
+            content: RawResponseContent,
             mediaTypeOverride?: specification.MediaType
-        ): T
-
-        headerParameters<T>(
-            parameters: Record<string, string> | undefined,
-            mediaTypeOverrides?: Record<string, specification.MediaType>
-        ): T 
+        ): Promise<unknown>
     }
 
     export interface IResponseValidator {
@@ -52,19 +50,13 @@ export namespace adapter {
         }
     }
 
-    export type RequestParams<
-        T extends path.Map<any>,
-        PathId extends keyof T,
-        HttpMethod extends keyof T[PathId]
-    > = T[PathId][HttpMethod] extends (infer operation extends path.Operation<any,any,any>)
-        ? operation['request']
-        : never
 
     export type Responses<
         NS extends string,
         T extends path.Map<any>,
         PathId extends keyof T,
-        HttpMethod extends keyof T[PathId]
+        HttpMethod extends keyof T[PathId],
+        ContentMediaType extends response.ContentType<T,PathId,HttpMethod>
     > = T[PathId][HttpMethod] extends (infer operation extends path.Operation<any,any,any>)
         ? utility.Intersect<{
             [statusCode in keyof operation['responses']]:
@@ -85,7 +77,7 @@ export namespace adapter {
                 /**
                  * TYPE: `unknown` when the OpenApi object doesn't define response content or schema for this response.
                  */
-                data: response.Content<operation, statusCode>,
+                content: response.Content<operation, statusCode, ContentMediaType>,
             }
             : never
         }>[keyof operation['responses']]
@@ -151,7 +143,7 @@ export namespace adapter {
 
         export type Operation<
             Request_ extends request.Object<any>,
-            Responses_ extends request.ObjectMap<any>,
+            Responses_ extends response.ObjectMap<any>,
             Security_ extends request.Security
         > = {
             request: Request_
@@ -192,9 +184,9 @@ export namespace adapter {
         }
 
         export type RequestBodyOptions<SerializedRequestBody> = {
-            defaultSerializer: (mediaType: specification.MediaType, body: component.SchemaObject) => SerializedRequestBody;
+            defaultSerializer: (body: component.SchemaObject, mediaType: specification.MediaType) => Promise<SerializedRequestBody>;
             serializerOverrides?: {
-                [mediaType in specification.MediaType]?: (body: component.SchemaObject) => SerializedRequestBody;
+                [mediaType in specification.MediaType]?: (body: component.SchemaObject) => Promise<SerializedRequestBody>;
             }
         }
 
@@ -207,15 +199,25 @@ export namespace adapter {
     }
 
     export namespace deserializer {
-        export type Settings = {
-            response: {
-                bodyMediaType: specification.MediaType
-                headerMediaType: specification.MediaType
-            }
+        export type Settings<RawResponseContent> = {
+            responseContent: {
+                defaultDeserializer: (content: RawResponseContent, mediaType: specification.MediaType) => Promise<unknown>
+                deserializerOverrides?: {
+                    [mediaType in specification.MediaType]?: (content: RawResponseContent) => Promise<unknown>
+                }
+            } 
         }
     }
 
-    export namespace request {
+    export namespace request
+    {
+        export type Params<
+            T extends path.Map<any>,
+            PathId extends keyof T,
+            HttpMethod extends keyof T[PathId]
+        > = T[PathId][HttpMethod] extends (infer operation extends path.Operation<any,any,any>)
+            ? operation['request']
+            : never
 
         export type Object<T extends {
             pathParams: Record<string, component.PathParameter>
@@ -224,27 +226,28 @@ export namespace adapter {
             body: component.RequestBody
         }> = T
 
-        export type ObjectMap<T extends {
-            [statusCode in 'default' | number]: request.Object<any>
-        }> = T
-
 
         export type Security = {}
     }
 
     export namespace response {
 
+        export type ContentType<
+            T extends path.Map<any>,
+            PathId extends keyof T,
+            HttpMethod extends keyof T[PathId]
+        > = T[PathId][HttpMethod] extends path.Operation<any, infer responses, any> ?
+            responses[keyof responses] extends response.Object<infer res> ?
+            keyof res['content']
+            : never
+            : never
+
+
+
         export type Result = {
             statusCode: number,
             headers: Record<string, unknown>
             data: unknown
-        }
-
-        export type Options = {
-            overrides?: {
-                dataMediaType?: specification.MediaType,
-                headerMediaTypes?: Record<string, specification.MediaType>
-            }
         }
 
         export type StatusCode<Code> =
@@ -290,6 +293,9 @@ export namespace adapter {
             content?: any
         }> = T
         
+        export type ObjectMap<T extends {
+            [statusCode in 'default' | number]: request.Object<any>
+        }> = T
         
         export type Headers<Operation, StatusCode> =
             Operation extends (path.Operation<any, infer responses, any>)
@@ -300,13 +306,15 @@ export namespace adapter {
             : never 
             : never
         
-        export type Content<Operation, StatusCode> =
+        export type Content<Operation, StatusCode, MediaType> =
             Operation extends (path.Operation<any, infer responses, any>)
             ? StatusCode extends keyof responses
             ? responses[StatusCode] extends (Object<infer response>) 
-            ? response['content'][keyof response['content']]
-            : 'n3'
-            : 'n2'
-            : 'n1'
+            ? MediaType extends keyof response['content']
+            ? response['content'][MediaType]
+            : never
+            : never
+            : never
+            : never
     }
 }

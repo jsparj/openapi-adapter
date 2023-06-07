@@ -1,4 +1,4 @@
-import { adapter } from '@openapi-adapter/core'
+import type { adapter } from '@openapi-adapter/core'
 import { DefaultSerializer } from '../../../packages/fetch/src/classes/DefaultSerializer'
 
 
