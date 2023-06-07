@@ -1,18 +1,11 @@
 {
   "extends": "../tsconfig.build.json",
-  "files": [],
-  "include": [],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "outDir": ".",
+    "outDir": "dist",
     "rootDir": ".",
     "paths": {
       "@openapi-adapter/core": ["../core"]
     }
-  },
-  "references": [
-    {
-      "path": "../core/tsconfig.json"
-    }
-  ]
+  }
 }

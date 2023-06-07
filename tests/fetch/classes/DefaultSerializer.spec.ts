@@ -4,11 +4,31 @@ import { DefaultSerializer } from '../../../packages/fetch/src/classes/DefaultSe
 
 describe('fetch/classes/DefaultSerializer', () => {
     const serializer = new DefaultSerializer()
-    /*
+    
     describe('headerParameters', () => {
-        
+        const headerParams: Record<string, adapter.component.HeaderParameter> = {
+            simple_number: 1234,
+            simple_boolean: false,
+            simple_string: 'dgsyds#..',
+            simple_array: ['dhvu%32#sadf4545@',354,undefined],
+            simple_explode_array: {
+                __serialization__: {
+                    explode: true
+                },
+                value: ['dhvu%32#sadf4545@',354,undefined]
+            },
+            simple_object:  { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined },
+            simple_explode_object: {
+                __serialization__: {
+                    explode: true
+                },
+                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+            },
+        }
+
+        const serialized = serializer.headerParameters(headerParams)
+        expect(serialized).toEqual({})
     })
-    */
     
     describe('pathParameters', () => {
         const pathParams = {
@@ -83,12 +103,12 @@ describe('fetch/classes/DefaultSerializer', () => {
             },
             form_explode_array: {
                 style: 'form',
-                explode: true,
+                disableExplode: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
             form_explode_allowReserved_array: {
                 style: 'form',
-                explode: true,
+                disableExplode: true,
                 allowReserved: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
@@ -103,12 +123,12 @@ describe('fetch/classes/DefaultSerializer', () => {
             },
             form_explode_object: {
                 style: 'form',
-                explode: true,
+                disableExplode: true,
                 value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
             },
             form_explode_allowReserved_object: {
                 style: 'form',
-                explode: true,
+                disableExplode: true,
                 allowReserved: true,
                 value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
             },
@@ -123,12 +143,12 @@ describe('fetch/classes/DefaultSerializer', () => {
             },
             spaceDelimited_explode_array: {
                 style: 'spaceDelimited',
-                explode: true,
+                disableExplode: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
             spaceDelimited_explode_allowReserved_array: {
                 style: 'spaceDelimited',
-                explode: true,
+                disableExplode: true,
                 allowReserved: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
@@ -143,12 +163,12 @@ describe('fetch/classes/DefaultSerializer', () => {
             },
             pipeDelimited_explode_array: {
                 style: 'pipeDelimited',
-                explode: true,
+                disableExplode: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
             pipeDelimited_explode_allowReserved_array: {
                 style: 'pipeDelimited',
-                explode: true,
+                disableExplode: true,
                 allowReserved: true,
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
@@ -159,12 +179,12 @@ describe('fetch/classes/DefaultSerializer', () => {
             },
             deepObject_explode: {
                 style: 'deepObject',
-                explode: true,
+                disableExplode: true,
                 value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
             },
             deepObject_explode_allowReserved: {
                 style: 'deepObject',
-                explode: true,
+                disableExplode: true,
                 allowReserved: true,
                 value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
             }

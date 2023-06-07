@@ -22,18 +22,9 @@ export function pathParameterSerializer(
             default: throw new Error(`unknown templatePrefix[${templatePrefix}]`)
         }
     }
-    else if (typeof value !== 'object')
+    else if (typeof value !== 'object' || value === null)
     {
         throw new Error(`Unsupported path parameter type [${typeof value}]`);
-    }
-
-    if (value === null) {
-        switch (templatePrefix){
-            case undefined: return String(null);
-            case '.': return `.${String(null)}`
-            case ';':  return `;${key}=${String(null)}`
-            default: throw new Error(`unknown templatePrefix[${templatePrefix}]`)
-        }
     }
 
     const applyTemplatePrefixAndExplode = (

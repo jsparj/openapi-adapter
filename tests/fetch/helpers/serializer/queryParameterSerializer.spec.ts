@@ -13,37 +13,37 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: 234})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: 234})
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: '_#_s.tring@'})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: '_#_s.tring@'})
                     expect(serialized).toEqual('key=_#_s.tring@')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: true})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
                     const serialized = queryParameterSerializer('key',
-                        { explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })
+                        { disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })
                     expect(serialized).toEqual('asdf=@a#.sd&yes=true')
                 })
             })
@@ -51,37 +51,36 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: 234})
+                    const serialized = queryParameterSerializer('key', 234)
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: '_#_s.tring@'})
+                    const serialized = queryParameterSerializer('key', '_#_s.tring@')
                     expect(serialized).toEqual('key=_%23_s.tring%40')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: true})
+                    const serialized = queryParameterSerializer('key', true)
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: undefined})
+                    const serialized = queryParameterSerializer('key', undefined)
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key',  null)).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', [123,'@a#.sd'])
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    const serialized = queryParameterSerializer('key',
-                        { explode, style, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryParameterSerializer('key', { asdf: '@a#.sd', yes: true } )
                     expect(serialized).toEqual('asdf=%40a%23.sd&yes=true')
                 })
             })
@@ -94,64 +93,64 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
 
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
         })
@@ -163,64 +162,64 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123&key=@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
 
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123&key=%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
         })
@@ -232,31 +231,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })
                     expect(serialized).toEqual('key[asdf]=%40a%23.sd&key[yes]=true')
                 })
             })
@@ -264,31 +263,31 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})).toThrow()
                 })
 
                 it('object', () => {
-                    const serialized = queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })
+                    const serialized = queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })
                     expect(serialized).toEqual('key[asdf]=%40a%23.sd&key[yes]=true')
                 })
             })
@@ -305,37 +304,37 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: 234})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: 234})
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: '_#_s.tring@'})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: '_#_s.tring@'})
                     expect(serialized).toEqual('key=_#_s.tring@')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: true})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123,@a#.sd')
                 })
 
                 it('object', () => {
                     const serialized = queryParameterSerializer('key',
-                        { explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })
+                        { disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })
                     expect(serialized).toEqual('key=asdf,@a#.sd,yes,true')
                 })
             })
@@ -343,37 +342,37 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: 234})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: 234})
                     expect(serialized).toEqual('key=234')
                 })
 
                 it('string', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: '_#_s.tring@'})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: '_#_s.tring@'})
                     expect(serialized).toEqual('key=_%23_s.tring%40')
                 })
 
                 it('boolean', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: true})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: true})
                     expect(serialized).toEqual('key=true')
                 })
 
                 it('undefined', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: undefined})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})
                     expect(serialized).toEqual('key=')
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123,%40a%23.sd')
                 })
 
                 it('object', () => {
                     const serialized = queryParameterSerializer('key',
-                        { explode, style, value: { asdf: '@a#.sd', yes: true } })
+                        { disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })
                     expect(serialized).toEqual('key=asdf,%40a%23.sd,yes,true')
                 })
             })
@@ -386,64 +385,64 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123%20@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
 
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123%20%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
         })
@@ -455,64 +454,64 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123|@a#.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
 
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    const serialized = queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})
+                    const serialized = queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})
                     expect(serialized).toEqual('key=123|%40a%23.sd')
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
         })
@@ -524,62 +523,62 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
                 const allowReserved = true
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved ,value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved ,value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, allowReserved, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, allowReserved, value: [123,'@a#.sd']})).toThrow()
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, allowReserved, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
 
             describe('allowReserved:false', () => {
                 
                 it('number', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: 234})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: 234})).toThrow()
                 })
 
                 it('string', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('boolean', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: true})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: true})).toThrow()
                 })
 
                 it('undefined', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: undefined})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: undefined})).toThrow()
                 })
 
                 it('null', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: null})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: null})).toThrow()
                 })
 
                 it('array', () => {
-                    expect(()=>queryParameterSerializer('key', {explode, style, value: [123,'@a#.sd']})).toThrow()
+                    expect(()=>queryParameterSerializer('key', {disableExplode: explode, style, value: [123,'@a#.sd']})).toThrow()
                 })
 
                 it('object', () => {
-                    expect(()=>queryParameterSerializer('key',{ explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
+                    expect(()=>queryParameterSerializer('key',{ disableExplode: explode, style, value: { asdf: '@a#.sd', yes: true } })).toThrow()
                 })
             })
         })

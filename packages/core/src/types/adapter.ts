@@ -102,17 +102,39 @@ export namespace adapter {
         export type PathParameter = Exclude<SchemaObject,undefined|null>
 
         export type QueryParameter = {
-            style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
-            explode?: true,
-            allowReserved?: true
+            /** For defining non-default serialization logics.*/ 
+            __serialization__: QueryParameterSerialization
             value: SchemaObject 
+        } | SchemaObject
+
+        export type QueryParameterSerialization = {
+            /**@default form */
+            style?: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
+            
+            /**@default true */
+            explode?: boolean,
+            
+            /**@default false */
+            allowReserved?: boolean
+            
+            /**@default `application/json` */
+            mediaType?: specification.MediaType
         }
+
         export type HeaderParameter = {
-            style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
-            explode: boolean
-            mediaType: specification.MediaType
-            value: SchemaObject | ContentObject
+             /** For defining non-default serialization logics.*/ 
+            __serialization__: HeaderParameterSerialization
+            value: SchemaObject
+        } | SchemaObject
+
+        export type HeaderParameterSerialization = {
+            /**@default false */
+            explode?: boolean,
+            
+            /**@default `application/json` */
+            mediaType?: specification.MediaType
         }
+
             
         export type RequestBody = ContentObject 
         export type ResponseBody = ContentObject

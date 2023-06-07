@@ -20,4 +20,17 @@ export abstract class CoreSerializer<SerializedQueryParameters, SerializedBody>
         body: adapter.component.RequestBody,
         mediaType: specification.MediaType
     ): SerializedBody
+
+
+    public static defaultQuerySerialization: Required<adapter.component.QueryParameterSerialization> = {
+        style: 'form',
+        explode: true,
+        allowReserved: false,
+        mediaType: 'application/json',
+    }
+
+    public static defaulHeaderSerialization: Required<adapter.component.HeaderParameterSerialization> = {
+        explode: false,
+        mediaType: 'application/json',
+    }
 }
