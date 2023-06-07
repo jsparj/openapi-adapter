@@ -1,7 +1,7 @@
 import { adapter } from "@openapi-adapter/core";
 import {serializeParameterToString} from './serializeParameterToString'
 
-export function pathParameterSerializer(
+export function pathStringSerializer(
     key: string,
     value: adapter.component.PathParameter,
     templatePrefix: '.' | ';' | undefined,

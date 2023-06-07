@@ -1,9 +1,11 @@
 {
   "name": "@openapi-adapter/core",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Base library for @openapi-adapter - Create typescript APIs that reflect OpenAPI 3.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
+  "main": "dist/index.js",
+  "files": ["dist"],
   "keywords": [
     "api",
     "client",

@@ -7,27 +7,35 @@ describe('fetch/classes/DefaultSerializer', () => {
     
     describe('headerParameters', () => {
         const headerParams: Record<string, adapter.component.HeaderParameter> = {
-            simple_number: 1234,
-            simple_boolean: false,
-            simple_string: 'dgsyds#..',
             simple_array: ['dhvu%32#sadf4545@',354,undefined],
+            simple_boolean: false,
             simple_explode_array: {
                 __serialization__: {
                     explode: true
                 },
                 value: ['dhvu%32#sadf4545@',354,undefined]
             },
-            simple_object:  { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined },
             simple_explode_object: {
                 __serialization__: {
                     explode: true
                 },
                 value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
             },
+            simple_number: 1234,
+            simple_object:  { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined },
+            simple_string: 'dgsyds#..',
         }
 
         const serialized = serializer.headerParameters(headerParams)
-        expect(serialized).toEqual({})
+        expect(serialized).toEqual({
+            simple_array: "dhvu%32#sadf4545@,354,",
+            simple_boolean: "false",
+            simple_explode_array: "dhvu%32#sadf4545@.354.",
+            simple_explode_object: "abc=dhvu%32#sadf4545@,dfg=354,hij=",
+            simple_number: "1234",
+            simple_object: "abc,dhvu%32#sadf4545@,dfg,354,hij,",
+            simple_string: "dgsyds#..",
+        })
     })
     
     describe('pathParameters', () => {
@@ -78,157 +86,192 @@ describe('fetch/classes/DefaultSerializer', () => {
         })
     })
 
-    test('queryParameters', () => {
-        const queryParams: Record<string, adapter.component.QueryParameter> = {
-            form_number: {
-                style: 'form',
-                value: 1234
-            },
-            form_boolean: {
-                style: 'form',
-                value: false
-            },
-            form_string: {
-                style: 'form',
-                value: 'dgsyds#..'
-            },
-            form_allowReserved_string: {
-                style: 'form',
-                allowReserved: true,
-                value: 'dgs%%:@y43ds#..'
-            },
-            form_array: {
-                style: 'form',
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            form_explode_array: {
-                style: 'form',
-                disableExplode: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            form_explode_allowReserved_array: {
-                style: 'form',
-                disableExplode: true,
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            form_allowReserved_array: {
-                style: 'form',
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            form_object: {
-                style: 'form',
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
-            },
-            form_explode_object: {
-                style: 'form',
-                disableExplode: true,
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
-            },
-            form_explode_allowReserved_object: {
-                style: 'form',
-                disableExplode: true,
-                allowReserved: true,
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
-            },
-            form_allowReserved_object: {
-                style: 'form',
-                allowReserved: true,
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
-            },
-            spaceDelimited_array: {
-                style: 'spaceDelimited',
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            spaceDelimited_explode_array: {
-                style: 'spaceDelimited',
-                disableExplode: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            spaceDelimited_explode_allowReserved_array: {
-                style: 'spaceDelimited',
-                disableExplode: true,
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            spaceDelimited_allowReserved_array: {
-                style: 'spaceDelimited',
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            pipeDelimited_array: {
-                style: 'pipeDelimited',
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            pipeDelimited_explode_array: {
-                style: 'pipeDelimited',
-                disableExplode: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            pipeDelimited_explode_allowReserved_array: {
-                style: 'pipeDelimited',
-                disableExplode: true,
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            pipeDelimited_allowReserved_array: {
-                style: 'pipeDelimited',
-                allowReserved: true,
-                value: ['dhvu%32#sadf4545@',354,undefined]
-            },
-            deepObject_explode: {
-                style: 'deepObject',
-                disableExplode: true,
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
-            },
-            deepObject_explode_allowReserved: {
-                style: 'deepObject',
-                disableExplode: true,
-                allowReserved: true,
-                value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+    describe('queryParameters', () => {
+
+        test('form', () => {
+            const queryParams: Record<string, adapter.component.QueryParameter> = {
+                form_number: 1234,
+                form_boolean: false,
+                form_string: 'dgsyds#..',
+                form_allowReserved_string: {
+                    __serialization__: {
+                        allowReserved: true,    
+                    },
+                    value: 'dgs%%:@y43ds#..'
+                },
+                form_array: ['dhvu%32#sadf4545@',354,undefined],
+                form_nexplode_array: {
+                    __serialization__: {
+                        explode: false,    
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                form_nexplode_allowReserved_array: {
+                    __serialization__: {
+                        explode: false,
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                form_allowReserved_array: {
+                    __serialization__: {
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                form_object: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined },
+                form_nexplode_object: {
+                    __serialization__: {
+                        explode: false,
+                    },
+                    value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+                },
+                form_nexplode_allowReserved_object: {
+                    __serialization__: {
+                        explode: false,
+                        allowReserved: true
+                    },
+                    value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+                },
+                form_allowReserved_object: {
+                    __serialization__: {
+                        allowReserved: true
+                    },
+                    value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+                },
             }
-        }
-       
-        const queryString = serializer.queryParameters(queryParams);
-        expect(queryString).toEqual(
-            '?form_number=1234' +
-            '&form_boolean=false' +
-            '&form_string=dgsyds%23..' +
-            '&form_allowReserved_string=dgs%%:@y43ds#..' +
-            '&form_array=dhvu%32%23sadf4545%40,354,' +
-            '&form_explode_array=dhvu%32%23sadf4545%40' +
-            '&form_explode_array=354&form_explode_array=' +
-            '&form_explode_allowReserved_array=dhvu%32#sadf4545@' +
-            '&form_explode_allowReserved_array=354' +
-            '&form_explode_allowReserved_array=' +
-            '&form_allowReserved_array=dhvu%32#sadf4545@,354,' +
-            '&form_object=abc,dhvu%32%23sadf4545%40,dfg,354,hij,' +
-            '&abc=dhvu%32%23sadf4545%40&dfg=354&hij=' +
-            '&abc=dhvu%32#sadf4545@&dfg=354&hij=' +
-            '&form_allowReserved_object=abc,dhvu%32#sadf4545@,dfg,354,hij,' +
-            '&spaceDelimited_array=dhvu%32%23sadf4545%40%20354%20' +
-            '&spaceDelimited_explode_array=dhvu%32%23sadf4545%40' +
-            '&spaceDelimited_explode_array=354' +
-            '&spaceDelimited_explode_array=' +
-            '&spaceDelimited_explode_allowReserved_array=dhvu%32#sadf4545@' +
-            '&spaceDelimited_explode_allowReserved_array=354' +
-            '&spaceDelimited_explode_allowReserved_array=' +
-            '&spaceDelimited_allowReserved_array=dhvu%32#sadf4545@%20354%20' +
-            '&pipeDelimited_array=dhvu%32%23sadf4545%40|354|' +
-            '&pipeDelimited_explode_array=dhvu%32%23sadf4545%40' +
-            '&pipeDelimited_explode_array=354' +
-            '&pipeDelimited_explode_array=' +
-            '&pipeDelimited_explode_allowReserved_array=dhvu%32#sadf4545@' +
-            '&pipeDelimited_explode_allowReserved_array=354' +
-            '&pipeDelimited_explode_allowReserved_array=' +
-            '&pipeDelimited_allowReserved_array=dhvu%32#sadf4545@|354|' +
-            '&deepObject_explode[abc]=dhvu%32%23sadf4545%40' +
-            '&deepObject_explode[dfg]=354' +
-            '&deepObject_explode[hij]=' +
-            '&deepObject_explode_allowReserved[abc]=dhvu%32#sadf4545@' +
-            '&deepObject_explode_allowReserved[dfg]=354' +
-            '&deepObject_explode_allowReserved[hij]='
-        )
+            const queryString = serializer.queryParameters(queryParams);
+            expect(queryString).toEqual(
+                '?form_number=1234&form_boolean=false' +
+                '&form_string=dgsyds%23..' +
+                '&form_allowReserved_string=dgs%%:@y43ds#..' +
+                '&form_array=dhvu%32%23sadf4545%40&form_array=354' +
+                '&form_array=' +
+                '&form_nexplode_array=dhvu%32%23sadf4545%40,354,' +
+                '&form_nexplode_allowReserved_array=dhvu%32#sadf4545@,354,' +
+                '&form_allowReserved_array=dhvu%32#sadf4545@' +
+                '&form_allowReserved_array=354' +
+                '&form_allowReserved_array=' +
+                '&abc=dhvu%32%23sadf4545%40&dfg=354&hij=' +
+                '&form_nexplode_object=abc,dhvu%32%23sadf4545%40,dfg,354,hij,' +
+                '&form_nexplode_allowReserved_object=abc,dhvu%32#sadf4545@,dfg,354,hij,' +
+                '&abc=dhvu%32#sadf4545@&dfg=354&hij=' 
+            )
+        })
+
+        test('spaceDelimited', () => {
+            const queryParams: Record<string, adapter.component.QueryParameter> = {
+                spaceDelimited_array: {
+                    __serialization__: {
+                        style: 'spaceDelimited',
+                    },
+                    style: 'spaceDelimited',
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                spaceDelimited_nexplode_array: {
+                    __serialization__: {
+                        style: 'spaceDelimited',
+                        explode: false
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                spaceDelimited_nexplode_allowReserved_array: {
+                    __serialization__: {
+                        style: 'spaceDelimited',
+                        explode: false,
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                spaceDelimited_allowReserved_array: {
+                    __serialization__: {
+                        style: 'spaceDelimited',
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+            }
+            const queryString = serializer.queryParameters(queryParams);
+            expect(queryString).toEqual(
+                '?spaceDelimited_array=dhvu%32%23sadf4545%40' +
+                '&spaceDelimited_array=354' +
+                '&spaceDelimited_array=' +
+                '&spaceDelimited_nexplode_array=dhvu%32%23sadf4545%40%20354%20' +
+                '&spaceDelimited_nexplode_allowReserved_array=dhvu%32#sadf4545@%20354%20' +
+                '&spaceDelimited_allowReserved_array=dhvu%32#sadf4545@' +
+                '&spaceDelimited_allowReserved_array=354' +
+                '&spaceDelimited_allowReserved_array=' 
+            )
+        })
+
+        test('pipeDelimited', () => {
+            const queryParams: Record<string, adapter.component.QueryParameter> = {
+                pipeDelimited_array: {
+                    __serialization__: {
+                        style: 'pipeDelimited',
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                pipeDelimited_nexplode_array: {
+                    __serialization__: {
+                        style: 'pipeDelimited',
+                        explode: false,
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                pipeDelimited_nexplode_allowReserved_array: {
+                    __serialization__: {
+                        style: 'pipeDelimited',
+                        explode: false,
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+                pipeDelimited_allowReserved_array: {
+                    __serialization__: {
+                        style: 'pipeDelimited',
+                        allowReserved: true
+                    },
+                    value: ['dhvu%32#sadf4545@',354,undefined]
+                },
+            }
+            const queryString = serializer.queryParameters(queryParams);
+            expect(queryString).toEqual(
+                '?pipeDelimited_array=dhvu%32%23sadf4545%40' +
+                '&pipeDelimited_array=354&pipeDelimited_array=' +
+                '&pipeDelimited_nexplode_array=dhvu%32%23sadf4545%40|354|' +
+                '&pipeDelimited_nexplode_allowReserved_array=dhvu%32#sadf4545@|354|' +
+                '&pipeDelimited_allowReserved_array=dhvu%32#sadf4545@' +
+                '&pipeDelimited_allowReserved_array=354' +
+                '&pipeDelimited_allowReserved_array=' 
+            )
+        })
+
+        test('deepObject', () => {
+            const queryParams: Record<string, adapter.component.QueryParameter> = {
+                deepObject: {
+                    __serialization__: {
+                        style: 'deepObject',
+                    },
+                    value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+                },
+                deepObject_allowReserved: {
+                    __serialization__: {
+                        style: 'deepObject',
+                        allowReserved: true
+                    },
+                    value: { abc: 'dhvu%32#sadf4545@', dfg: 354, hij: undefined }
+                }
+            }
+            const queryString = serializer.queryParameters(queryParams);
+            expect(queryString).toEqual(
+                '?deepObject[abc]=dhvu%32%23sadf4545%40' +
+                '&deepObject[dfg]=354' +
+                '&deepObject[hij]=' +
+                '&deepObject_allowReserved[abc]=dhvu%32#sadf4545@' +
+                '&deepObject_allowReserved[dfg]=354' +
+                '&deepObject_allowReserved[hij]=' 
+            )
+        })
     })
 }) 

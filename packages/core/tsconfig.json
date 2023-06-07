@@ -1,10 +1,16 @@
 {
-  "extends": "../tsconfig.build.json",
-  "files": [],
-  "include": [],
-  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "outDir": ".",
-    "rootDir": "."
-  }
+    "module": "commonjs",
+    "declaration": true,
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "noLib": false,
+    "target": "es2017",
+    "sourceMap": false,
+    "allowJs": false,
+    "strict": true
+  },
+  "include": ["./src", "index.ts"],
+  "exclude": ["node_modules", "dist"]
 }

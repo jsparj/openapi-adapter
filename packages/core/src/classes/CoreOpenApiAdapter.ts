@@ -1,7 +1,5 @@
 import { HttpStatusLabels } from "../enums";
-import { adapter } from "../types/adapter";
-import { specification } from "../types/specification";
-
+import type {adapter, specification} from '../../types'
 export abstract class CoreOpenApiAdapter<
     NS extends string,
     T extends adapter.path.Map<any>,

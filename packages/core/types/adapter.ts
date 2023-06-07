@@ -1,10 +1,9 @@
-import { specification } from './specification'
-import { DeepPartial, Intersect, Primitive } from './utility'
-import { HttpStatusLabels } from '../enums'
-
+import type { specification } from './specification';
+import type { utility } from './utility';
 
 export namespace adapter {
-
+    type HttpStatusLabels = import('../src/enums').HttpStatusLabels;
+    
     export interface IFetch<NS extends string, T extends path.Map<any>> {
         /**
          * This action lets you do requests against `adapter.path.Map`that you have provided.
@@ -50,7 +49,7 @@ export namespace adapter {
         host: string
         global: path.Settings
         pathOverrides: {
-            [pathId in keyof T]?: DeepPartial<path.Settings>
+            [pathId in keyof T]?: utility.DeepPartial<path.Settings>
         }
     }
 
@@ -68,7 +67,7 @@ export namespace adapter {
         PathId extends keyof T,
         HttpMethod extends keyof T[PathId]
     > = T[PathId][HttpMethod] extends (infer operation extends path.Operation<any,any,any>)
-        ? Intersect<{
+        ? utility.Intersect<{
             [statusCode in keyof operation['responses']]:
             response.StatusCode<statusCode> extends (infer code extends number) ?
             {
@@ -94,7 +93,7 @@ export namespace adapter {
         : never
 
     export namespace component {
-        export type SchemaObject = Primitive | unknown[] | object | undefined
+        export type SchemaObject = utility.Primitive | unknown[] | object | undefined
         export type ContentObject = {
             [mediaType in specification.MediaType]?: SchemaObject
         } | undefined
@@ -240,12 +239,10 @@ export namespace adapter {
 
     
         export type StatusLabel<NS extends string, StatusCode extends string|number> =
-            typeof HttpStatusLabels extends (infer statusLabels)
-            ? StatusCode extends keyof statusLabels
-            ? statusLabels[StatusCode] extends (infer label)
+            StatusCode extends keyof HttpStatusLabels
+            ? HttpStatusLabels[StatusCode] extends (infer label)
             ? label extends string ? `${NS}/${label}`
             : label extends undefined ? `${NS}/${StatusCode}`
-            : never
             : never
             : never
             : never

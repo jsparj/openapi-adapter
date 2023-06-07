@@ -1,7 +1,7 @@
 import { adapter, CoreSerializer } from "@openapi-adapter/core";
 import { serializeParameterToString } from './serializeParameterToString'
 
-export function queryParameterSerializer(
+export function queryStringSerializer(
     key: string,
     param: adapter.component.QueryParameter,
 ): string

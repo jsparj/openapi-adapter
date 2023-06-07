@@ -1,6 +1,6 @@
 import { adapter, CoreSerializer, specification } from "@openapi-adapter/core";
-import { pathParameterSerializer, queryParameterSerializer } from "../helpers/serializer";
-import { fetchAdapter } from "../types";
+import { pathStringSerializer, queryStringSerializer, headerParameterSerializer } from "../helpers/serializer";
+import { fetchAdapter } from "../../types";
 
 export class DefaultSerializer
     extends CoreSerializer<string, BodyInit | undefined>
@@ -33,13 +33,12 @@ export class DefaultSerializer
             if (parameterValue === undefined) 
                 throw new Error(`pathId[${pathId}] doesn't have path parameter for key[${key}].`)
 
-            const pathVariable =  pathParameterSerializer(
+            const pathVariable =  pathStringSerializer(
                 key,
                 parameterValue,
                 !!keyPrefix?keyPrefix:undefined,
                 explode
             )
-            
             output = output.replace(
                 pathKey,
                 pathVariable
@@ -53,7 +52,16 @@ export class DefaultSerializer
         parameters: Record<string, adapter.component.HeaderParameter> | undefined
     ): Record<string, string>
     {
-        throw new Error("Method not implemented.");
+        if (!parameters) return {}
+        
+        const headerKeys = Object.keys(parameters)
+        const headers: Record<string, string> = {}
+        
+        for (let i = 0; i < headerKeys.length; i++)
+        {
+            headers[headerKeys[i]] = headerParameterSerializer(parameters[headerKeys[i]])
+        }
+        return headers
     }
 
     public override queryParameters(
@@ -67,7 +75,7 @@ export class DefaultSerializer
 
         for (let i = 0; i < queryKeys.length; i++)
         {
-            querySections.push(queryParameterSerializer(queryKeys[i],parameters[queryKeys[i]])) 
+            querySections.push(queryStringSerializer(queryKeys[i],parameters[queryKeys[i]])) 
         }
         
         return `?${querySections.join('&')}`

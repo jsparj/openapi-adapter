@@ -1,5 +1,5 @@
 import { CoreOpenApiAdapter, adapter, specification } from '@openapi-adapter/core';
-import { fetchAdapter } from '../types';
+import { fetchAdapter } from '../../types';
 import { DefaultSerializer } from './DefaultSerializer';
 import { DefaultDerializer } from './DefaultDeserializer';
 

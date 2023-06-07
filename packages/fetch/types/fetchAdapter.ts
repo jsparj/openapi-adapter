@@ -1,4 +1,4 @@
-import { adapter } from "@openapi-adapter/core"
+import type { adapter } from "@openapi-adapter/core"
 
 export namespace fetchAdapter {
     export type Settings = {
@@ -7,7 +7,7 @@ export namespace fetchAdapter {
         requestInit?: Partial<Omit<
             RequestInit,
             'method' | 'body' | 'headers'
-            >> 
+        >> 
         deserializerSettings?: adapter.deserializer.Settings
     }
 

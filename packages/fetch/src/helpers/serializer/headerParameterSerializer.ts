@@ -2,7 +2,6 @@ import { adapter, CoreSerializer } from "@openapi-adapter/core";
 import { serializeParameterToString } from './serializeParameterToString'
 
 export function headerParameterSerializer(
-    key: string,
     param: adapter.component.HeaderParameter,
 ): string
 {
@@ -47,8 +46,8 @@ export function headerParameterSerializer(
 
     // isObject
     const valueKeys = Object.keys(value)
-    if(explode) return valueKeys.map(valueKey=>`${valueKey}=${serializeParameterToString(value[valueKey as keyof object], true)}`).join('&')
+    if(explode) return valueKeys.map(valueKey=>`${valueKey}=${serializeParameterToString((value as object)[valueKey as keyof object], true)}`).join(',')
     
-    return `${key}=${valueKeys.map(valueKey=>`${valueKey},${serializeParameterToString(value[valueKey as keyof object], true)}`).join(',')}`
+    return valueKeys.map(valueKey=>`${valueKey},${serializeParameterToString((value as object)[valueKey as keyof object], true)}`).join(',')
 }
 

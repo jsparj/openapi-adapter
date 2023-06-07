@@ -1,5 +1,4 @@
-import { adapter, specification } from "../types";
-
+import type {adapter, specification} from '../../types'
 export abstract class CoreDeserializer implements adapter.IDeserializer {
     protected readonly settings: adapter.deserializer.Settings
     

@@ -1,4 +1,4 @@
-export declare namespace specification {
+export namespace specification {
     export type HttpMethod =
         | 'get'
         | 'put'
@@ -100,7 +100,7 @@ export declare namespace specification {
         parameters?: readonly ParameterObject[];
 
     } & {
-            [method in specification.HttpMethod]?: OperationObject
+            [method in HttpMethod]?: OperationObject
         }
     export interface OperationObject {
         tags?: readonly string[];

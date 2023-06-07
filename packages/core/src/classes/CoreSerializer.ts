@@ -1,5 +1,4 @@
-import { adapter, specification } from "@openapi-adapter/core";
-
+import type {adapter, specification} from '../../types'
 export abstract class CoreSerializer<SerializedQueryParameters, SerializedBody>
     implements adapter.ISerializer<SerializedQueryParameters, SerializedBody>
 {
