@@ -1,8 +1,7 @@
 export async function streamUInt8ArrayToString(
   stream: ReadableStream<Uint8Array>,
-  label?: string | undefined,
-  options?: TextDecoderOptions | undefined
-): Promise<string> {
+  label?: string | undefined, 
+  options?: TextDecoderOptions | undefined): Promise<string> {
     const reader = stream.getReader();
     let result = '';
     while (true) {

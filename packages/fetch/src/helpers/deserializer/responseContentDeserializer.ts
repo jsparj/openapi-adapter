@@ -11,7 +11,7 @@ export async function responseContentDeserializer(
     switch(mediaType)
     {
         case 'application/json':
-            return JSON.stringify(streamUInt8ArrayToString(content, 'utf-8'))
+            return streamUInt8ArrayToString(content).then(text => JSON.parse(text))
         
         default: 
             throw new Error(`Unsupported mediatype[${mediaType}] for responseContentDeserializer, define your own deserializer for this mediaType in settings.`)

@@ -5,7 +5,7 @@ import { DefaultSerializer } from '../../../packages/fetch/src/classes/DefaultSe
 describe('fetch/classes/DefaultSerializer', () => {
     const serializer = new DefaultSerializer()
     
-    describe('headerParameters', () => {
+    describe('headerParameters',() => {
         const headerParams: Record<string, adapter.component.HeaderParameter> = {
             simple_array: ['dhvu%32#sadf4545@',354,undefined],
             simple_boolean: false,
@@ -275,23 +275,61 @@ describe('fetch/classes/DefaultSerializer', () => {
     })
 
     describe('requestBody', () => {
-
-        test('number', () => {
-            const serialized = serializer.requestBody({ 
-                mediaType: 'application/json',
-                value: 4
-            })    
-            expect(serialized).toEqual('4')
-        })
-
-        test('null', () => {
-            const serialized = serializer.requestBody({ 
+        
+        test('null', async () => {
+            const serialized = await serializer.requestBody({ 
                 mediaType: 'application/json',
                 value: null
             })    
             expect(serialized).toEqual(null)
         })
 
-        
+        test('undefined', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: undefined
+            })    
+            expect(serialized).toEqual(undefined)
+        })
+
+        test('number', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: 4
+            })    
+            expect(serialized).toEqual('4')
+        })
+
+        test('string', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: 'asdhfgääåss'
+            })    
+            expect(serialized).toEqual('\"asdhfgääåss\"')
+        })
+
+        test('boolean', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: true
+            })    
+            expect(serialized).toEqual('true')
+        })
+
+        test('array', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: [true,undefined,'asdvbad',{ asf: 3, _:'4'}]
+            })    
+            expect(serialized).toEqual('[true,null,\"asdvbad\",{\"asf\":3,\"_\":\"4\"}]')
+        })
+
+        test('object', async () => {
+            const serialized = await serializer.requestBody({ 
+                mediaType: 'application/json',
+                value: { asf: 3, _:'4', arr:[true,undefined,null,'asdvbad',{ hreg: 3, _:'7'}] }
+            })    
+            expect(serialized).toEqual('{\"asf\":3,\"_\":\"4\",\"arr\":[true,null,null,\"asdvbad\",{\"hreg\":3,\"_\":\"7\"}]}')
+        })
     })
 }) 

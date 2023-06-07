@@ -11,15 +11,17 @@ export class DefaultDerializer
     extends CoreDeserializer<DefaultDerializer.RawResponseContent>
     implements DefaultDerializer.Interface
 {
+    public static readonly DEFAULT_SETTINGS: DefaultDerializer.Settings =  {
+        responseContent:{
+            defaultDeserializer: responseContentDeserializer,
+        }
+    }
+
     constructor(settings?: utility.DeepPartial<DefaultDerializer.Settings>)
     {
         super(
             overrideDeep<DefaultDerializer.Settings>(
-                {
-                    responseContent:{
-                        defaultDeserializer: responseContentDeserializer,
-                    }
-                },
+                DefaultDerializer.DEFAULT_SETTINGS,
                 settings ?? {}
             )
         )
