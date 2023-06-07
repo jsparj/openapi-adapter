@@ -1,4 +1,4 @@
-import { adapter, CoreSerializer } from "@openapi-adapter/core";
+import { adapter, CoreSerializer, specification } from "@openapi-adapter/core";
 import { pathParameterSerializer, queryParameterSerializer } from "../helpers/serializer";
 import { fetchAdapter } from "../types";
 
@@ -13,37 +13,47 @@ export class DefaultSerializer
     {
         if (!parameters) return pathId;
 
-        const output = pathId
-        let template: string | undefined = undefined
+        let output = pathId
+        let pathKey: string | undefined = undefined
         
-        while(template = /{(.*?)}/.exec(output)?.[0])
+        while(pathKey = /{(.*?)}/.exec(output)?.[0])
         {   
-            const keyPrefix = /^[^\w]*/.exec(template)?.[0] as '.' | ';' | undefined
-            const key = /[^\W]+/.exec(template)?.[0] 
+            const template = pathKey.substring(1,pathKey.length-1)
+            const keyPrefix = /^[^\w]*/.exec(template)?.[0] as '.' | ';' | ''
+            const key = /[^\W]+/.exec(template)?.[0]
             const explode = /\w+\*$/.test(template)
             
-            if (key === undefined) throw new Error(`pathId[${pathId}] contains template[${template}] that is not valid in OpenApi 3.x definition.`)
+            if (key === undefined) throw new Error(`pathId[${pathId}] contains template[${pathKey}] that is not valid in OpenApi 3.x definition.`)
             
-            if (!(keyPrefix === undefined || keyPrefix === '.' || keyPrefix === ';'))
-                throw new Error(`pathId[${pathId}] contains keyPrefix[${keyPrefix}] that is not valid in OpenApi 3.x definition.`)
+            if (!(keyPrefix === '' || keyPrefix === '.' || keyPrefix === ';'))
+                throw new Error(`pathId[${pathId}] contains keyPrefix[${typeof keyPrefix}] for key[${key}] that is not valid in OpenApi 3.x definition.`)
             
             const parameterValue = parameters[key]
 
-            if (!parameterValue) 
+            if (parameterValue === undefined) 
                 throw new Error(`pathId[${pathId}] doesn't have path parameter for key[${key}].`)
 
-            output.replace(
-                `{${template}}`,
-                pathParameterSerializer(
-                    key,
-                    parameterValue,
-                    keyPrefix,
-                    explode
-                )
+            const pathVariable =  pathParameterSerializer(
+                key,
+                parameterValue,
+                !!keyPrefix?keyPrefix:undefined,
+                explode
+            )
+            
+            output = output.replace(
+                pathKey,
+                pathVariable
             )
         }
 
         return output
+    }
+
+    public override headerParameters(
+        parameters: Record<string, adapter.component.HeaderParameter> | undefined
+    ): Record<string, string>
+    {
+        throw new Error("Method not implemented.");
     }
 
     public override queryParameters(
@@ -63,15 +73,7 @@ export class DefaultSerializer
         return `?${querySections.join('&')}`
     }
 
-    public override headerParameters(
-        parameters: Record<string, adapter.component.HeaderParameter> | undefined
-    ): Record<string, string>
-    {
-        throw new Error("Method not implemented.");
-    }
-
-
-    public override body(body: adapter.component.RequestBody): BodyInit | undefined {
+    public override body(body: adapter.component.RequestBody, mediaType: specification.MediaType): BodyInit | undefined {
         throw new Error("Method not implemented.");
     }
 }

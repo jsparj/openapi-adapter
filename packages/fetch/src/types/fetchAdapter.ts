@@ -11,11 +11,5 @@ export namespace fetchAdapter {
         deserializerSettings?: adapter.deserializer.Settings
     }
 
-    export interface ISerializer extends adapter.ISerializer<
-        string,
-        BodyInit | null | undefined
-    >
-    { 
-        
-    }
+    export interface ISerializer extends adapter.ISerializer<string,BodyInit | null | undefined>{ }
 }

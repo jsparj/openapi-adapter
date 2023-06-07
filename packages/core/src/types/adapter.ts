@@ -27,7 +27,7 @@ export namespace adapter {
         pathParameters(pathId: string, parameters: Record<string, component.PathParameter> | undefined): string
         queryParameters(parameters: Record<string, component.QueryParameter> | undefined): SerializedQueryParameters
         headerParameters(parameters: Record<string, component.HeaderParameter> | undefined): Record<string, string> 
-        body(body: component.RequestBody): SerializedBody
+        body(body: component.RequestBody,mediaType: specification.MediaType): SerializedBody
     }
 
     export interface IDeserializer {
@@ -99,11 +99,11 @@ export namespace adapter {
             [mediaType in specification.MediaType]?: SchemaObject
         } | undefined
 
-        export type PathParameter = Exclude<SchemaObject,undefined>
+        export type PathParameter = Exclude<SchemaObject,undefined|null>
 
         export type QueryParameter = {
             style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
-            explode: boolean,
+            explode?: true,
             allowReserved?: true
             value: SchemaObject 
         }

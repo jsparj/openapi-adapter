@@ -1,22 +1,23 @@
-import { adapter } from "@openapi-adapter/core";
+import { adapter, specification } from "@openapi-adapter/core";
 
 export abstract class CoreSerializer<SerializedQueryParameters, SerializedBody>
     implements adapter.ISerializer<SerializedQueryParameters, SerializedBody>
 {
-    abstract pathParameters(
+    public abstract pathParameters(
         pathId: string,
         parameters: Record<string, adapter.component.PathParameter> | undefined
     ): string
 
-    abstract queryParameters(
+    public abstract queryParameters(
         parameters: Record<string, adapter.component.QueryParameter> | undefined
     ): SerializedQueryParameters
 
-    abstract headerParameters(
+    public abstract headerParameters(
         parameters: Record<string, adapter.component.HeaderParameter> | undefined
     ): Record<string, string> 
 
-    abstract body(
-        body: adapter.component.RequestBody
+    public abstract body(
+        body: adapter.component.RequestBody,
+        mediaType: specification.MediaType
     ): SerializedBody
 }

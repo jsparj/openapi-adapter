@@ -22,11 +22,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
                 expect(serialized).toEqual('true')
             })
 
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null,templatePrefix,explode)
-                expect(serialized).toEqual('null')
-            })
-
             it('array', () => {
                 const serialized = pathParameterSerializer('key', [123,'@a#.sd'],templatePrefix,explode)
                 expect(serialized).toEqual('123,%40a%23.sd')
@@ -53,11 +48,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
             it('boolean', () => {
                 const serialized = pathParameterSerializer('key', true,templatePrefix,explode)
                 expect(serialized).toEqual('.true')
-            })
-
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null,templatePrefix,explode)
-                expect(serialized).toEqual('.null')
             })
 
             it('array', () => {
@@ -87,11 +77,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
             it('boolean', () => {
                 const serialized = pathParameterSerializer('key', true, templatePrefix, explode)
                 expect(serialized).toEqual(';key=true')
-            })
-
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null, templatePrefix, explode)
-                expect(serialized).toEqual(';key=null')
             })
 
             it('array', () => {
@@ -127,11 +112,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
                 expect(serialized).toEqual('true')
             })
 
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null,templatePrefix,explode)
-                expect(serialized).toEqual('null')
-            })
-
             it('array', () => {
                 const serialized = pathParameterSerializer('key', [123,'@a#.sd'],templatePrefix,explode)
                 expect(serialized).toEqual('123,%40a%23.sd')
@@ -158,11 +138,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
             it('boolean', () => {
                 const serialized = pathParameterSerializer('key', true,templatePrefix,explode)
                 expect(serialized).toEqual('.true')
-            })
-
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null,templatePrefix,explode)
-                expect(serialized).toEqual('.null')
             })
 
             it('array', () => {
@@ -192,11 +167,6 @@ describe('fetch/helpers/serializer/pathParameterSerializer', () => {
             it('boolean', () => {
                 const serialized = pathParameterSerializer('key', true, templatePrefix, explode)
                 expect(serialized).toEqual(';key=true')
-            })
-
-            it('null', () => {
-                const serialized = pathParameterSerializer('key', null, templatePrefix, explode)
-                expect(serialized).toEqual(';key=null')
             })
 
             it('array', () => {

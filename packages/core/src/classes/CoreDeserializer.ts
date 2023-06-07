@@ -8,6 +8,6 @@ export abstract class CoreDeserializer implements adapter.IDeserializer {
         this.settings = settings
     }
 
-    abstract data<T>(data: adapter.component.SchemaObject, mediaType: specification.MediaType): T 
-    abstract headerParameters<T>(parameters: Record<string, string> | undefined): T 
+    public abstract data<T>(data: adapter.component.SchemaObject, mediaType: specification.MediaType): T 
+    public abstract headerParameters<T>(parameters: Record<string, string> | undefined): T 
 }
