@@ -1,4 +1,3 @@
-import { streamUInt8ArrayToString } from '../../../packages/fetch/src/helpers/deserializer/streamUInt8ArrayToString';
 import { DefaultDerializer } from '../../../packages/fetch/src/classes/DefaultDeserializer'
 
 function createStreamFromUnknown(data: unknown): ReadableStream<Uint8Array> {

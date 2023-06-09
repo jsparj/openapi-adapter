@@ -17,7 +17,7 @@ export namespace FetchOpenApiAdapter {
 }
 export abstract class FetchOpenApiAdapter<
     NS extends string,
-    T extends adapter.path.Map<any>
+    T extends adapter.Definition<any,any>
 > extends CoreOpenApiAdapter<NS, T, DefaultSerializer.Interface>
 {
     protected readonly settings: FetchOpenApiAdapter.Settings

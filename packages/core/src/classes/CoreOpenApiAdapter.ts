@@ -2,12 +2,24 @@ import { HttpStatusLabels } from "../enums";
 import type {adapter, specification} from '../../types'
 export abstract class CoreOpenApiAdapter<
     NS extends string,
-    T extends adapter.path.Map<any>,
+    T extends adapter.Definition<any,any>,
     ISerializer extends adapter.ISerializer<any>,
-> implements adapter.IFetch<NS, T>
+> implements
+    adapter.IFetch<NS, T>,
+    adapter.IAuthorization<T>
 {
     protected readonly namespace: NS
     protected readonly serializer: ISerializer
+
+    protected abstract handleRequestAndDeserialization(
+        pathId: string,
+        method: specification.HttpMethod,
+        pathParams: Record<string, adapter.component.PathParameter> | undefined,
+        headers: Record<string, adapter.component.HeaderParameter> | undefined,
+        query: Record<string, adapter.component.QueryParameter> | undefined,
+        body: unknown,
+        contentType?: specification.MediaType
+    ): Promise<adapter.response.Result> 
 
     constructor(
         namespace: NS,
@@ -55,15 +67,23 @@ export abstract class CoreOpenApiAdapter<
         return response as unknown as adapter.Responses<NS, T, PathId, HttpMethod, ContentMediaType>
     }
 
-    protected abstract handleRequestAndDeserialization(
-        pathId: string,
-        method: specification.HttpMethod,
-        pathParams: Record<string, adapter.component.PathParameter> | undefined,
-        headers: Record<string, adapter.component.HeaderParameter> | undefined,
-        query: Record<string, adapter.component.QueryParameter> | undefined,
-        body: unknown,
-        contentType?: specification.MediaType
-    ): Promise<adapter.response.Result> 
+    configureApiKey(): void {
+        throw new Error("Method not implemented.");
+    }
+    configureOAuth2(): Promise<void> {
+
+        const authorizationCode = ''
+        const clientSecret = ''
+
+
+        throw new Error("Method not implemented.");
+    }
+    configureOpenIdConnect(): void {
+        throw new Error("Method not implemented.");
+    }
+    configureHttpAuthentication(): void {
+        throw new Error("Method not implemented.");
+    }   
 
     private resolveStatusCode(statusCode: number): Pick<adapter.response.GenericRespose, 'type' | 'code' | 'status' >
     {

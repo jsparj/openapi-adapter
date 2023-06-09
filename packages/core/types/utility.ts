@@ -10,4 +10,5 @@ export namespace utility {
     export type PickKeysThat<T extends object, U> = { [K in keyof T]-?: U extends T[K] ? K : never; }[keyof T];
     export type OmitValues<T extends object, U> = Omit<T, PickKeysThat<T, U>>
     export type PickValues<T extends object, U> = Pick<T, PickKeysThat<T, U>>
+    export type UnionToTuple<T, R extends any[] = [], U = T> = U extends infer A ? Exclude<T, A> extends never ? [T,...R]: UnionToTuple<Exclude<T, A>, [A, ...R]>: R 
 }

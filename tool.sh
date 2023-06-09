@@ -1,0 +1,1 @@
+node lib\tool\dist\tool\src\cli.js %*

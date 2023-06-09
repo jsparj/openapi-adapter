@@ -1,1 +1,1 @@
-export * from './src'
+export type {iterated} from './types'

@@ -6,6 +6,10 @@
   "license": "MIT",
   "main": "dist/index.js",
   "files": ["dist"],
+  "readme": "README.md",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "api",
     "client",
@@ -18,9 +22,6 @@
     "typescript",
     "type validation"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jsparj/openapi-adapter.git",

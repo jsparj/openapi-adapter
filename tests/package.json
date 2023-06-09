@@ -2,8 +2,9 @@
   "name": "@openapi-adapter/tests",
   "description": "Tests for @openapi-adapter",
   "scripts": {
+    "test": "npm run test:js & npm run test:ts",
     "test:js": "jest",
-    "test:types": "tsc"
+    "test:ts": "tsc"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",

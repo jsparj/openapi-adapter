@@ -68,7 +68,7 @@ export namespace specification {
         url?: string;
     }
 
-    export interface ComponentsObject {
+    export type ComponentsObject = {
         schemas?: Record<string, SchemaObject>;
         responses?: Record<string, ResponseObject>;
         parameters?: Record<string, ParameterObject>;
@@ -77,6 +77,8 @@ export namespace specification {
         securitySchemes?: Record<string, SecuritySchemeObject>;
         callbacks?: Record<string, CallbackObject>;
     }
+
+    export type ComponentType = keyof ComponentsObject
 
     export type ComponentObject =
         | SchemaObject
@@ -163,8 +165,8 @@ export namespace specification {
 
     export type ParameterObject<T extends ParameterLocation = ParameterLocation> = BaseParameterObject &
     {
-        name: string;
-        in: T; 
+        name?: string;
+        in?: T; 
     }
     export type RequestBodyObject = {
         $ref?: string;
@@ -200,7 +202,7 @@ export namespace specification {
     export type ResponseObject = {
         $ref?: string;
         summary?: string;
-        description: string;
+        description?: string;
         headers?: HeadersObject;
         content?: ContentObject;
     }
@@ -316,14 +318,14 @@ export namespace specification {
     export type SecuritySchemeObject = {
         $ref?: string;
         summary?: string;
-        type: SecuritySchemeType;
+        type?: SecuritySchemeType;
         description?: string;
-        name?: string; // required only for apiKey
-        in?: string; // required only for apiKey
-        scheme?: string; // required only for http
+        /** Required only for apiKey */ name?: string; // 
+        /** Required only for apiKey */ in?: Exclude<ParameterLocation, 'path'>;
+        /** Required only for http */ scheme?: string;
         bearerFormat?: string;
-        flows?: OAuthFlowsObject; // required only for oauth2
-        openIdConnectUrl?: string; // required only for openIdConnect
+        /** Required only for oauth2 */ flows?: OAuthFlowsObject;
+        /** Required only for openIdConnect */ openIdConnectUrl?: string; // 
     }
     export interface OAuthFlowsObject {
         implicit?: OAuthFlowObject;
@@ -338,7 +340,7 @@ export namespace specification {
         scopes: ScopesObject;
     }
     export interface ScopesObject {
-        [scope: string]: any; // Hack for allowing ISpecificationExtension
+        [scope: string]: string; 
     }
     export interface SecurityRequirementObject {
         [name: string]: readonly string[];

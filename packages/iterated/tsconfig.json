@@ -1,17 +1,20 @@
 {
-  "extends": "../tsconfig.build.json",
   "compilerOptions": {
-    "outDir": ".",
+    "module": "commonjs",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noImplicitAny": true,
+    "outDir": "dist",
     "rootDir": ".",
+    "noLib": false,
+    "target": "es2017",
+    "sourceMap": false,
+    "allowJs": false,
+    "strict": true,
     "paths": {
-      "@openapi-adapter/core": ["../core"],
-      "@openapi-adapter/iterated": ["./"]
+      "@openapi-adapter/core": ["../core"]
     }
   },
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    {
-      "path": "../core/tsconfig.build.json"
-    }
-  ]
+  "include": ["index.ts", "./types"],
+  "exclude": ["node_modules", "dist"]
 }
