@@ -5,13 +5,13 @@ import { overrideDeep } from "../helpers";
 export namespace DefaultSerializer {
     export type SerializedRequestBody = BodyInit | null | undefined
     export type Interface = adapter.ISerializer<SerializedRequestBody>
-    export type Settings = adapter.serializer.Settings<SerializedRequestBody>
+    export type Settings = adapter.serialization.Settings<SerializedRequestBody>
 }
 export class DefaultSerializer
     extends CoreSerializer<DefaultSerializer.SerializedRequestBody>
     implements DefaultSerializer.Interface
 {   
-    public static readonly DEFAULT_VALUE_CONSTANTS: adapter.serializer.ValueConstants = {
+    public static readonly DEFAULT_VALUE_CONSTANTS: adapter.serialization.ValueConstants = {
         falseString: 'false',
         trueString: 'true',
         nullString: 'null',
@@ -40,7 +40,7 @@ export class DefaultSerializer
     }
 
     public override headerParameters(
-        parameters: Record<string, adapter.component.HeaderParameter> | undefined
+        parameters: Record<string, adapter.request.HeaderParameter> | undefined
     ): Record<string, string>
     {
         if (!parameters) return {}
@@ -48,19 +48,57 @@ export class DefaultSerializer
         const headerKeys = Object.keys(parameters)
         const headers: Record<string, string> = {}
         
-        for (let i = 0; i < headerKeys.length; i++)
-        {
-            headers[headerKeys[i]] = headerParameterSerializer(
-                parameters[headerKeys[i]],
-                this.settings.header
-            )
+        for (let i = 0; i < headerKeys.length; i++) {
+            const param = parameters[headerKeys[i]]
+
+            const serialization = (
+                typeof param === 'object'
+                    && param !== null
+                    && '__serialization__' in param
+                    ? param['__serialization__']
+                    : undefined
+            ) as Partial<adapter.serialization.MediaSerialization & adapter.serialization.HeaderSerialization> | undefined
+
+            if (serialization) {
+
+                if (typeof param !== 'object' || param === null)
+                    throw new Error('HeaderParameter not an object for custom serialization')
+
+                const value = param['value' as keyof typeof param]
+            
+                if (serialization.mediaType) {
+                    if (this.settings.header.contentSerializer === undefined)
+                        throw new Error('ContentSerializer not found for headers')
+                    
+                    headers[headerKeys[i]] = this.settings.header.contentSerializer(serialization.mediaType, value)
+                    continue;
+                }
+
+                headers[headerKeys[i]] = headerParameterSerializer(
+                    value,
+                    {
+                        ...CoreSerializer.defaultHeaderSerialization,
+                        ...serialization
+                    },
+                    this.settings.header
+                )
+            }
+            else
+            {
+                headers[headerKeys[i]] = headerParameterSerializer(
+                    param,
+                    CoreSerializer.defaultHeaderSerialization,
+                    this.settings.header
+                )
+            }
+        
         }
         return headers
     }
 
     public override pathString(
         pathId: string,
-        parameters: Record<string, adapter.component.PathParameter> | undefined
+        parameters: Record<string, adapter.request.PathParameter> | undefined
     ): string
     {
         if (!parameters) return pathId;
@@ -74,40 +112,64 @@ export class DefaultSerializer
             const key = /[^\W]+/.exec(template)?.[0]
             const explode = /\w+\*$/.test(template)
             
-            if (key === undefined) throw new Error(`pathId[${pathId}] contains template[${pathKey}] that is not valid in OpenApi 3.x definition.`)
+            if (key === undefined)
+                throw new Error(`pathId[${pathId}] contains template[${pathKey}] that is not valid in OpenApi 3.x definition.`)
              
-            const parameterValue = parameters[key]
+            const param = parameters[key]
 
-            if (parameterValue === undefined)
-                throw new Error(`pathId[${pathId}] doesn't have path parameter for key[${key}].`)
+            const serialization = (
+                typeof param === 'object'
+                    && param !== null
+                    && '__serialization__' in param
+                    ? param['__serialization__']
+                    : undefined
+            ) as Partial<adapter.serialization.MediaSerialization & adapter.serialization.PathStringOptions> | undefined
 
-            let style: 'simple'|'label'|'matrix'
-            switch (templatePrefix) {
-                case '': style = 'simple'; break
-                case '.': style = 'label'; break
-                case ';': style = 'matrix'; break
+            if (serialization) {
+                if (this.settings.pathString.contentSerializer === undefined)
+                    throw new Error('ContentSerializer not found for pathParams')
 
-                default:
-                    throw new Error(`Unknown templatePrefix[${templatePrefix}]`)
-            }
-
-            output = output.replace(
-                pathKey,
-                pathStringSerializer(
-                    key,
-                    parameterValue,
-                    style,
-                    explode,
-                    this.settings.pathString
+                if (typeof param !== 'object' || param === null)
+                    throw new Error('PathParameter not an object for custom serialization')
+                
+                output = output.replace(
+                    pathKey,
+                    this.settings.pathString.contentSerializer(
+                        serialization.mediaType!,
+                        param['value' as keyof typeof param]
+                    )
                 )
-            )
+            }
+            else {
+
+                let style: 'simple' | 'label' | 'matrix'
+                switch (templatePrefix) {
+                    case '': style = 'simple'; break
+                    case '.': style = 'label'; break
+                    case ';': style = 'matrix'; break
+
+                    default:
+                        throw new Error(`Unknown templatePrefix[${templatePrefix}]`)
+                }
+
+                output = output.replace(
+                    pathKey,
+                    pathStringSerializer(
+                        key,
+                        param,
+                        style,
+                        explode,
+                        this.settings.pathString
+                    )
+                )
+            }
         }
 
         return output
     }
 
     public override queryString(
-        parameters: Record<string, adapter.component.QueryParameter> | undefined
+        parameters: Record<string, adapter.request.QueryParameter> | undefined
     ): string
     {
         if (!parameters) return ''
@@ -117,22 +179,66 @@ export class DefaultSerializer
 
         for (let i = 0; i < queryKeys.length; i++)
         {
-            querySections.push(
-                queryStringSerializer(
-                    queryKeys[i],
-                    parameters[queryKeys[i]],
-                    this.settings.queryString
-                )
-            ) 
+            const key = queryKeys[i]
+            const param = parameters[key]
+
+
+
+            const serialization = (
+                typeof param === 'object'
+                    && param !== null
+                    && '__serialization__' in param
+                    ? param['__serialization__']
+                    : undefined
+            ) as Partial<adapter.serialization.MediaSerialization & adapter.serialization.HeaderSerialization> | undefined
+
+            if (serialization) {
+                if (typeof param !== 'object' || param === null)
+                throw new Error('HeaderParameter not an object for custom serialization')
+    
+                const value = param['value' as keyof typeof param]
+
+                if (serialization.mediaType) {
+                    if (this.settings.queryString.contentSerializer === undefined)
+                        throw new Error('ContentSerializer not found for headers')
+                    
+                    querySections.push(this.settings.queryString.contentSerializer(serialization.mediaType, value))
+                    continue;
+                }
+
+                querySections.push(
+                    queryStringSerializer(
+                        key,
+                        value,
+                        {
+                            ...CoreSerializer.defaultQuerySerialization,
+                            ...serialization
+                        },
+                        this.settings.queryString
+                    )
+                )  
+
+            } else {
+                querySections.push(
+                    queryStringSerializer(
+                        key,
+                        param,
+                        CoreSerializer.defaultQuerySerialization,
+                        this.settings.queryString
+                    )
+                )     
+            }
+
+            
         }
         
         return `?${querySections.join('&')}`
     }
     
-    public override requestBody(body: adapter.component.RequestBody): Promise<DefaultSerializer.SerializedRequestBody> {
+    public override requestBody(body: adapter.component.Media): Promise<DefaultSerializer.SerializedRequestBody> {
         const { mediaType, value } = body
         const serializerOverride = this.settings.requestBody.serializerOverrides?.[mediaType]
         if (serializerOverride !== undefined) return serializerOverride(value)
-        return this.settings.requestBody.defaultSerializer(value, mediaType)
+        return this.settings.requestBody.defaultSerializer(mediaType, value)
     }
 }

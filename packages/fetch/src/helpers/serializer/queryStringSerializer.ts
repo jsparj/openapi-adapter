@@ -3,27 +3,12 @@ import { serializeParameterToString } from './serializeParameterToString'
 
 export function queryStringSerializer(
     key: string,
-    param: adapter.component.QueryParameter,
-    options: adapter.serializer.QueryStringOptions
+    value: adapter.component.Any,
+    serialization: adapter.serialization.QuerySerialization,
+    options: adapter.serialization.QueryStringOptions
 ): string
 {
-    let value: adapter.component.SchemaObject
-    let serialization: Required<adapter.component.QueryParameterSerialization>
-    
-    if (typeof param === 'object' && param !== null && '__serialization__' in param)
-    {
-        value = param['value' as keyof typeof param] as adapter.component.SchemaObject
-        serialization = {
-            ...CoreSerializer.defaultQuerySerialization,
-            ...param['__serialization__'] as adapter.component.QueryParameterSerialization
-        }
-    }
-    else
-    {
-        value = param
-        serialization = CoreSerializer.defaultQuerySerialization
-    }
-
+   
     switch (serialization.style) {
         case 'form':
             return queryParameterFormSerializer(key, value, serialization, options.constants)
@@ -44,9 +29,9 @@ export function queryStringSerializer(
 
 function queryParameterFormSerializer(
     key: string,
-    value: adapter.component.SchemaObject,
-    serialization: Required<adapter.component.QueryParameterSerialization>,
-    constants: adapter.serializer.ValueConstants
+    value: adapter.component.Any,
+    serialization: adapter.serialization.QuerySerialization,
+    constants: adapter.serialization.ValueConstants
 ): string
 {
     const {explode, allowReserved } = serialization;
@@ -60,10 +45,6 @@ function queryParameterFormSerializer(
     )
     {
         return `${key}=${serializeParameterToString(value, allowReserved, constants)}`
-    }
-    else if (typeof value !== 'object')
-    {
-        throw new Error(`Unsupported path parameter type [${typeof value}]`);
     }
 
     if (Array.isArray(value)) {
@@ -82,9 +63,9 @@ function queryParameterFormSerializer(
 
 function queryParameterDelimitedSerializer(
     key: string,
-    value: adapter.component.SchemaObject,
-    serialization: Required<adapter.component.QueryParameterSerialization>,
-    constants: adapter.serializer.ValueConstants,
+    value: adapter.component.Any,
+    serialization: adapter.serialization.QuerySerialization,
+    constants: adapter.serialization.ValueConstants,
     delimeter: '|' | '%20'
 ): string
 {
@@ -98,9 +79,9 @@ function queryParameterDelimitedSerializer(
 
 function queryParameterDeepObjectSerializer(
     key: string,
-    value: adapter.component.SchemaObject,
+    value: adapter.component.Any,
     allowReserved: boolean,
-    constants: adapter.serializer.ValueConstants
+    constants: adapter.serialization.ValueConstants
 ): string
 {   
     if (typeof value !== 'object' || Array.isArray(value) || value === null)

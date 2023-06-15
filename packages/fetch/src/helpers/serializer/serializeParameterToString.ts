@@ -1,7 +1,11 @@
 import type { adapter } from '@openapi-adapter/core';
 import { serializeToString } from './serializeToString'
 
-export function serializeParameterToString(value: unknown, allowReserved: boolean, constants: adapter.serializer.ValueConstants): string
+export function serializeParameterToString(
+    value: unknown,
+    allowReserved: boolean,
+    constants: adapter.serialization.ValueConstants
+): string
 {
     let serialized = serializeToString(value, constants)
     if (allowReserved) return serialized

@@ -1,6 +1,6 @@
 import type { adapter } from "@openapi-adapter/core"
 
-export function serializeToString(value: unknown, constants: adapter.serializer.ValueConstants):string
+export function serializeToString(value: unknown, constants: adapter.serialization.ValueConstants):string
 {   
     switch (typeof value)
     {

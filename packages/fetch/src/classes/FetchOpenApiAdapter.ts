@@ -5,20 +5,19 @@ import { DefaultDerializer } from './DefaultDeserializer';
 export namespace FetchOpenApiAdapter {
     export type SerializedRequestBody = BodyInit | null | undefined
     export type Settings = {
-        host: string,
-        globalRequestHeaders?: Record<string, string> 
         requestInit?: Partial<Omit<
             RequestInit,
-            'method' | 'body' | 'headers'
+            'method' | 'body'
         >> 
         deserializerSettings?: utility.DeepPartial<DefaultDerializer.Settings>
         serializerSettings?: utility.DeepPartial<DefaultSerializer.Settings>
-    }
+    } & adapter.Settings
 }
 export abstract class FetchOpenApiAdapter<
     NS extends string,
-    T extends adapter.Definition<any,any>
-> extends CoreOpenApiAdapter<NS, T, DefaultSerializer.Interface>
+    T extends adapter.Definition<any>,
+    Settings extends FetchOpenApiAdapter.Settings
+> extends CoreOpenApiAdapter<NS, T, Settings, DefaultSerializer.Interface>
 {
     protected readonly settings: FetchOpenApiAdapter.Settings
     protected readonly deserializer: DefaultDerializer.Interface
@@ -26,7 +25,7 @@ export abstract class FetchOpenApiAdapter<
     
     constructor(
         namespace: NS,
-        settings: FetchOpenApiAdapter.Settings,
+        settings: Settings,
         serializer?: DefaultSerializer.Interface,
         deserializer?: DefaultDerializer.Interface,
         responseValidator?: adapter.IResponseValidator
@@ -44,11 +43,10 @@ export abstract class FetchOpenApiAdapter<
     protected override async handleRequestAndDeserialization(
         pathId: string,
         method: specification.HttpMethod,
-        pathParams: Record<string, adapter.component.PathParameter> | undefined,
-        headers: Record<string, adapter.component.HeaderParameter> | undefined,
-        query: Record<string, adapter.component.QueryParameter> | undefined,
-        body: adapter.component.RequestBody,
-        contentType?: specification.MediaType
+        pathParams: Record<string, adapter.request.PathParameter>,
+        headers: Record<string, adapter.request.HeaderParameter>,
+        query: Record<string, adapter.request.QueryParameter>,
+        body: adapter.component.Media,
     ): Promise<adapter.response.Result> {
         const path = this.serializer.pathString(pathId, pathParams);
         const queryString = this.serializer.queryString(query);
@@ -56,13 +54,13 @@ export abstract class FetchOpenApiAdapter<
         const result = await fetch(
             `${this.settings.host}${path}${queryString}`,
             {
+                ...this.settings.requestInit,
                 method,
                 body: await this.serializer.requestBody(body),
                 headers: {
-                    ...this.settings.globalRequestHeaders,
+                    ...this.settings.requestInit?.headers,
                     ...this.serializer.headerParameters(headers),
                 },
-                ...this.settings.requestInit,
             }
         );
 
@@ -72,9 +70,8 @@ export abstract class FetchOpenApiAdapter<
         const responseResult: adapter.response.Result = {
             statusCode: result.status,
             headers: responseHeaders,
-            data: this.deserializer.responseContent(
-                result.body,
-                contentType
+            data: await this.deserializer.responseContent(
+                result.body
             ),
         }
 

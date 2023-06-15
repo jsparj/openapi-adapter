@@ -423,9 +423,6 @@ const testDefinition: DEF = {
 class InterfaceTest<Settings extends adapter.Settings = {
     host: 'http://localhost:3000',
     response: {
-        headerSerializations: {
-            'content-type': {}
-        },
         defaultDataMediaType: 'application/json'
     }
 }>
@@ -516,22 +513,15 @@ api.request('path/tests/{.array}/{.enum}/{.null}/{.number}/{.object}/{.string}',
         }
     }
 }, {
-    headers: {}
+    data: 'application/json',
 }).then(response => {
     switch (response.code) {
         case 'test-api/ok':
-            response.headers = {
-                "content-type": 'application/json'
-            }
-            response.data = {
-                mediaType: 'application/json',
-                value: {
-                    mediaType: 'application/json',
-                }
-            }
+            const asss = response.headers
             return
         
-        
-        
+        case 'test-api/not-found':
+            const asd = response.headers
+            return
     }
 })

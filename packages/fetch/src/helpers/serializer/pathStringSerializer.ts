@@ -3,10 +3,10 @@ import { serializeParameterToString } from './serializeParameterToString'
 
 export function pathStringSerializer(
     key: string,
-    value: adapter.component.PathParameter,
+    value: adapter.component.Any,
     style: 'simple' | 'label' | 'matrix',
     explode: boolean,
-    options: adapter.serializer.PathStringOptions
+    options: adapter.serialization.PathStringOptions
 ): string
 {
     if (

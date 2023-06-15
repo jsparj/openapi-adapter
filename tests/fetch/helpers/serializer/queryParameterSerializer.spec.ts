@@ -50,7 +50,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             })
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     allowReserved: true
                 }
@@ -97,7 +97,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'spaceDelimited'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     allowReserved: true
                 }
@@ -133,7 +133,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             })
 
             describe('allowReserved:false', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                 }
                 
@@ -172,7 +172,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'pipeDelimited'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     allowReserved: true
                 }
@@ -209,7 +209,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
 
             describe('allowReserved:false', () => {
 
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                 }
                 
@@ -248,7 +248,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'deepObject'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     allowReserved: true
                 }
@@ -284,7 +284,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             })
 
             describe('allowReserved:false', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                 }
                 
@@ -326,7 +326,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
         describe('style:form', () => {
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     explode,
                     allowReserved: true
                 }
@@ -370,7 +370,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
 
             describe('allowReserved:false', () => {
 
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     explode,
                 }
                 
@@ -416,7 +416,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'spaceDelimited'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     explode,
                     allowReserved: true
@@ -454,7 +454,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
 
             describe('allowReserved:false', () => {
 
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     explode,
                 }
@@ -494,7 +494,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'pipeDelimited'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     explode,
                     allowReserved: true
@@ -531,7 +531,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             })
 
             describe('allowReserved:false', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     explode,
                     allowReserved: false
@@ -572,7 +572,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             const style = 'deepObject'
 
             describe('allowReserved:true', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__:  adapter.serialization.QueryParameter  = {
                     style,
                     explode,
                     allowReserved: true
@@ -609,7 +609,7 @@ describe('fetch/helpers/serializer/queryParameterSerializer', () => {
             })
 
             describe('allowReserved:false', () => {
-                const __serialization__: adapter.component.QueryParameterSerialization = {
+                const __serialization__: adapter.serialization.QueryParameter = {
                     style,
                     explode,
                 }

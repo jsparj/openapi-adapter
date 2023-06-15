@@ -72,7 +72,7 @@ export abstract class CoreOpenApiAdapter<
             responseParams as undefined | specification.MediaType
         )
 
-        const response: adapter.response.GenericRespose = {
+        const response: adapter.response.Generic = {
             ...this.resolveStatusCode(responseResult.statusCode),
             headers: responseResult.headers,
             data: responseResult.data
@@ -110,22 +110,12 @@ export abstract class CoreOpenApiAdapter<
         throw new Error("Method not implemented.");
     }   
 
-    private resolveStatusCode(statusCode: number): Pick<adapter.response.GenericRespose, 'type' | 'code' | 'status' >
+    private resolveStatusCode(statusCode: number): Pick<adapter.response.Generic,'status'|'code'>
     {
         const statusLabel = HttpStatusLabels[statusCode as keyof typeof HttpStatusLabels] ?? `${statusCode}`
-        let type: adapter.response.GenericType
         
-        if (statusCode < 100) type = 'unknown'
-        else if (statusCode < 200) type = 'info'
-        else if (statusCode < 300) type = 'success'
-        else if (statusCode < 400) type = 'redirect'
-        else if (statusCode < 500) type = 'error:client'
-        else if (statusCode < 600) type = 'error:server'
-        else type = 'unknown'
-
         return {
-            type: 'unknown',
-            code: `${this.namespace}/${type}/${statusLabel}`,
+            code: `${this.namespace}/${statusLabel}`,
             status: statusCode
         }
     }

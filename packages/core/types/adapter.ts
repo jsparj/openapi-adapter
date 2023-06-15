@@ -61,7 +61,7 @@ export namespace adapter {
         pathString(pathId: string, parameters: Record<string, request.PathParameter> | undefined): string
         queryString(parameters: Record<string, request.QueryParameter> | undefined): string
         headerParameters(parameters: Record<string, request.HeaderParameter> | undefined): Record<string, string>
-        requestBody(body: component.ContentObject): Promise<SerializedRequestBody>
+        requestBody(body: component.Media): Promise<SerializedRequestBody>
     }
 
     export interface IDeserializer<RawResponseContent> {
@@ -95,33 +95,23 @@ export namespace adapter {
         Settings extends response.Settings
     > = path.Context<T, PathId, HttpMethod> extends {
         responseObject: infer responseObject extends response.Object<any>
-    } ? keyof responseObject extends infer statusCodes extends keyof responseObject
-        ?{
-            [statusCode in statusCodes]: statusCode extends 'default'
-            ? (
-                responseObject extends { default: infer defaultItem extends response.Item }
-                ? {
-                    status: number,
-                    code: response.StatusLabel<NS, keyof response.HttpStatusLabels>,
-                    headers: response.Headers<defaultItem, Deserialization, Settings>,
-                    data: response.Data<defaultItem, Deserialization, Settings>,
-                }
-                : never
-            )
+    } ? utility.Intersect<{
+            [statusCode in keyof responseObject]: statusCode extends 'default'
+            ? {
+                status: number,
+                code: response.StatusLabel<NS, keyof response.HttpStatusLabels>,
+                headers: response.Headers<responseObject[statusCode], Deserialization, Settings>,
+                data: response.Data<responseObject[statusCode], Deserialization, Settings>,
+            }
             : statusCode extends `${infer code extends number}`
-            ? (
-                responseObject[statusCode] extends infer statusItem extends response.Item
-                ? {
-                    status: code,
-                    code: response.StatusLabel<NS, code>,
-                    headers: response.Headers<statusItem, Deserialization, Settings>,
-                    data: response.Data<statusItem, Deserialization, Settings>,
-                }
-                : never
-            )
+            ? {
+                status: code,
+                code: response.StatusLabel<NS, code>,
+                headers: response.Headers<responseObject[statusCode], Deserialization, Settings>,
+                data: response.Data<responseObject[statusCode], Deserialization, Settings>,
+            }
             : never
-        }[statusCodes]
-        : never
+        }> extends infer responses ? responses[keyof responses]: never
         : never
     export namespace serialization {
         export type Settings<SerializedRequestBody> = {
@@ -131,25 +121,30 @@ export namespace adapter {
             requestBody: RequestBodyOptions<SerializedRequestBody>
         }
 
+        export type ContentSerializer<ReturnType> = (
+            mediaType: specification.MediaType,
+            value: component.Any
+        ) => ReturnType
+
         export type PathStringOptions = {
             constants: ValueConstants
-            contentObjectSerializer?: (pathParameter: component.ContentObject) => string
+            contentSerializer?: ContentSerializer<string>
         }
 
         export type QueryStringOptions = {
             constants: ValueConstants
-            contentObjectSerializer?: (queryParameter: component.ContentObject) => string
+            contentSerializer?: ContentSerializer<string>
         }
 
         export type HeaderOptions = {
             constants: ValueConstants
-            contentObjectSerializer?: (headerParameter: component.ContentObject) => string
+            contentSerializer?: ContentSerializer<string>
         }
 
         export type RequestBodyOptions<SerializedRequestBody> = {
-            defaultSerializer: (body: component.SchemaObject, mediaType: specification.MediaType) => Promise<SerializedRequestBody>;
+            defaultSerializer: ContentSerializer<Promise<SerializedRequestBody>>
             serializerOverrides?: {
-                [mediaType in specification.MediaType]?: (body: component.SchemaObject) => Promise<SerializedRequestBody>;
+                [mediaType in specification.MediaType]?: (body: component.Any) => Promise<SerializedRequestBody>;
             }
         }
 
@@ -160,31 +155,25 @@ export namespace adapter {
             falseString: string
         }
 
-        export type PathParameter = {
-            /**@default undefined */
+        export type MediaSerialization = {
+            /**@default (unspecified) */
             mediaType: specification.MediaType
         }
 
-        export type HeaderParameter = {
-            /**@default undefined */
-            mediaType?: specification.MediaType
-            
+        export type HeaderSerialization = {  
             /**@default false */
-            explode?: boolean,
+            explode: boolean,
         }
                 
-        export type QueryParameter = {
-            /**@default undefined */
-            mediaType?: specification.MediaType
-
+        export type QuerySerialization = {
             /**@default form */
-            style?: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
+            style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
             
             /**@default true */
-            explode?: boolean,
+            explode: boolean,
             
             /**@default false */
-            allowReserved?: boolean
+            allowReserved: boolean
         }
     }
 
@@ -200,10 +189,10 @@ export namespace adapter {
     }
     
     export namespace component {
-        export type SchemaObject = utility.Primitive | unknown[] | object 
-        export type ContentObject<
+        export type Any = utility.Primitive | unknown[] | object | undefined
+        export type Media<
             T extends string = specification.MediaType,
-            U extends SchemaObject = SchemaObject
+            U extends Any = Any
         > = {
             mediaType: T
             value: U
@@ -357,35 +346,40 @@ export namespace adapter {
             PathParams extends Record<string, PathParameter>,
             Headers extends Record<string, HeaderParameter>,
             Query extends Record<string, QueryParameter>,
-            Body extends component.ContentObject
+            Body extends component.Media
         > = utility.Intersect<
             | AuthRequirements extends auth.Requirements ? { security: AuthRequirements } : never
             | PathParams extends Record<string, PathParameter> ? { pathParams: PathParams } : never
             | Headers extends Record<string, HeaderParameter> ? { headers: Headers } : never
             | Query extends Record<string, QueryParameter> ? { query: Query } : never
-            | Body extends component.ContentObject ? { body: Body } : never
-            >
+            | Body extends component.Media ? { body: Body } : never
+        >
         
-        export type PathParameter = component.SchemaObject | { __serialization__:  component.ContentObject }
+        export type PathParameter =  {
+            __serialization__: serialization.MediaSerialization
+            value: component.Any
+        }
+        | component.Any
+
         export type QueryParameter = {
             /** For defining non-default serialization logics.*/ 
-            __serialization__: serialization.QueryParameter
-            value: component.SchemaObject 
+            __serialization__: serialization.QuerySerialization | serialization.MediaSerialization
+            value: component.Any
         }
-        |  component.SchemaObject    
+        | component.Any 
         
         export type HeaderParameter = {
             /** For defining non-default serialization logics.*/ 
-            __serialization__: serialization.HeaderParameter
-            value:  component.SchemaObject
+            __serialization__: serialization.HeaderSerialization | serialization.MediaSerialization
+            value:  component.Any
         }
-        | component.SchemaObject
+        | component.Any
     }
 
     export namespace response {
         export type Settings = {
             defaultDataMediaType: specification.MediaType
-            headerSerializations?: Record<string, serialization.HeaderParameter>
+            headerSerializations?: Record<string, serialization.HeaderSerialization>
         }
 
         export type Deserialization<
@@ -394,7 +388,7 @@ export namespace adapter {
             HttpMethod extends adapter.path.HttpMethod<T, PathId>
         > = path.Context<T, PathId, HttpMethod> extends { responseObject: infer responseObject extends Object<any> }
             ? {
-                headers?: Record<string, serialization.HeaderParameter>
+                headers?: Record<string, serialization.HeaderSerialization>
                 data?: specification.MediaType
             }
             : never
@@ -405,77 +399,55 @@ export namespace adapter {
             data: unknown
         }
 
-        export type GenericType =
-            | 'info'
-            | 'success'
-            | 'redirect'
-            | 'unknown'
-            | 'error:client'
-            | 'error:server'
-        
         export type Headers<
-            ResponseObject extends response.Item,
+            ResponseItem,
             Deserialization extends response.Deserialization<any, any, any>,
             Settings extends response.Settings
-        > = ResponseObject extends { headers: infer headers extends object }
-            ? headers extends Record<infer headerId, any>                
+        > = ResponseItem extends { headers: infer headers extends object }
+            ? headers extends Record<infer headerId, any>
             ? (
-                (Deserialization extends { headers: infer desentralization }
-                    ? keyof desentralization : never) extends infer desentralizationIds extends headerId
-                ? (Settings extends { headerSerializations: infer settings }
-                    ? Exclude<keyof settings, desentralizationIds> : never) extends infer settingsIds extends headerId
-                ? {
-                    [headerName in desentralizationIds]: 'des'
-                }
-                &
-                {
-                    [headerName in settingsIds]: 'sett'
-                }
-                &
-                {
-                    [headerName in Exclude<headerId, settingsIds>]: headers[headerName] extends (utility.Primitive | undefined)
-                        ? headers[headerName]
-                        : string
-                }
-                &
-                {
-                    [untypedHeaders: string]: string | undefined
-                }
+                (Deserialization extends { headers: infer desentralization } ? keyof desentralization : never) extends infer desentralizationIds
+                ? (Settings extends { headerSerializations: infer settings } ? Exclude<keyof settings, desentralizationIds> : never) extends infer settingsIds
+                ? utility.Intersect<
+                    | (desentralizationIds extends headerId ? { [headerName in desentralizationIds]: headers[headerName] } : never)
+                    | (settingsIds extends headerId ? { [headerName in settingsIds]: headers[headerName] } : never)
+                    | (
+                        /** standard deserialization */
+                        Exclude<headerId, desentralizationIds | settingsIds> extends infer _headerId extends headerId
+                        ? {
+                            [headerName in _headerId]:
+                                headers[headerName] extends (utility.Primitive | undefined)
+                                    ? headers[headerName]
+                                    : string
+                        }
+                        : never
+                    )
+                    | { [untypedHeaders: string]: utility.Primitive | undefined }
+                >
                 : never
                 : never
             )  
             : never
-            : undefined
+            : { [untypedHeaders: string]: utility.Primitive | undefined }
         
         export type Data<
-            ResponseObject extends response.Item<any>,
+            ResponseItem,
             Deserialization extends response.Deserialization<any, any, any>,
             Settings extends response.Settings
         > =
-            ResponseObject extends { data: infer data extends component.ContentObject<infer _mediaType> }
+            ResponseItem extends { data: infer data extends component.Media<infer _mediaType> }
             ? (
-                (
-                    (
-                        Deserialization extends { data: infer mediaTypeSetting extends _mediaType }
-                            ? data extends component.ContentObject<infer mediaType extends mediaTypeSetting, infer value>
-                            ? component.ContentObject<mediaType, value> : never
-                        : Settings extends { defaultDataMediaType: infer mediaTypeSetting extends _mediaType }
-                            ? data extends component.ContentObject<infer mediaType extends mediaTypeSetting, infer value>
-                            ? component.ContentObject<mediaType, value>
-                        : never
-                        : never
-                    )
-                    | {
-                        mediaType: 'other'
-                        value: unknown
-                    }
-                )
+                Deserialization extends { data: infer mediaType extends _mediaType }
+                    ? data extends component.Media<mediaType, infer value>
+                    ? value: never
+                : Settings extends { defaultDataMediaType: infer mediaType extends _mediaType }
+                    ? data extends component.Media<mediaType, infer value>
+                    ? value : never
+                : never
             )
             : undefined
-            
-        
-        export type GenericRespose = {
-            type: GenericType
+
+        export type Generic = {
             code: string,
             status: number,
             headers: Record<string, unknown>,
@@ -499,8 +471,8 @@ export namespace adapter {
                 : never
 
         export type Item<
-            Headers extends { [headerId in string]: component.SchemaObject } = any,
-            Data extends component.ContentObject = any
+            Headers extends { [headerId in string]: component.Any } = any,
+            Data extends component.Media = any
         > = {
             headers?: Headers
             data?: Data
