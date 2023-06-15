@@ -1,7 +1,5 @@
-import type { adapter } from '@openapi-adapter/core/dist'
-import {queryStringSerializer} from '../../../../packages/fetch/src/helpers/serializer/queryStringSerializer'
-import { DefaultSerializer } from '../../../../packages/fetch/src/classes/DefaultSerializer'
-import { CoreSerializer } from '@openapi-adapter/core/src/classes'
+import { adapter } from '@openapi-adapter/core'
+import {queryStringSerializer,  DefaultSerializer} from '@openapi-adapter/fetch'
 
 
 

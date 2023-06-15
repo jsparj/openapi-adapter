@@ -1,5 +1,4 @@
-import { DefaultSerializer } from '../../../../packages/fetch/src/classes/DefaultSerializer'
-import {serializeToString} from '../../../../packages/fetch/src/helpers/serializer/serializeToString'
+import { DefaultSerializer, serializeToString } from '@openapi-adapter/fetch'
 
 describe('fetch/helpers/serializer/serializeToString', () => {
     const constants = DefaultSerializer.DEFAULT_VALUE_CONSTANTS

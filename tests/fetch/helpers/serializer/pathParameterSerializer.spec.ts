@@ -1,5 +1,4 @@
-import { DefaultSerializer } from '../../../../packages/fetch/src/classes/DefaultSerializer'
-import {pathStringSerializer} from '../../../../packages/fetch/src/helpers/serializer/pathStringSerializer'
+import {pathStringSerializer,  DefaultSerializer} from '@openapi-adapter/fetch'
 
 describe('fetch/helpers/serializer/pathParameterSerializer', () => {
     const options =DefaultSerializer.DEFAULT_SETTINGS.pathString

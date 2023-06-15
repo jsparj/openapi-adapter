@@ -24,6 +24,9 @@
     "url": "https://github.com/jsparj/openapi-adapter.git",
     "directory": "packages/iterated"
   },
+  "scripts": {
+    "build": "tsc --build --clean"
+  },
   "peerDependencies": {
     "@openapi-adapter/core": "^0.1.1"
   }

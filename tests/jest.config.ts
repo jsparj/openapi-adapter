@@ -10,14 +10,23 @@ const config: Config = {
         '**/fetch/**/*.spec.ts',
     ],
     transform: {
-        "^.+\\.(t|j)s$": ['ts-jest',{
+        "^.+\\.ts$": ['ts-jest',{
             tsconfig: `${__dirname}/tsconfig.json`,
         }]
     },
+    roots: [
+        '<rootDir>'
+    ],
+    moduleDirectories: [
+        'node_modules',
+        '<rootDir>/../packages/core',
+        '<rootDir>/../packages/iterated',
+        '<rootDir>/../packages/fetch'
+    ],
     moduleNameMapper: {
-        "@openapi-adapter/core": `${packagesFolder}/core`,
-        "@openapi-adapter/fetch": `${packagesFolder}/fetch`,
-        "@openapi-adapter/iterated": `${packagesFolder}/iterated`
+        "@openapi-adapter/core": '<rootDir>/../packages/core',
+        "@openapi-adapter/iterated": '<rootDir>/../packages/iterated',
+        "@openapi-adapter/fetch": '<rootDir>/../packages/fetch',
     }
 }
 
