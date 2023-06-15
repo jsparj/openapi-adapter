@@ -1,9 +1,10 @@
-import type { adapter, specification } from "@openapi-adapter/core";
+import type { adapter, specification } from "../../types";
 
-export function requestBodySerializer(
+/**Supports only `mediaType: application/json` */
+export function requestBodyStringSerializer(
     mediaType: specification.MediaType,
     body: adapter.component.Any,
-): Promise<BodyInit | null | undefined>
+): Promise<string | undefined>
 {
     switch (mediaType)
     {

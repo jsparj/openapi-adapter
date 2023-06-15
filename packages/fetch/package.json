@@ -28,7 +28,7 @@
     "directory": "packages/fetch"
   },
   "scripts": {
-    "build": "tsc --build --clean"
+    "build": "tsc"
   },
   "peerDependencies": {
     "@openapi-adapter/core": "^0.2.1"

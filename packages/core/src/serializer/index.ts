@@ -1,6 +1,6 @@
 export * from './headerParameterSerializer'
 export * from './pathStringSerializer'
 export * from './queryStringSerializer'
-export * from './requestBodySerializer'
+export * from './requestBodyStringSerializer'
 export * from './serializeParameterToString'
 export * from './serializeToString'

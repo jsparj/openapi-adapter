@@ -1,7 +1,7 @@
-import { DefaultSerializer, serializeToString } from '@openapi-adapter/fetch'
+import { serializeToString, DEFAULT_PARAMETER_SERIALIZATION_SETTINGS } from '@openapi-adapter/core'
 
-describe('fetch/helpers/serializer/serializeToString', () => {
-    const constants = DefaultSerializer.DEFAULT_VALUE_CONSTANTS
+describe('core/serializer/serializeToString', () => {
+    const constants = DEFAULT_PARAMETER_SERIALIZATION_SETTINGS.header.constants
 
     test('object', () => {
         const serializedString = serializeToString({ 

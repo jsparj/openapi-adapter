@@ -1,13 +1,12 @@
-import { adapter } from "@openapi-adapter/core";
+import type { adapter } from "../../types";
 import { serializeParameterToString } from './serializeParameterToString'
 
 export function headerParameterSerializer(
     value: adapter.component.Any,
     serialization: adapter.serialization.HeaderSerialization,
-    options: adapter.serialization.HeaderOptions,
+    constants: adapter.serialization.ValueConstants,
 ): string
 {
-    const { constants } = options
     const { explode } = serialization;
 
     if (

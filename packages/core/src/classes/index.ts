@@ -1,3 +1,3 @@
-export * from './CoreDeserializer'
+export * from './Deserializer'
 export * from './CoreOpenApiAdapter'
-export * from './CoreSerializer'
+export * from './Serializer'

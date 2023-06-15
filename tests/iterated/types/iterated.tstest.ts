@@ -1,7 +1,7 @@
 import { CoreOpenApiAdapter } from "../../../packages/core/src/classes"
 import { adapter, specification, utility, } from "../../../packages/core/types"
 import { iterated } from "../../../packages/iterated/types/iterated"
-import { TestApiDefinition } from '../../__mocks__/TestApi.definition'
+import { TestApiDefinition } from '../../fetch/__mocks__/TestApi.definition'
 
 type DEF = iterated.Definition<TestApiDefinition>
 

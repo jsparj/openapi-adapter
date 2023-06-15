@@ -14,5 +14,5 @@
       "@openapi-adapter/fetch": ["../packages/fetch"]
     }
   },
-  "include": ["./iterated", "./core", "./fetch", "./__mocks__"]
+  "include": ["./iterated", "./core", "./fetch", "fetch/__mocks__"]
 }

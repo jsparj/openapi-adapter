@@ -66,9 +66,9 @@ export namespace adapter {
 
     export interface IDeserializer<RawResponseContent> {
         responseContent(
-            content: RawResponseContent,
-            mediaTypeOverride?: specification.MediaType
-        ): Promise<unknown>
+            mediaType: specification.MediaType,
+            data: RawResponseContent,
+        ): Promise<adapter.component.Any>
     }
 
     export interface IResponseValidator {
@@ -121,6 +121,12 @@ export namespace adapter {
             requestBody: RequestBodyOptions<SerializedRequestBody>
         }
 
+        export type ParameterContentSerializer<ReturnType> = (
+            mediaType: specification.MediaType,
+            key: string,
+            value: component.Any
+        ) => ReturnType
+
         export type ContentSerializer<ReturnType> = (
             mediaType: specification.MediaType,
             value: component.Any
@@ -128,17 +134,20 @@ export namespace adapter {
 
         export type PathStringOptions = {
             constants: ValueConstants
-            contentSerializer?: ContentSerializer<string>
+            defaultSerialization: serialization.PathSerialization
+            contentSerializer?: ParameterContentSerializer<string>
         }
 
         export type QueryStringOptions = {
-            constants: ValueConstants
-            contentSerializer?: ContentSerializer<string>
+            constants: QueryConstants
+            defaultSerialization: serialization.QuerySerialization
+            contentSerializer?: ParameterContentSerializer<string>
         }
 
         export type HeaderOptions = {
             constants: ValueConstants
-            contentSerializer?: ContentSerializer<string>
+            defaultSerialization: serialization.HeaderSerialization
+            contentSerializer?: ParameterContentSerializer<string>
         }
 
         export type RequestBodyOptions<SerializedRequestBody> = {
@@ -155,9 +164,29 @@ export namespace adapter {
             falseString: string
         }
 
+        export type QueryConstants = ValueConstants & {
+            /** @default `?` */
+            prefix: string
+            /** @default `&` */
+            seperator: string
+        }
+
         export type MediaSerialization = {
             /**@default (unspecified) */
             mediaType: specification.MediaType
+        }
+
+        export type ParameterSerialization =
+            | PathSerialization
+            | HeaderSerialization
+            | QuerySerialization
+
+        export type PathSerialization = {
+            /**@default simple */
+            style: 'simple' | 'label' | 'matrix',
+            
+            /**@default false */
+            explode: boolean,
         }
 
         export type HeaderSerialization = {  
@@ -167,7 +196,7 @@ export namespace adapter {
                 
         export type QuerySerialization = {
             /**@default form */
-            style: Exclude<specification.ParameterStyle, 'matrix' | 'label' | 'simple'>
+            style: 'form' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
             
             /**@default true */
             explode: boolean,
@@ -180,9 +209,9 @@ export namespace adapter {
     export namespace deserializer {
         export type Settings<RawResponseContent> = {
             responseContent: {
-                defaultDeserializer: (content: RawResponseContent, mediaType: specification.MediaType) => Promise<unknown>
+                defaultDeserializer: (content: RawResponseContent, mediaType: specification.MediaType) => Promise<component.Any>
                 deserializerOverrides?: {
-                    [mediaType in specification.MediaType]?: (content: RawResponseContent) => Promise<unknown>
+                    [mediaType in specification.MediaType]?: (content: RawResponseContent) => Promise<component.Any>
                 }
             } 
         }
@@ -354,26 +383,20 @@ export namespace adapter {
             | Query extends Record<string, QueryParameter> ? { query: Query } : never
             | Body extends component.Media ? { body: Body } : never
         >
-        
-        export type PathParameter =  {
-            __serialization__: serialization.MediaSerialization
+        export type Parameter<T extends
+            | serialization.PathSerialization
+            | serialization.HeaderSerialization
+            | serialization.QuerySerialization
+        > = {
+            /** For defining non-default serialization logics.*/
+            __serialization__: Partial<T> | serialization.MediaSerialization
             value: component.Any
         }
         | component.Any
 
-        export type QueryParameter = {
-            /** For defining non-default serialization logics.*/ 
-            __serialization__: serialization.QuerySerialization | serialization.MediaSerialization
-            value: component.Any
-        }
-        | component.Any 
-        
-        export type HeaderParameter = {
-            /** For defining non-default serialization logics.*/ 
-            __serialization__: serialization.HeaderSerialization | serialization.MediaSerialization
-            value:  component.Any
-        }
-        | component.Any
+        export type PathParameter = Parameter<serialization.PathSerialization> 
+        export type HeaderParameter = Parameter<serialization.HeaderSerialization>
+        export type QueryParameter = Parameter<serialization.QuerySerialization>
     }
 
     export namespace response {

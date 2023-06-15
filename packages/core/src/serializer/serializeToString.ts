@@ -1,4 +1,4 @@
-import type { adapter } from "@openapi-adapter/core"
+import type { adapter } from "../../types";
 
 export function serializeToString(value: unknown, constants: adapter.serialization.ValueConstants):string
 {   

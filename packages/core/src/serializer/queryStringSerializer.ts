@@ -1,26 +1,26 @@
-import { adapter, CoreSerializer } from "@openapi-adapter/core";
+import type { adapter } from "../../types";
 import { serializeParameterToString } from './serializeParameterToString'
 
 export function queryStringSerializer(
     key: string,
     value: adapter.component.Any,
     serialization: adapter.serialization.QuerySerialization,
-    options: adapter.serialization.QueryStringOptions
+    constants: adapter.serialization.QueryConstants,
 ): string
 {
    
     switch (serialization.style) {
         case 'form':
-            return queryParameterFormSerializer(key, value, serialization, options.constants)
+            return queryParameterFormSerializer(key, value, serialization, constants)
         
         case 'pipeDelimited':
-            return queryParameterDelimitedSerializer(key, value, serialization, options.constants, '|')
+            return queryParameterDelimitedSerializer(key, value, serialization, constants, '|')
         
         case 'spaceDelimited':
-            return queryParameterDelimitedSerializer(key, value, serialization, options.constants, '%20')
+            return queryParameterDelimitedSerializer(key, value, serialization, constants, '%20')
         
         case 'deepObject':
-            return queryParameterDeepObjectSerializer(key, value, serialization.allowReserved, options.constants)
+            return queryParameterDeepObjectSerializer(key, value, serialization.allowReserved, constants)
         
         default: 
             throw new Error(`Unknown query parameter style[${serialization.style}]`)
@@ -31,7 +31,7 @@ function queryParameterFormSerializer(
     key: string,
     value: adapter.component.Any,
     serialization: adapter.serialization.QuerySerialization,
-    constants: adapter.serialization.ValueConstants
+    constants: adapter.serialization.QueryConstants
 ): string
 {
     const {explode, allowReserved } = serialization;
@@ -65,7 +65,7 @@ function queryParameterDelimitedSerializer(
     key: string,
     value: adapter.component.Any,
     serialization: adapter.serialization.QuerySerialization,
-    constants: adapter.serialization.ValueConstants,
+    constants: adapter.serialization.QueryConstants,
     delimeter: '|' | '%20'
 ): string
 {
@@ -81,7 +81,7 @@ function queryParameterDeepObjectSerializer(
     key: string,
     value: adapter.component.Any,
     allowReserved: boolean,
-    constants: adapter.serialization.ValueConstants
+    constants: adapter.serialization.QueryConstants
 ): string
 {   
     if (typeof value !== 'object' || Array.isArray(value) || value === null)

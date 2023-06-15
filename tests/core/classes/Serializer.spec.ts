@@ -1,9 +1,18 @@
-import type { adapter } from '@openapi-adapter/core'
-import { DefaultSerializer } from '../../../packages/fetch/src/classes/DefaultSerializer'
+import {
+    adapter,
+    requestBodyStringSerializer,
+    Serializer,
+    DEFAULT_PARAMETER_SERIALIZATION_SETTINGS, 
+} from '@openapi-adapter/core'
 
 
-describe('fetch/classes/DefaultSerializer', () => {
-    const serializer = new DefaultSerializer()
+describe('core/classes/Serializer', () => {
+    const serializer = new Serializer<string | undefined>({
+        ...DEFAULT_PARAMETER_SERIALIZATION_SETTINGS,
+        requestBody: {
+            defaultSerializer: requestBodyStringSerializer
+        }
+    })
     
     describe('headerParameters',() => {
         const headerParams: Record<string, adapter.request.HeaderParameter> = {

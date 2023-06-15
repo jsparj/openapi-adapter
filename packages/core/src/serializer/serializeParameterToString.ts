@@ -1,4 +1,4 @@
-import type { adapter } from '@openapi-adapter/core';
+import type { adapter } from "../../types";
 import { serializeToString } from './serializeToString'
 
 export function serializeParameterToString(
