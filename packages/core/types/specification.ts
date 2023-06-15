@@ -90,7 +90,6 @@ export namespace specification {
         | CallbackObject
 
     export interface PathsObject {
-        // [path: string]: PathItemObject;
         [path: string]: PathItemObject
     }
 

@@ -17,6 +17,14 @@ export const responses: Record<response.Id, specification.ResponseObject> = {
     },
     BodyAndHeadersObject: {
         description: 'OK',
+        headers: {
+            'content-type': {
+                required: true,
+                schema: {
+                    enum: ['application/json', 'application/xml']
+                }
+            }
+        },
         content: {
             'application/json': {
                 // no support for property encoding just yet

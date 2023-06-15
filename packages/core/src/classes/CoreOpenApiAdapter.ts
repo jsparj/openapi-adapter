@@ -1,11 +1,12 @@
-import { HttpStatusLabels } from "../enums";
+import { HttpStatusLabels } from '../enums'
 import type {adapter, specification} from '../../types'
 export abstract class CoreOpenApiAdapter<
     NS extends string,
-    T extends adapter.Definition<any,any>,
+    T extends adapter.Definition,
+    Settings extends adapter.Settings,
     ISerializer extends adapter.ISerializer<any>,
 > implements
-    adapter.IFetch<NS, T>,
+    adapter.IFetch<NS, T, Settings>,
     adapter.IAuthorization<T>
 {
     protected readonly namespace: NS
@@ -14,9 +15,9 @@ export abstract class CoreOpenApiAdapter<
     protected abstract handleRequestAndDeserialization(
         pathId: string,
         method: specification.HttpMethod,
-        pathParams: Record<string, adapter.component.PathParameter> | undefined,
-        headers: Record<string, adapter.component.HeaderParameter> | undefined,
-        query: Record<string, adapter.component.QueryParameter> | undefined,
+        pathParams: Record<string, adapter.request.PathParameter> | undefined,
+        headers: Record<string, adapter.request.HeaderParameter> | undefined,
+        query: Record<string, adapter.request.QueryParameter> | undefined,
         body: unknown,
         contentType?: specification.MediaType
     ): Promise<adapter.response.Result> 
@@ -31,22 +32,35 @@ export abstract class CoreOpenApiAdapter<
     }
 
     public async request<
-        PathId extends keyof T = keyof T,
-        HttpMethod extends keyof T[PathId] = keyof T[PathId],
-        ContentMediaType extends adapter.response.ContentType<T,PathId,HttpMethod> = adapter.response.ContentType<T,PathId,HttpMethod>
+        PathId extends adapter.path.Id<T>,
+        HttpMethod extends adapter.path.HttpMethod<T, PathId>,
+        RequestParams extends adapter.request.Params<T, PathId, HttpMethod>,
+        ResponseDeserialization extends adapter.response.Deserialization<T, PathId, HttpMethod>,
     >(
         pathId: PathId,
         method: HttpMethod,
-        request: adapter.request.Params<T, PathId, HttpMethod>,
-        contentType?: ContentMediaType
-    ): Promise<adapter.Responses<NS, T, PathId, HttpMethod, ContentMediaType>> {
+        requestParams: RequestParams,
+        responseParams?: ResponseDeserialization
+    ): Promise<adapter.Responses<
+        NS,
+        T,
+        PathId,
+        HttpMethod,
+        ResponseDeserialization,
+        Settings['response']
+    >> {
 
         const {
+            security,
             pathParams,
             headers,
             query,
             body
-        } = request;
+        } = requestParams as any;
+
+        const {
+
+        } = responseParams ?? {}
 
         const responseResult = await this.handleRequestAndDeserialization(
             pathId as string,
@@ -55,7 +69,7 @@ export abstract class CoreOpenApiAdapter<
             headers,
             query,
             body,
-            contentType as undefined | specification.MediaType
+            responseParams as undefined | specification.MediaType
         )
 
         const response: adapter.response.GenericRespose = {
@@ -64,7 +78,18 @@ export abstract class CoreOpenApiAdapter<
             data: responseResult.data
         }
 
-        return response as unknown as adapter.Responses<NS, T, PathId, HttpMethod, ContentMediaType>
+        return response as unknown as adapter.Responses<
+            NS,
+            T,
+            PathId,
+            HttpMethod,
+            ResponseDeserialization,
+            Settings['response']
+        >
+    }
+
+    initializeAuth(): void {
+        throw new Error("Method not implemented.");
     }
 
     configureApiKey(): void {
