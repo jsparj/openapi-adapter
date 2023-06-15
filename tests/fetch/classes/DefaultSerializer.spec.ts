@@ -6,7 +6,7 @@ describe('fetch/classes/DefaultSerializer', () => {
     const serializer = new DefaultSerializer()
     
     describe('headerParameters',() => {
-        const headerParams: Record<string, adapter.component.HeaderParameter> = {
+        const headerParams: Record<string, adapter.request.HeaderParameter> = {
             simple_array: ['dhvu%32#sadf4545@',354,undefined],
             simple_boolean: false,
             simple_explode_array: {
@@ -88,7 +88,7 @@ describe('fetch/classes/DefaultSerializer', () => {
     describe('queryParameters', () => {
 
         test('form', () => {
-            const queryParams: Record<string, adapter.component.QueryParameter> = {
+            const queryParams: Record<string, adapter.request.QueryParameter> = {
                 form_number: 1234,
                 form_boolean: false,
                 form_string: 'dgsyds#..',
@@ -159,7 +159,7 @@ describe('fetch/classes/DefaultSerializer', () => {
         })
 
         test('spaceDelimited', () => {
-            const queryParams: Record<string, adapter.component.QueryParameter> = {
+            const queryParams: Record<string, adapter.request.QueryParameter> = {
                 spaceDelimited_array: {
                     __serialization__: {
                         style: 'spaceDelimited',
@@ -204,7 +204,7 @@ describe('fetch/classes/DefaultSerializer', () => {
         })
 
         test('pipeDelimited', () => {
-            const queryParams: Record<string, adapter.component.QueryParameter> = {
+            const queryParams: Record<string, adapter.request.QueryParameter> = {
                 pipeDelimited_array: {
                     __serialization__: {
                         style: 'pipeDelimited',
@@ -247,7 +247,7 @@ describe('fetch/classes/DefaultSerializer', () => {
         })
 
         test('deepObject', () => {
-            const queryParams: Record<string, adapter.component.QueryParameter> = {
+            const queryParams: Record<string, adapter.request.QueryParameter> = {
                 deepObject: {
                     __serialization__: {
                         style: 'deepObject',
@@ -281,7 +281,7 @@ describe('fetch/classes/DefaultSerializer', () => {
                 mediaType: 'application/json',
                 value: null
             })    
-            expect(serialized).toEqual(null)
+            expect(serialized).toEqual('null')
         })
 
         test('undefined', async () => {

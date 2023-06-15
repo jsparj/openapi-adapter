@@ -8,6 +8,7 @@ export function requestBodySerializer(
     switch (mediaType)
     {
         case 'application/json':
+            if(body === undefined) return Promise.resolve(undefined)
             return Promise.resolve(JSON.stringify(body))
         
         default: 
