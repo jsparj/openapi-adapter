@@ -1,10 +1,10 @@
 import type { specification } from "@openapi-adapter/core";
-import type { DefaultDerializer } from "../../classes";
+import type { DefaultDerializer } from "../classes";
 import { streamUInt8ArrayToString } from "./streamUInt8ArrayToString";
 
 export async function responseContentDeserializer(
+    mediaType: specification.MediaType,
     content: DefaultDerializer.RawResponseContent,
-    mediaType: specification.MediaType
 ): Promise<unknown>
 {
     if (content === null) return Promise.resolve(undefined)

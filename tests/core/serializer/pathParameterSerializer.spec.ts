@@ -2,7 +2,7 @@ import { pathStringSerializer, DEFAULT_PARAMETER_SERIALIZATION_SETTINGS  } from 
 import { adapter } from '../../../packages/core/types'
 
 describe('core/serializer/pathStringSerializer', () => {
-    const constants = DEFAULT_PARAMETER_SERIALIZATION_SETTINGS.pathString.constants
+    const constants = DEFAULT_PARAMETER_SERIALIZATION_SETTINGS.path.constants
 
     describe('explode:true', () => {
         const explode = true

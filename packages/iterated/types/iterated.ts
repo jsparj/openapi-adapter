@@ -1,4 +1,4 @@
-import type { specification, utility } from '@openapi-adapter/core';
+import type { adapter, specification, utility } from '@openapi-adapter/core';
 
 export namespace iterated {
 
@@ -37,7 +37,7 @@ export namespace iterated {
         > =
             Component extends { $ref: `#/components/${infer typeKey extends specification.ComponentType}/${infer objectKey}` }
             ? ref.Raw<T,typeKey,objectKey>
-            : 'Component'
+            : never
     
         export namespace ref {
             export type Name<T extends specification.OpenAPIObject> =
@@ -56,9 +56,7 @@ export namespace iterated {
                 T extends { components: infer components extends specification.ComponentsObject } ?
                 utility.RequiredChild<components, ComponentType>[ObjectKey]
                 : never
-            
-            
-            
+
             export type Object<T extends specification.OpenAPIObject, RefId> = 
                 RefId extends `${infer componentType}/${infer objectKey}`?
                 componentType extends 'schemas' ? schema.Object<T, Raw<T, componentType, objectKey>> :
@@ -85,11 +83,10 @@ export namespace iterated {
         }
         
         export namespace schema {
-    
+
             export type Name<T extends specification.OpenAPIObject> = T['components'] extends (infer componentsObject extends specification.ComponentsObject) ?
                 keyof componentsObject['schemas'] : never
-    
-    
+
             export type Object<T extends specification.OpenAPIObject, U extends specification.SchemaObject> = Exclude<
                 U extends { $ref: `#/components/${infer refId}` }
                 ? ref.Object<T, refId> :
@@ -108,7 +105,7 @@ export namespace iterated {
             >
     
             type ObjectFromArray<T extends specification.OpenAPIObject, U extends specification.SchemaObject> =
-                U['items'] extends specification.SchemaObject ? Object<T, U['items']>[] : unknown[]
+                U extends { items: infer items extends specification.SchemaObject } ? Object<T, items>[] : unknown[]
     
             type ObjectFromObject<
                 T extends specification.OpenAPIObject,
@@ -228,54 +225,83 @@ export namespace iterated {
                 U extends { $ref: `#/components/${infer typeKey extends specification.ComponentType}/${infer key}` }? ref.Raw<T,typeKey,key>
                 : U
 
-            
-        
             export type Object<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
                 U extends { $ref: `#/components/${infer refId extends ref.Name<T>}` } ?
                 ref.Object<T, refId> :
-                U extends { in: 'path' } ? Value<T, U> : 
+                U extends { in: 'path' } ? PathParameter<T, U> : 
                 U extends { in: 'header' } ? HeaderParameter<T, U> : 
                 U extends { in: 'query'} ? QueryParameter<T, U> : 
                 never
-
-            type HeaderParameter<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
-                U extends { content: infer content } ? { __content__: content } :
-                U extends { explode: true } ?
-                {
-                    __serialization__: {
-                        explode: true
-                    }
-                    value: Value<T,U>
-                }
-                : Value<T,U>
-            
-            type QueryParameter<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
-                U extends { content: infer content } ? { __content__: content } :
-                QuerySerialization<U> extends infer serialization extends (
-                    | { explode: false }
-                    | { style: "spaceDelimited" | "pipeDelimited" | "deepObject" }
-                    | { allowReserved: true }
-                ) ?
-                {
-                    __serialization__: serialization
-                    value: Value<T,U>
-                }
-                : Value<T,U>
-
-            type QuerySerialization<U extends specification.ParameterObject> =
-                utility.Intersect<
-                    | U extends { explode: infer explode } ? { explode: explode }: never
-                    | U extends { style: infer style } ? { style: style } : never
-                    | U extends { allowReserved: infer allowReserved } ? { allowReserved: allowReserved } : never
-                    | {}
-                >
-            
 
             export type Value<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
                 U extends { $ref: `#/components/${infer refId extends ref.Name<T>}` } ?
                 ref.Value<T, refId> :
                 | (U extends { schema: specification.SchemaObject } ? schema.Object<T, U['schema']> : never)
                 | (U extends { required: true } ? never : undefined)
+
+            
+            /** @returns `adapter.path.PathParameter` */
+            export type PathParameter<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
+                U extends { content: infer rawContent extends specification.ContentObject }
+                ? (
+                    component.content.Object<T, rawContent> extends infer content extends adapter.component.Media
+                    ? {
+                        serialization: {
+                            mediaType: content['mediaType']
+                        },
+                        value: content['value']
+                    }
+                    : never
+                )
+                : {
+                    serialization: {
+                        style: U extends { style: infer style } ? style : 'simple'
+                        explode: U extends { explode: infer explode } ? explode : true
+                    }
+                    value: Value<T,U>
+                }
+
+            /** @returns `adapter.path.HeaderParameter` */
+            export type HeaderParameter<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
+                U extends { content: infer rawContent extends specification.ContentObject }
+                ? (
+                    component.content.Object<T, rawContent> extends infer content extends adapter.component.Media
+                    ? {
+                        serialization: {
+                            mediaType: content['mediaType']
+                        },
+                        value: content['value']
+                    }
+                    : never
+                )
+                : {
+                    serialization: {
+                        explode: U extends { explode: infer explode extends boolean}? explode : false
+                    }
+                    value: Value<T,U>
+                }
+            
+            /** @returns `adapter.path.QueryParameter` */
+            export type QueryParameter<T extends specification.OpenAPIObject, U extends specification.ParameterObject> =
+                U extends { content: infer rawContent extends specification.ContentObject }
+                ? (
+                    component.content.Object<T,rawContent> extends infer content extends adapter.component.Media?
+                    {
+                        serialization: {
+                            mediaType: content['mediaType']
+                        },
+                        value: content['value']
+                    }
+                    : never
+                )
+                : {
+                    serialization: {
+                        style: U extends { style: infer style } ? style : 'form'
+                        explode: U extends { explode: infer explode } ? explode : true
+                        allowReserved: U extends { allowReserved: infer allowReserved } ? allowReserved : false
+                    }
+                    value: Value<T,U>
+                }
         }
     
         export namespace requestBody {
@@ -338,15 +364,15 @@ export namespace iterated {
                     {
                         type: 'openIdConnect'
                         payload: {
-
+                            accessToken: string
                         }
                     } :
                     never
                 )
             export type All<T extends specification.OpenAPIObject
-                > = T extends specification.ComponentsObject ?
-                T['securitySchemes'] extends (infer schemes extends Record<string, specification.SecuritySchemeObject>) ?
-                {[securitySchemeId in keyof schemes]: Object<T, schemes[securitySchemeId]>}
+                > = T extends {components: infer components extends specification.ComponentsObject}
+                ? components extends {securitySchemes: infer schemes extends Record<string, specification.SecuritySchemeObject>}
+                ? {[securitySchemeId in keyof schemes]: Object<T, schemes[securitySchemeId]>}
                 : {}
                 : {}
         }
@@ -360,9 +386,10 @@ export namespace iterated {
             : never
 
         export type Object<T extends specification.OpenAPIObject> = {
-            global: T['security'] extends (infer requirementsArray extends readonly specification.SecurityRequirementObject[]) ?
-                ExtractRequirements<requirementsArray> : []
-        
+            global: T extends {
+                security: infer requirementsArray extends readonly specification.SecurityRequirementObject[]
+            }
+            ? ExtractRequirements<requirementsArray> : []
             schemes: component.securityScheme.All<T>
         }
     }
@@ -427,7 +454,7 @@ export namespace iterated {
             | (OperationObject extends { security: infer authRequirements extends readonly specification.SecurityRequirementObject[] } ? { security: auth.ExtractRequirements<authRequirements>} : never)
             | (OperationObject extends { parameters: infer operationParams extends readonly specification.ParameterObject[] }
             ?
-                | (ExtractParams<T, operationParams, 'path'> extends (infer paths) ? { pathParams: paths } : never)
+                | (ExtractParams<T, operationParams, 'path'> extends (infer pathParams) ? { pathParams: pathParams } : never)
                 | (ExtractParams<T, operationParams, 'header'> extends (infer headers) ? { headers: headers } : never)
                 | (ExtractParams<T, operationParams, 'query'> extends (infer queries) ? { query: queries } : never)
                 : never
@@ -441,10 +468,10 @@ export namespace iterated {
             Source extends specification.ParameterLocation
         > = utility.Intersect<
             ParameterArray[number] extends infer possiblyRawParam extends specification.ParameterObject?
-            component.parameter.Raw<T, possiblyRawParam> extends infer param ?
-            param extends specification.ParameterObject<Source> ?
-            param extends { name: infer paramName extends string | number } ?
-            { [name in paramName]: component.parameter.Object<T, param> }
+            component.parameter.Raw<T, possiblyRawParam> extends infer param
+            ? param extends specification.ParameterObject<Source>
+            ? param extends { name: infer paramName extends string | number }
+            ? { [name in paramName]: component.parameter.Object<T, param> }
             : never
             : never
             : never

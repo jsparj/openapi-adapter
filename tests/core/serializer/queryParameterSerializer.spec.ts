@@ -2,7 +2,7 @@ import { DEFAULT_PARAMETER_SERIALIZATION_SETTINGS, adapter, queryStringSerialize
 
 
 describe('core/serializer/queryParameterSerializer', () => {
-    const constants = DEFAULT_PARAMETER_SERIALIZATION_SETTINGS.queryString.constants
+    const constants = DEFAULT_PARAMETER_SERIALIZATION_SETTINGS.query.constants
 
     describe('explode:true', () => {
         const explode = true

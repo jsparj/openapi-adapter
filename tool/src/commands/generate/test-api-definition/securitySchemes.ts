@@ -2,11 +2,14 @@ import { specification } from "../../../../../packages/core/types/specification"
 
 export namespace securityScheme {
     
-    export type Id = 'globalApiKey' | 'basicHttp' | 'bearerHttp' | 'someOAuth2' | 'someOpenIdConnect'
+    export type Id = 'globalHeaderApiKey' |'globalQueryApiKey'| 'basicHttp' | 'bearerHttp' | 'someOAuth2' | 'someOpenIdConnect'
 }
 
 export const security: readonly specification.SecurityRequirementObject[] = [{
-    'globalApiKey': []
+    'globalHeaderApiKey': []
+},
+{
+    'globalQueryApiKey': []
 }]
 
 export const pathSecurity: readonly specification.SecurityRequirementObject[] = [
@@ -24,10 +27,15 @@ export const pathSecurity: readonly specification.SecurityRequirementObject[] = 
 ]
 
 export const securitySchemes : Record<string, specification.SecuritySchemeObject> = {
-    globalApiKey: {
+    globalHeaderApiKey: {
         "type": "apiKey",
         "name": "global-apikey",
         "in": "header"
+    },
+    globalQueryApiKey: {
+        "type": "apiKey",
+        "name": "global-apikey",
+        "in": "query"
     },
     basicHttp: {
         "type": "http",

@@ -1,24 +1,16 @@
 import { specification } from "../../../../../packages/core/types/specification"
-import { parameter } from "./parameters"
-import { ref } from "./ref"
 import { pathSecurity } from "./securitySchemes"
+import { ref } from "./ref"
+
 
 export const PATH_STYLE = <const>['simple', 'label', 'matrix']
 export const PATH_EXPLODE = <const>[false, true]
 export const HTTP_METHOD = <const>['get','put','post', 'delete', 'options','head', 'patch', 'trace']
 
-export namespace path {
-    type Param<T extends parameter.Shape,U extends ''|'.'|';',K extends ''|'*'> =`{${U}${T}${K}}`
-    type WithPathParameters<U extends ''|'.'|';',K extends ''|'*'> = `/path/tests/${Param<'array',U,K>}/${Param<'enum',U,K>}/${Param<'null',U,K>}/${Param<'number',U,K>}/${Param<'object',U,K>}/${Param<'string',U,K>}`
-    
+export namespace path {    
     export type Style = typeof PATH_STYLE[number]
     export type Id =
-        | WithPathParameters<'', ''>
-        | WithPathParameters<'', '*'>
-        | WithPathParameters<'.', ''>
-        | WithPathParameters<'.', '*'>
-        | WithPathParameters<';', ''>
-        | WithPathParameters<';', '*'>
+        | `/path-params/s/${Style}/e/${'yes'|'no'}/{array}/{enum}/{null}/{number}/{object}/{string}`
         | '/form/query/without/explosion'
         | '/label/query/without/explosion'
 }
@@ -32,18 +24,12 @@ export function createPaths(): Record<path.Id,specification.PathItemObject> {
     let pathIndex = 0
 
     PATH_STYLE.forEach(style => {
-        let prefix: '' | '.' | ';' = ''
-        switch (style) {
-            case 'simple': prefix = ''; break
-            case 'label': prefix = '.'; break
-            case 'matrix': prefix = ';'; break
-        }
 
         PATH_EXPLODE.forEach(explode => {
             const variables = ['array', 'enum', 'null', 'number', 'object', 'string']
-                .map(node => `{${prefix}${node}${explode ? '*' : ''}}`)
+                .map(node => `{${node}}`)
                 .join('/')
-            const pathId = `path/tests/${variables}` as path.Id
+            const pathId = `/path-params/s/${style}/e/${explode?'yes':'no'}/${variables}` as path.Id
 
             paths[pathId] = {
                 parameters: [

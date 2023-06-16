@@ -53,6 +53,7 @@ function createPathParameters(schemaMap: Record<parameter.Shape,specification.Sc
                     in: 'path',
                     name: shapeId,
                     schema: schemaMap[shapeId],
+                    required: true,
                     style,
                     explode
                 }
@@ -77,6 +78,7 @@ function createHeaderParameters(schemaMap: Record<parameter.Shape,specification.
                         in: 'header',
                         name: shape,
                         schema: schemaMap[shapeId],
+                        required: true,
                         style,
                         explode
                     }

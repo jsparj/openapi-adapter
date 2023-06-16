@@ -2,20 +2,177 @@ import {
     adapter,
     requestBodyStringSerializer,
     Serializer,
-    DEFAULT_PARAMETER_SERIALIZATION_SETTINGS, 
 } from '@openapi-adapter/core'
 
 
 describe('core/classes/Serializer', () => {
-    const serializer = new Serializer<string | undefined>({
-        ...DEFAULT_PARAMETER_SERIALIZATION_SETTINGS,
-        requestBody: {
-            defaultSerializer: requestBodyStringSerializer
-        }
-    })
+    const settings = Serializer.createDefaultSettings(requestBodyStringSerializer)
+    const serializer = new Serializer<string | undefined>(settings)
     
-    describe('headerParameters',() => {
-        const headerParams: Record<string, adapter.request.HeaderParameter> = {
+    describe('pathString', () => {
+        const pathParams = {
+            num: 5,
+            str: 'c.hsu#sd@as4',
+            arr: [5, 'c.hsu#sd@as4'],
+            obj: {
+                number: 5,
+                string: 'c.hsu#sd@as4',
+            }
+        }
+
+        const pathId = '/v1/number/{num}/string/{str}/array/{arr}/object/{obj}/index'
+
+
+        test('simple:explode=true', () => {
+            const __serialization__: Partial<adapter.serialization.PathSerialization> = {
+                explode: true
+            }
+            const path = serializer.pathString(pathId, {
+                num: {
+                    __serialization__,
+                    value: 5
+                },
+                str: {
+                    __serialization__,
+                    value: 'c.hsu#sd@as4'
+                },
+                arr:{
+                    __serialization__,
+                    value:  [5, 'c.hsu#sd@as4']
+                },
+                obj: {
+                    __serialization__,
+                    value: {
+                        number: 5,
+                        string: 'c.hsu#sd@as4',
+                    }
+                },
+            })
+            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number=5,string=c.hsu#sd@as4/index')
+        })
+
+        test('simple:explode=false', () => {
+            const path = serializer.pathString(pathId, pathParams)
+            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number,5,string,c.hsu#sd@as4/index')
+        })
+
+        test('label:explode=true', () => {
+            const __serialization__: Partial<adapter.serialization.PathSerialization> = {
+                style: 'label',
+                explode: true
+            }
+            const path = serializer.pathString(pathId, {
+                num: {
+                    __serialization__,
+                    value: 5
+                },
+                str: {
+                    __serialization__,
+                    value: 'c.hsu#sd@as4'
+                },
+                arr:{
+                    __serialization__,
+                    value:  [5, 'c.hsu#sd@as4']
+                },
+                obj: {
+                    __serialization__,
+                    value: {
+                        number: 5,
+                        string: 'c.hsu#sd@as4',
+                    }
+                },
+            })
+            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5.c.hsu#sd@as4/object/.number=5.string=c.hsu#sd@as4/index')
+        })
+
+        test('label:explode=false', () => {
+            const __serialization__: Partial<adapter.serialization.PathSerialization> = {
+                style: 'label',
+            }
+            const path = serializer.pathString(pathId, {
+                num: {
+                    __serialization__,
+                    value: 5
+                },
+                str: {
+                    __serialization__,
+                    value: 'c.hsu#sd@as4'
+                },
+                arr:{
+                    __serialization__,
+                    value:  [5, 'c.hsu#sd@as4']
+                },
+                obj: {
+                    __serialization__,
+                    value: {
+                        number: 5,
+                        string: 'c.hsu#sd@as4',
+                    }
+                },
+            })
+            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5,c.hsu#sd@as4/object/.number,5,string,c.hsu#sd@as4/index')
+        })
+
+        test('matrix:explode=true', () => {
+            const __serialization__: Partial<adapter.serialization.PathSerialization> = {
+                style: 'matrix',
+                explode: true
+            }
+            const path = serializer.pathString(pathId, {
+                num: {
+                    __serialization__,
+                    value: 5
+                },
+                str: {
+                    __serialization__,
+                    value: 'c.hsu#sd@as4'
+                },
+                arr:{
+                    __serialization__,
+                    value:  [5, 'c.hsu#sd@as4']
+                },
+                obj: {
+                    __serialization__,
+                    value: {
+                        number: 5,
+                        string: 'c.hsu#sd@as4',
+                    }
+                },
+            })
+            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5;arr=c.hsu#sd@as4/object/;number=5;string=c.hsu#sd@as4/index')
+        })
+
+        test('matrix:explode=false', () => {
+            const __serialization__: Partial<adapter.serialization.PathSerialization> = {
+                style: 'matrix',
+            }
+            const path = serializer.pathString(pathId, {
+                num: {
+                    __serialization__,
+                    value: 5
+                },
+                str: {
+                    __serialization__,
+                    value: 'c.hsu#sd@as4'
+                },
+                arr:{
+                    __serialization__,
+                    value:  [5, 'c.hsu#sd@as4']
+                },
+                obj: {
+                    __serialization__,
+                    value: {
+                        number: 5,
+                        string: 'c.hsu#sd@as4',
+                    }
+                },
+            })
+            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5,c.hsu#sd@as4/object/;obj=number,5,string,c.hsu#sd@as4/index')
+        })
+    })
+   
+    test('headerParameters',() => {
+        const headerParams: adapter.request.HeaderParams = {
             simple_array: ['dhvu%32#sadf4545@',354,undefined],
             simple_boolean: false,
             simple_explode_array: {
@@ -47,57 +204,10 @@ describe('core/classes/Serializer', () => {
         })
     })
     
-    describe('pathParameters', () => {
-        const pathParams = {
-            num: 5,
-            str: 'c.hsu#sd@as4',
-            arr: [5, 'c.hsu#sd@as4'],
-            obj: {
-                number: 5,
-                string: 'c.hsu#sd@as4',
-            }
-        }
-        test('simple:explode=true', () => {
-            const pathId = '/v1/number/{num*}/string/{str*}/array/{arr*}/object/{obj*}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number=5,string=c.hsu#sd@as4/index')
-        })
-
-        test('simple:explode=false', () => {
-            const pathId = '/v1/number/{num}/string/{str}/array/{arr}/object/{obj}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/5/string/c.hsu#sd@as4/array/5,c.hsu#sd@as4/object/number,5,string,c.hsu#sd@as4/index')
-        })
-
-        test('label:explode=true', () => {
-            const pathId = '/v1/number/{.num*}/string/{.str*}/array/{.arr*}/object/{.obj*}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5.c.hsu#sd@as4/object/.number=5.string=c.hsu#sd@as4/index')
-        })
-
-        test('label:explode=false', () => {
-            const pathId = '/v1/number/{.num}/string/{.str}/array/{.arr}/object/{.obj}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/.5/string/.c.hsu#sd@as4/array/.5,c.hsu#sd@as4/object/.number,5,string,c.hsu#sd@as4/index')
-        })
-
-        test('matrix:explode=true', () => {
-            const pathId = '/v1/number/{;num*}/string/{;str*}/array/{;arr*}/object/{;obj*}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5;arr=c.hsu#sd@as4/object/;number=5;string=c.hsu#sd@as4/index')
-        })
-
-        test('matrix:explode=false', () => {
-            const pathId = '/v1/number/{;num}/string/{;str}/array/{;arr}/object/{;obj}/index'
-            const path = serializer.pathString(pathId, pathParams)
-            expect(path).toEqual('/v1/number/;num=5/string/;str=c.hsu#sd@as4/array/;arr=5,c.hsu#sd@as4/object/;obj=number,5,string,c.hsu#sd@as4/index')
-        })
-    })
-
-    describe('queryParameters', () => {
+    describe('queryString', () => {
 
         test('form', () => {
-            const queryParams: Record<string, adapter.request.QueryParameter> = {
+            const queryParams: adapter.request.QueryParams = {
                 form_number: 1234,
                 form_boolean: false,
                 form_string: 'dgsyds#..',
@@ -168,7 +278,7 @@ describe('core/classes/Serializer', () => {
         })
 
         test('spaceDelimited', () => {
-            const queryParams: Record<string, adapter.request.QueryParameter> = {
+            const queryParams: adapter.request.QueryParams = {
                 spaceDelimited_array: {
                     __serialization__: {
                         style: 'spaceDelimited',
@@ -213,7 +323,7 @@ describe('core/classes/Serializer', () => {
         })
 
         test('pipeDelimited', () => {
-            const queryParams: Record<string, adapter.request.QueryParameter> = {
+            const queryParams: adapter.request.QueryParams = {
                 pipeDelimited_array: {
                     __serialization__: {
                         style: 'pipeDelimited',
@@ -256,7 +366,7 @@ describe('core/classes/Serializer', () => {
         })
 
         test('deepObject', () => {
-            const queryParams: Record<string, adapter.request.QueryParameter> = {
+            const queryParams: adapter.request.QueryParams= {
                 deepObject: {
                     __serialization__: {
                         style: 'deepObject',

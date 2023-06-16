@@ -1,15 +1,15 @@
 export const DEFAULT_PARAMETER_SERIALIZATION_SETTINGS = <const>{
-    pathString: {
+    path: {
         constants: {
             trueString: 'true',
             falseString: 'false',
             nullString: 'null',
             undefinedString: ''
         },
-        defaultSerialization: {
+        default: {
             style: 'simple',
             explode: false,
-        }
+        },
     },
     header: {
         constants: {
@@ -18,11 +18,11 @@ export const DEFAULT_PARAMETER_SERIALIZATION_SETTINGS = <const>{
             nullString: 'null',
             undefinedString: ''
         },
-        defaultSerialization: {
+        default: {
             explode: false,
         }
     },
-    queryString: {
+    query: {
         constants: {
             trueString: 'true',
             falseString: 'false',
@@ -31,7 +31,7 @@ export const DEFAULT_PARAMETER_SERIALIZATION_SETTINGS = <const>{
             prefix: '?',
             seperator: '&'
         },
-        defaultSerialization: {
+        default: {
             style: 'form',
             explode: true,
             allowReserved: false

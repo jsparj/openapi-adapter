@@ -2,6 +2,7 @@ import type { adapter } from "../../types";
 import { serializeParameterToString } from './serializeParameterToString'
 
 export function headerParameterSerializer(
+    _key: string,
     value: adapter.component.Any,
     serialization: adapter.serialization.HeaderSerialization,
     constants: adapter.serialization.ValueConstants,

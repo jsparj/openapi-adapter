@@ -1,88 +1,48 @@
-import type { adapter, specification, utility } from '../../types'
+import type { adapter } from '../../types'
 import {
+    getParameterSerialization,
     pathStringSerializer,
     headerParameterSerializer,
     queryStringSerializer
 } from '../serializer'
 
+export namespace Serializer {
+    export type Settings<SerializedRequestBody> = adapter.settings.Serialization<SerializedRequestBody>
+}
 
-
-export class Serializer<SerializedRequestBody>
-    implements adapter.ISerializer<SerializedRequestBody>
+export class Serializer<SerializedRequestBody> implements adapter.ISerializer<SerializedRequestBody>
 {
-    protected readonly settings: adapter.serialization.Settings<SerializedRequestBody>
+    protected readonly settings: Serializer.Settings<SerializedRequestBody>
 
-    public static readonly PARAMETER_SETTINGS: Omit<adapter.serialization.Settings<never>, 'requestBody'> = <const>{
-        pathString: {
-            constants: {
-                trueString: 'true',
-                falseString: 'false',
-                nullString: 'null',
-                undefinedString: ''
-            },
-            defaultSerialization: {
-                style: 'simple',
-                explode: false,
-            }
-        },
-        header: {
-            constants: {
-                trueString: 'true',
-                falseString: 'false',
-                nullString: 'null',
-                undefinedString: ''
-            },
-            defaultSerialization: {
-                explode: false,
-            }
-        },
-        queryString: {
-            constants: {
-                trueString: 'true',
-                falseString: 'false',
-                nullString: 'null',
-                undefinedString: '',
-                prefix: '?',
-                seperator: '&'
-            },
-            defaultSerialization: {
-                style: 'form',
-                explode: true,
-                allowReserved: false
-            }
-        }
-        
-    }
-
-    constructor(settings: adapter.serialization.Settings<SerializedRequestBody>)
+    constructor(settings: Serializer.Settings<SerializedRequestBody>)
     {
         this.settings = settings
     }
 
     public pathString(
         pathId: string,
-        parameters: Record<string, adapter.request.PathParameter> | undefined
+        parameters: adapter.request.PathParams | undefined
     ): string
     {
         if (!parameters) return pathId;
 
         let output = pathId
         let pathKey: string | undefined = undefined
-        
+
         while (pathKey = /{(.*?)}/.exec(output)?.[0]) {
 
             const key = pathKey.substring(1, pathKey.length - 1)
-            const param = this.getParameterSerialization(parameters[key])
+            const param = getParameterSerialization(parameters[key])
 
             switch (param.type)
             {
                 case 'media-serialization':
-                    if (this.settings.pathString.contentSerializer === undefined)
-                        throw new Error('ParameterContentSerializer not found for path')
+                    if (this.settings.path.mediaSerializer === undefined)
+                        throw new Error('MediaSerializer not configured for path.')
                     
                     output = output.replace(
                         pathKey,
-                        this.settings.pathString.contentSerializer(
+                        this.settings.path.mediaSerializer(
                             param.mediaType,
                             key,
                             param.value
@@ -90,18 +50,18 @@ export class Serializer<SerializedRequestBody>
                     )
                     break
 
-                case 'plain': 
+                case 'plain':
                 case 'default-serialization':
                     output = output.replace(
                         pathKey,
-                        pathStringSerializer(
+                        this.settings.path.defaultSerializer(
                             key,
                             param.value,
                             {
-                                ...this.settings.pathString.defaultSerialization,
+                                ...this.settings.path.default,
                                 ...param.serialization
                             },
-                            this.settings.pathString.constants
+                            this.settings.path.constants
                         )
                     )
                     break
@@ -112,7 +72,7 @@ export class Serializer<SerializedRequestBody>
     }
 
     public headerParameters(
-        parameters: Record<string, adapter.request.HeaderParameter> | undefined
+        parameters: adapter.request.HeaderParams | undefined
     ): Record<string, string>
     {
         if (!parameters) return {}
@@ -122,27 +82,28 @@ export class Serializer<SerializedRequestBody>
         
         for (let i = 0; i < headerKeys.length; i++) {
             const key = headerKeys[i]
-            const param = this.getParameterSerialization(parameters[headerKeys[i]])
-
+            const param = getParameterSerialization(parameters[headerKeys[i]])
 
             switch (param.type)
             {
                 case 'media-serialization':
-                    if (this.settings.header.contentSerializer === undefined)
-                        throw new Error('ParameterContentSerializer not found for headers')
+                    if (this.settings.header.mediaSerializer === undefined)
+                        throw new Error('MediaSerializer not configured for header.')
                     
-                    headers[key] = this.settings.header.contentSerializer(
-                        param.mediaType, key,
+                    headers[key] = this.settings.header.mediaSerializer(
+                        param.mediaType,
+                        key,
                         param.value
                     )
                     break
 
                 case 'plain': 
                 case 'default-serialization':
-                    headers[key] = headerParameterSerializer(
+                    headers[key] = this.settings.header.defaultSerializer(
+                        key,
                         param.value,
                         {
-                            ...this.settings.header.defaultSerialization,
+                            ...this.settings.header.default,
                             ...param.serialization
                         },
                         this.settings.header.constants
@@ -154,7 +115,7 @@ export class Serializer<SerializedRequestBody>
     }
 
     public queryString(
-        parameters: Record<string, adapter.request.QueryParameter> | undefined
+        parameters: adapter.request.QueryParams | undefined
     ): string
     {
         if (!parameters) return ''
@@ -165,16 +126,16 @@ export class Serializer<SerializedRequestBody>
         for (let i = 0; i < queryKeys.length; i++)
         {
             const key = queryKeys[i]
-            const param = this.getParameterSerialization(parameters[key])
+            const param = getParameterSerialization(parameters[key])
 
             switch (param.type)
             {
                 case 'media-serialization':
-                    if (this.settings.queryString.contentSerializer === undefined)
-                        throw new Error('ContentSerializer not found for query')
+                    if (this.settings.query.mediaSerializer === undefined)
+                        throw new Error('MediaSerializer not configured for query.')
                     
                     querySections.push(
-                        this.settings.queryString.contentSerializer(
+                        this.settings.query.mediaSerializer(
                             param.mediaType,
                             key,
                             param.value
@@ -185,74 +146,79 @@ export class Serializer<SerializedRequestBody>
                 case 'plain': 
                 case 'default-serialization':
                     querySections.push(
-                        queryStringSerializer(
+                        this.settings.query.defaultSerializer(
                             key,
                             param.value,
                             {
-                                ...this.settings.queryString.defaultSerialization,
+                                ...this.settings.query.default,
                                 ...param.serialization
                             },
-                            this.settings.queryString.constants
+                            this.settings.query.constants
                         )
                     ) 
                     break
             }
         }
-        
-        return `${this.settings.queryString.constants.prefix}${querySections.join(this.settings.queryString.constants.seperator)}`
+        const prefix = this.settings.query.constants.prefix
+        const seperator = this.settings.query.constants.seperator
+
+        return `${prefix}${querySections.join(seperator)}`
     }
 
     public requestBody(body: adapter.component.Media): Promise<SerializedRequestBody> {
         const { mediaType, value } = body
-        const serializerOverride = this.settings.requestBody.serializerOverrides?.[mediaType]
-        if (serializerOverride !== undefined) return serializerOverride(value)
-        return this.settings.requestBody.defaultSerializer(mediaType, value)
+        return this.settings.requestBody.serializer(mediaType, value)
     }
 
-    protected getParameterSerialization<T extends adapter.serialization.ParameterSerialization>(
-        param: adapter.request.Parameter<T>
-    ):
-        | { type: 'media-serialization', mediaType: specification.MediaType, value: adapter.component.Any }
-        | { type: 'default-serialization', serialization: Partial<T>, value: adapter.component.Any }
-        | { type: 'plain', serialization: undefined, value: adapter.component.Any }
-    {
-        const serialization = (
-            typeof param === 'object'
-                && param !== null
-                && '__serialization__' in param
-                ? param['__serialization__']
-                : undefined
-        ) as Partial<adapter.serialization.MediaSerialization & T> | undefined
-
-        if (serialization) {
-            if (typeof param !== 'object' || param === null)
-            throw new Error('Parameter not an object for custom serialization')
-
-            const value = param['value' as keyof typeof param]
-
-            if (serialization.mediaType) {
-                return {
-                    type: 'media-serialization',
-                    mediaType: serialization.mediaType,
-                    value
-                }
-            }
-            else
-            {
-                return {
-                    type: 'default-serialization',
-                    serialization,
-                    value
-                }
-            }
-        }
-        else
-        {
-            return {
-                type: 'plain',
-                serialization: undefined,
-                value: param
-            }
+    public static createDefaultSettings<SerializedRequestBody>(
+        requestBodySerializaer: adapter.serialization.RequestBodySerializer<SerializedRequestBody>,
+    ) {
+        return <const>{
+            path: {
+                constants: {
+                    trueString: 'true',
+                    falseString: 'false',
+                    nullString: 'null',
+                    undefinedString: ''
+                },
+                default: {
+                    style: 'simple',
+                    explode: false
+                },
+                defaultSerializer: pathStringSerializer
+            },
+            header: {
+                constants: {
+                    trueString: 'true',
+                    falseString: 'false',
+                    nullString: 'null',
+                    undefinedString: '',
+                },
+                default: {
+                    explode: false,
+                },
+                defaultSerializer: headerParameterSerializer
+            },
+            query: {
+                constants: {
+                    trueString: 'true',
+                    falseString: 'false',
+                    nullString: 'null',
+                    undefinedString: '',
+                    prefix: '?',
+                    seperator: '&',
+                },
+                default: {
+                    style: 'form',
+                    explode: true,
+                    allowReserved: false,
+                },
+                defaultSerializer: queryStringSerializer
+            },
+            requestBody: {
+                serializer: requestBodySerializaer
+            },
+        
         }
     }
 }

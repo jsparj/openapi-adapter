@@ -1,4 +1,5 @@
-export interface TestApiDefinition
+/** @remarks generated code */
+export interface TestApiSpecification
 {
   "openapi": "3.1.0",
   "info": {
@@ -7,7 +8,10 @@ export interface TestApiDefinition
   },
   "security": [
     {
-      "globalApiKey": []
+      "globalHeaderApiKey": []
+    },
+    {
+      "globalQueryApiKey": []
     }
   ],
   "components": {
@@ -18,6 +22,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -27,6 +32,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -36,6 +42,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -45,6 +52,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -54,6 +62,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -63,6 +72,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -72,6 +82,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -81,6 +92,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -90,6 +102,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -99,6 +112,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -108,6 +122,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -117,6 +132,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -126,6 +142,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -135,6 +152,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -144,6 +162,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -153,6 +172,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -162,6 +182,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -171,6 +192,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -180,6 +202,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -189,6 +212,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -198,6 +222,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -207,6 +232,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -216,6 +242,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -225,6 +252,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -234,6 +262,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -243,6 +272,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -252,6 +282,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -261,6 +292,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -270,6 +302,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -279,6 +312,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -288,6 +322,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -297,6 +332,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -306,6 +342,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "label",
         "explode": false
       },
@@ -315,6 +352,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "label",
         "explode": true
       },
@@ -324,6 +362,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "matrix",
         "explode": false
       },
@@ -333,6 +372,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "matrix",
         "explode": true
       },
@@ -342,6 +382,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -351,6 +392,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -360,6 +402,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -369,6 +412,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveArray"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -378,6 +422,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -387,6 +432,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -396,6 +442,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -405,6 +452,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Enum"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -414,6 +462,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -423,6 +472,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -432,6 +482,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -441,6 +492,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Number"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -450,6 +502,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -459,6 +512,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -468,6 +522,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -477,6 +532,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/Null"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -486,6 +542,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -495,6 +552,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -504,6 +562,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -513,6 +572,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/PrimitiveObject"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -522,6 +582,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -531,6 +592,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": false
       },
@@ -540,6 +602,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -549,6 +612,7 @@ export interface TestApiDefinition
         "schema": {
           "$ref": "#/components/schemas/String"
         },
+        "required": true,
         "style": "simple",
         "explode": true
       },
@@ -1013,10 +1077,15 @@ export interface TestApiDefinition
       }
     },
     "securitySchemes": {
-      "globalApiKey": {
+      "globalHeaderApiKey": {
         "type": "apiKey",
         "name": "global-apikey",
         "in": "header"
+      },
+      "globalQueryApiKey": {
+        "type": "apiKey",
+        "name": "global-apikey",
+        "in": "query"
       },
       "basicHttp": {
         "type": "http",
@@ -1094,7 +1163,7 @@ export interface TestApiDefinition
     }
   },
   "paths": {
-    "path/tests/{array}/{enum}/{null}/{number}/{object}/{string}": {
+    "/path-params/s/simple/e/no/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_simple_enum"
@@ -1186,7 +1255,7 @@ export interface TestApiDefinition
         }
       }
     },
-    "path/tests/{array*}/{enum*}/{null*}/{number*}/{object*}/{string*}": {
+    "/path-params/s/simple/e/yes/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_simple_explode_enum"
@@ -1278,7 +1347,7 @@ export interface TestApiDefinition
         }
       }
     },
-    "path/tests/{.array}/{.enum}/{.null}/{.number}/{.object}/{.string}": {
+    "/path-params/s/label/e/no/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_label_enum"
@@ -1370,7 +1439,7 @@ export interface TestApiDefinition
         }
       }
     },
-    "path/tests/{.array*}/{.enum*}/{.null*}/{.number*}/{.object*}/{.string*}": {
+    "/path-params/s/label/e/yes/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_label_explode_enum"
@@ -1462,7 +1531,7 @@ export interface TestApiDefinition
         }
       }
     },
-    "path/tests/{;array}/{;enum}/{;null}/{;number}/{;object}/{;string}": {
+    "/path-params/s/matrix/e/no/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_matrix_enum"
@@ -1554,7 +1623,7 @@ export interface TestApiDefinition
         }
       }
     },
-    "path/tests/{;array*}/{;enum*}/{;null*}/{;number*}/{;object*}/{;string*}": {
+    "/path-params/s/matrix/e/yes/{array}/{enum}/{null}/{number}/{object}/{string}": {
       "parameters": [
         {
           "$ref": "#/components/parameters/path_matrix_explode_enum"
