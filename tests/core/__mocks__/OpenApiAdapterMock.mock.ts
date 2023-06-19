@@ -84,6 +84,8 @@ export class OpenApiAdapterMock extends OpenApiAdapter<
                 }
             },
         })
+
+        this.updateAuthData
         this.nextResponse = nextResponse
     }
 

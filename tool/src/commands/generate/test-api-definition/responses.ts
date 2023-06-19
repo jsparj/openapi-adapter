@@ -18,7 +18,7 @@ export const responses: Record<response.Id, specification.ResponseObject> = {
     BodyAndHeadersObject: {
         description: 'OK',
         headers: {
-            'content-type': {
+            'Content-Type': {
                 required: true,
                 schema: {
                     enum: ['application/json', 'application/xml']

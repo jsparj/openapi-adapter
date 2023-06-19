@@ -1,5 +1,3 @@
-/** @remarks generated code */
-export interface TestApiSpecification
 {
   "openapi": "3.1.0",
   "info": {

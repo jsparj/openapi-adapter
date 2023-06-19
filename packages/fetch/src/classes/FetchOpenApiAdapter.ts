@@ -1,81 +1,72 @@
-import { CoreOpenApiAdapter, adapter, specification, utility } from '@openapi-adapter/core';
-import { DefaultSerializer } from './DefaultSerializer';
-import { DefaultDerializer } from './DefaultDeserializer';
+import { OpenApiAdapter, adapter, specification, utility } from '@openapi-adapter/core';
 
 export namespace FetchOpenApiAdapter {
     export type SerializedRequestBody = BodyInit | null | undefined
+    export type RawResponseData = ReadableStream<Uint8Array> | null
     export type Settings = {
         requestInit?: Partial<Omit<
             RequestInit,
             'method' | 'body'
         >> 
-        deserializerSettings?: utility.DeepPartial<DefaultDerializer.Settings>
-        serializerSettings?: utility.DeepPartial<DefaultSerializer.Settings>
-    } & adapter.Settings
+    } & adapter.settings.Object<SerializedRequestBody,RawResponseData>
 }
 export abstract class FetchOpenApiAdapter<
     NS extends string,
     T extends adapter.Definition<any>,
     Settings extends FetchOpenApiAdapter.Settings
-> extends CoreOpenApiAdapter<NS, T, Settings, DefaultSerializer.Interface>
+    > extends OpenApiAdapter<
+        NS,
+        T,
+        FetchOpenApiAdapter.SerializedRequestBody,
+        FetchOpenApiAdapter.RawResponseData,
+        Settings
+    >
 {
-    protected readonly settings: FetchOpenApiAdapter.Settings
-    protected readonly deserializer: DefaultDerializer.Interface
-    protected readonly responseValidator?: adapter.IResponseValidator
-    
     constructor(
         namespace: NS,
         settings: Settings,
-        serializer?: DefaultSerializer.Interface,
-        deserializer?: DefaultDerializer.Interface,
-        responseValidator?: adapter.IResponseValidator
+        serializer?: adapter.ISerializer<FetchOpenApiAdapter.SerializedRequestBody>,
+        deserializer?: adapter.IDeserializer<FetchOpenApiAdapter.RawResponseData>,
     )
     {
         super(
             namespace,
-            serializer ?? new DefaultSerializer(settings.serializerSettings)
+            settings,
+            serializer,
+            deserializer
         )
-        this.settings = settings;
-        this.deserializer = deserializer ?? new DefaultDerializer(settings.deserializerSettings)
-        this.responseValidator = responseValidator
     }
 
-    protected override async handleRequestAndDeserialization(
-        pathId: string,
+    protected override async handleRequest(
+        url: string,
         method: specification.HttpMethod,
-        pathParams: Record<string, adapter.request.PathParameter>,
-        headers: Record<string, adapter.request.HeaderParameter>,
-        query: Record<string, adapter.request.QueryParameter>,
-        body: adapter.component.Media,
-    ): Promise<adapter.response.Result> {
-        const path = this.serializer.pathString(pathId, pathParams);
-        const queryString = this.serializer.queryString(query);
-
-        const result = await fetch(
-            `${this.settings.host}${path}${queryString}`,
+        headers: Record<string, string>,
+        body: FetchOpenApiAdapter.SerializedRequestBody,
+    ): Promise<adapter.response.Result<FetchOpenApiAdapter.RawResponseData>> {
+        
+        const response = await fetch(
+            url,
             {
                 ...this.settings.requestInit,
                 method,
-                body: await this.serializer.requestBody(body),
-                headers: {
+                body,
+                headers: new HeadersInit() {
                     ...this.settings.requestInit?.headers,
-                    ...this.serializer.headerParameters(headers),
+                    ...headers,
                 },
             }
         );
 
-        const responseHeaders: Record<string, string> = {}
-        result.headers.forEach((value, key) => { responseHeaders[key] = value })
-        
-        const responseResult: adapter.response.Result = {
-            statusCode: result.status,
-            headers: responseHeaders,
-            data: await this.deserializer.responseContent(
-                result.body
-            ),
-        }
+        const responseHeaders: [string, string][] = []
+        response.headers.forEach(
+            (value, key) => responseHeaders.push([key, value])
+        )
 
-        this.responseValidator?.validate(responseResult)
+        const responseResult = {
+            statusCode: response.status,
+            headers: responseHeaders,
+            data: response.body
+        }
 
         return responseResult
     }

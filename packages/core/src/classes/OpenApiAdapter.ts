@@ -17,8 +17,9 @@ export abstract class OpenApiAdapter<
     protected readonly settings: Settings
     protected readonly serializer: adapter.ISerializer<SerializedRequestBody>
     protected readonly deserializer: adapter.IDeserializer<RawResponseData>
-    protected readonly authData: Record<adapter.auth.Id<T>, any> = {}
-    protected globalAuthRequirements: adapter.auth.Id<T>[] = []
+    protected globalAuthRequirements: string[] = []
+    protected authData: Record<string, adapter.auth.Item<any, any>> = {}
+    
 
     protected abstract handleRequest(
         url: string,
@@ -67,7 +68,7 @@ export abstract class OpenApiAdapter<
             body
         } = requestParams as adapter.request.Params;
 
-        this.getAuthRequirements(security)
+        this.getAuthTokens(security)
 
         const pathString = this.serializer.pathString(pathId, path)
         const queryString = this.serializer.queryString(query)
@@ -84,8 +85,8 @@ export abstract class OpenApiAdapter<
             serializedHeaders,
             serializedBody,
         )
-        
-        const responseDataMediaType = responseResult.headers['content-type'] as (specification.MediaType|undefined)
+
+        const responseDataMediaType = responseResult.headers['Content-Type'] as (specification.MediaType|undefined)
             ?? responseOptions?.data
             ?? this.settings.deserialization.responseData.defaultMediaType 
 
@@ -109,14 +110,18 @@ export abstract class OpenApiAdapter<
     }
 
     initializeAuth(authData: adapter.auth.RequiredAuthData<T>): void {
-        throw new Error("Method not implemented.");
+        this.globalAuthRequirements = Object.keys(authData);
+        this.authData = authData
     }
 
-    updateAuthData(): void {
-        throw new Error("Method not implemented.");
+    updateAuthData(authData: adapter.auth.OptionalAuthData<T>): void {
+        this.authData = {
+            ...this.authData,
+            ...authData
+        }
     }
 
-    private getAuthRequirements(pathAuthRequirements: adapter.auth.Id<T>[])
+    private getAuthTokens(pathAuthRequirements: string[])
     {
         const requirements = [
             ...this.globalAuthRequirements,

@@ -99,7 +99,6 @@ export namespace specification {
         description?: string;
         servers?: readonly ServerObject[];
         parameters?: readonly ParameterObject[];
-
     } & {
             [method in HttpMethod]?: OperationObject
         }

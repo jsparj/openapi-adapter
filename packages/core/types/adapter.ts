@@ -37,16 +37,8 @@ export namespace adapter {
     }
 
     export interface IAuthorization<T extends Definition> {
-        initializeAuth(globalAuthData: auth.RequiredAuthData<T>): void
-
-        /**
-         * Sets Authorization header for all requests that need this authentication method.
-         * @remarks You will have to manage `refreshToken` logics for yourself.
-         * @param securitySchemeId Security scheme id.
-         */
-        updateAuthData<AuthId extends auth.Id<T>>(
-            authId: AuthId,
-        ): void
+        initializeAuth(authData: auth.RequiredAuthData<T>): void
+        updateAuthData(authData: auth.OptionalAuthData<T>,): void
     }
 
     export interface ISerializer<SerializedRequestBody> {
@@ -65,6 +57,12 @@ export namespace adapter {
             mediaType: specification.MediaType,
             data: RawResponseContent
         ): Promise<adapter.component.Any>
+    }
+
+    export interface ICookieManager {
+        getCookie(name: string): string
+        getAllCookies(): Record<string, string>
+        setCookie(name: string, value: string): void
     }
 
     export type Definition<
@@ -137,6 +135,11 @@ export namespace adapter {
             explode: boolean,
         }
 
+        export type CookieSerialization = {  
+            /**@default false */
+            explode: boolean,
+        }
+
         export type HeaderSerialization = {  
             /**@default false */
             explode: boolean,
@@ -186,43 +189,58 @@ export namespace adapter {
             global: Requirements
         }
 
-        export type RequiredAuthData<T extends Definition> = T extends {
-            auth: Object<infer schemes, Requirements<infer requirements>>
-        }
+        export type RequiredAuthData<T extends Definition> =
+            T extends { auth: Object<infer schemes, Requirements<infer requirements>> }
             ? requirements extends infer requirement extends readonly string[]
             ? { [authId in requirement[number]]: authId extends keyof schemes ? schemes[authId] : never }
             : never
             : never
+        
+        export type OptionalAuthData<T extends Definition> =
+            T extends { auth: Object<infer schemes, any> }
+            ? { [authId in keyof schemes]?: schemes[authId] }
+            : never
 
         export type Schemes<U extends {[authId in string]: Item<any, any>}> = U
 
-        export type Id<T extends Definition> = 
-            T extends { auth: Object<infer schemes, any>} ?
-            keyof schemes
-            : never
+
 
         export type Item<T extends specification.SecuritySchemeType, U extends {
+            /**
+             * @full-support `apiKey`, `http`
+             * @limited-support `oauth2`, `openIdConnect`: 
+             * You will have to implement credential requests and refreshTokens yourself.
+             */
             type: T
             payload: Payload<T>
         }> = U
 
-        export type Payload<T extends specification.SecuritySchemeType> = 
+        export type Payload<
+            T extends specification.SecuritySchemeType
+        > = 
             T extends 'apiKey' ? {
-                name: string
-                in: Exclude<specification.ParameterLocation, 'path'>
-                apiKey: string
+                key: Token
             } : 
             T extends 'http' ? {
                 scheme: string
-                token: string
+                key: Token
             } : 
             T extends 'oauth2' ? {
-                accessToken: string
+                accessToken: Token
             }: 
             T extends "openIdConnect" ? {
-                openIdConnectUrl: string
+                accessToken: Token
             } : never
-        
+
+        export type Token<
+            In extends Exclude<specification.ParameterLocation, 'path'> = Exclude<specification.ParameterLocation, 'path'>,
+            Name extends string = string
+        > = {
+            in: In
+            name: Name
+            value: string
+        }
+
         export type Requirements<Requirements extends readonly string[] = any> = Requirements
     }
 
@@ -334,6 +352,7 @@ export namespace adapter {
 
     }
 
+    /** @summary asd */
     export namespace settings {
         export type Default<SerializedRequestBody,RawResponseData> = {
             host: string
@@ -411,11 +430,13 @@ export namespace adapter {
         export type Serialization<
             SerializedRequestBody,
             Path extends PathSerialization = PathSerialization,
+            Cookie extends CookieSerialization = CookieSerialization,
             Header extends HeaderSerialization = HeaderSerialization,
             Query extends QuerySerialization = QuerySerialization,
             RequestBody extends RequestBodySerialization<SerializedRequestBody> = RequestBodySerialization<SerializedRequestBody>
         > = {
             path: Path
+            cookie: Cookie
             header: Header
             query: Query
             requestBody: RequestBody
@@ -438,6 +459,16 @@ export namespace adapter {
             defaultSerializer: serialization.PathParameterSerializer
             mediaSerializer?: serialization.MediaParameterSerializer
         }
+        
+            export type CookieSerialization<
+            DefaultSerialization extends serialization.HeaderSerialization = serialization.HeaderSerialization,
+        > = {
+            constants: serialization.ValueConstants
+            default: DefaultSerialization
+            defaultSerializer: serialization.HeaderParameterSerializer
+            mediaSerializer?: serialization.MediaParameterSerializer
+        }
+
         
         export type HeaderSerialization<
             DefaultSerialization extends serialization.HeaderSerialization = serialization.HeaderSerialization,
@@ -514,6 +545,7 @@ export namespace adapter {
             ? utility.Intersect<
                 | (requestParams extends { security: infer security } ? { security: security } : never)
                 | (requestParams extends { path: infer pathParams } ? ExtractPathParams<pathParams, Settings['path']> : never)
+                | (requestParams extends { cookie: infer headers } ? ExtractHeaderParams<headers, Settings['cookie']> : never)
                 | (requestParams extends { headers: infer headers } ? ExtractHeaderParams<headers, Settings['header']> : never)
                 | (requestParams extends { query: infer query } ? ExtractQueryParams<query, Settings['query']> : never)
                 | (requestParams extends { body: infer body } ? {body: body} :never)
