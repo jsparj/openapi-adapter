@@ -25,7 +25,7 @@ This library family creates abstract classes what you can use to make your own f
 
 ```typescript
 const yourApi = new YourApi()
-// if needed:
+// if authentication is needed somewhere, provide with (in this example 'basicAuth' is authId that is required in requests that need authorization):
 yourApi.initializeAuth({ 
   basicAuth: {
     type: 'http',
@@ -85,21 +85,15 @@ result === {
 // You should catch additional cases when using switch, because responses might have unspecified response statuses.
 ```
 
-
 ## Creating api class for your OpenAPI specification:
 
 - **From:** [iterated.Definition](../../examples/iterated.Definition)
-- **From:** [`<generated>`.Definition]() (TODO)
-
-
-
-
-
+- **From:** [generated.Definition]() (TODO)
 
 ## Supported type safety features:
 `$ref` fields are supported everywhere.
 
-For OpenApi 3.x specification: 
+For OpenApi 3.1.x specification: 
 
 - security
 - components
@@ -113,8 +107,9 @@ For OpenApi 3.x specification:
     - ✅ additionalProperties
     - ✅ required
     - ✅ enum
-    - ❗️ anyOf: `Partial of possible values` **_(really hard to do TS type that matches exaclty this specification)_**
+    - ❗️ anyOf: `current: Partial of possible values` **_(it might be possible to do TS type that matches exaclty this specification)_**
     - ❗️ type: `integer` => `number`: **_(no integer type in TypeScript)_**
+    - ❓ description: `not supported with iterated.Definition`
     - ❌ type: `<array of types> (To-Do)`
     - ❌ maxium: **_(no typing support in TypeScript)_**
     - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
@@ -122,7 +117,7 @@ For OpenApi 3.x specification:
     - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
     - ❌ maxLength `(To-Do)`
     - ❌ minLength `(To-Do)`
-    - ❌ pattern:  **_(no typing support in TypeScript, that can be inferred easily from regex)_**
+    - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**
     - ❌ maxItems `(To-Do)`
     - ❌ minItems `(To-Do)`
     - ❌ uniqueItems  `(To-Do)`

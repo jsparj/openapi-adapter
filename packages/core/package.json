@@ -31,5 +31,8 @@
   "bugs": {
     "url": "https://github.com/jsparj/openapi-adapter/issues"
   },
-  "homepage": "https://github.com/jsparj/openapi-adapter#readme"
+  "homepage": "https://github.com/jsparj/openapi-adapter#readme",
+  "devDependencies": {
+    "typescript": "5.2.2"
+  }
 }
