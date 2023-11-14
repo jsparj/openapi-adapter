@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "paths": {
       "@openapi-adapter/core": ["../packages/core"],
-      "@openapi-adapter/iterated": ["../packages/iterated"],
       "@openapi-adapter/fetch": ["../packages/fetch"]
     }
   },

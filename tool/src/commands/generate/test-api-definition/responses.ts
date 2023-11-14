@@ -2,7 +2,7 @@ import { specification } from "../../../../../packages/core/types/specification"
 import { ref } from "./ref"
 
 export namespace response {
-    export type Id = 'NotFound' | 'Forbidden' | 'Unauthorized' | 'BodyAndHeadersObject'
+    export type Id = 'NotFound' | 'Forbidden' | 'Unauthorized' | 'Empty' | 'BodyAndHeadersObject'
 }
 
 export const responses: Record<response.Id, specification.ResponseObject> = {
@@ -14,6 +14,9 @@ export const responses: Record<response.Id, specification.ResponseObject> = {
     },
     Unauthorized: {
         description: 'UNAUTHORIZED'
+    },
+    Empty: {
+        description: ''
     },
     BodyAndHeadersObject: {
         description: 'OK',

@@ -1,11 +1,17 @@
 import * as fs from 'fs'
 import { TestApiDefinition } from './definition'
 
-export async function generateTestApiDefinition(): Promise<void>
+export async function generateIteratedTestApiDefinition(): Promise<void>
 {
     const definition = TestApiDefinition
-    const text = JSON.stringify(definition, null, 2)
+    const json = JSON.stringify(definition, null, 2)
     
-    const target = `${__dirname}/../../../../../../../tests/__mocks__/TestApi.specification.ts`
-    fs.writeFileSync(target, `/** @remarks generated code */\nexport interface TestApiSpecification\n${text}`)
+    const target = `${__dirname}/../../../../../../../tests/__mocks__/IteratedTestApi.definition.ts`
+    fs.writeFileSync(target,
+        '// GENERATED CODE: Do not make direct changes!\n'
+        + 'import type { iterated } from \'@openapi-adapter/core\'\n'
+        + 'export interface IteratedTestApiSpecification\n'
+        + json + '\n'
+        + 'export type IteratedTestApiDefinition = iterated.Definition<IteratedTestApiSpecification>\n'
+    )
 }

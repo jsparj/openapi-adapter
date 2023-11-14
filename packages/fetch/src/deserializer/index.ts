@@ -1,1 +1,1 @@
-export * from './responseContentDeserializer'
+export * from './responseDataDeserializer'

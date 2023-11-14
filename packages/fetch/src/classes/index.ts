@@ -1,1 +1,4 @@
-export * from './FetchOpenApiAdapter'
+export * from './OpenApiAdapter'
+export * from './Deserializer'
+export * from './Serializer'
+export * from './SerializerError'

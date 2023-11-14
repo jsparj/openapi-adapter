@@ -14,24 +14,24 @@
       }
     },
     {
-      "label": "Build: @openapi-adapter/iterated",
-      "icon": {
-        "color": "terminal.ansiGreen"
-      },
-      "type": "shell",
-      "command": "cd ./packages/iterated/ && npm run build",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
       "label": "Build: @openapi-adapter/fetch",
       "icon": {
         "color": "terminal.ansiGreen"
       },
       "type": "shell",
       "command": "cd ./packages/fetch/ && npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Build: tool",
+      "icon": {
+        "color": "terminal.ansiGreen"
+      },
+      "type": "shell",
+      "command": "cd ./tool/ && npm run build",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -45,6 +45,19 @@
       },
       "type": "shell",
       "command": "cd ./tests/ && npm run test",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run tool: generate",
+      "icon": {
+        "color": "terminal.ansiYellow",
+        "id": "beaker"
+      },
+      "type": "shell",
+      "command": "cd ./tool/ && npm run generate",
       "group": {
         "kind": "build",
         "isDefault": true
