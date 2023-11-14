@@ -1,13 +1,13 @@
 {
   "name": "@openapi-adapter/core",
   "version": "0.2.2",
-  "private": true,
   "description": "Base library for @openapi-adapter - Create typescript APIs that reflect OpenAPI 3.1.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
   "main": "dist/index.js",
-  "files": ["dist"],
-  "readme": "README.md",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "api",
     "client",
@@ -22,10 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jsparj/openapi-adapter.git",
+    "url": "git+https://github.com/jsparj/openapi-adapter.git",
     "directory": "packages/core"
   },
   "scripts": {
     "build": "tsc"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/jsparj/openapi-adapter/issues"
+  },
+  "homepage": "https://github.com/jsparj/openapi-adapter#readme"
 }
