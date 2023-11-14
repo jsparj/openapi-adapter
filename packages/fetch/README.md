@@ -28,7 +28,7 @@ The code is [MIT-licensed](./LICENSE) and free for use.
 
 
 
-## Supported OpenApi 3.x features:
+## Supported OpenApi specification 3.x features:
 - security ✅
 - components
   - schemas
@@ -50,7 +50,7 @@ The code is [MIT-licensed](./LICENSE) and free for use.
     - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
     - ❌ maxLength `(To-Do)`
     - ❌ minLength `(To-Do)`
-    - ❌ pattern:  **_(no typing support in TypeScript, that can be inferred easily from regex)_**
+    - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**
     - ❌ maxItems `(To-Do)`
     - ❌ minItems `(To-Do)`
     - ❌ uniqueItems  `(To-Do)`
