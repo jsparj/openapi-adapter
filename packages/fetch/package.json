@@ -1,6 +1,7 @@
 {
   "name": "@openapi-adapter/fetch",
   "version": "0.1.1",
+  "private": true,
   "description": "fetch integration with @openapi-adapter - Create TypeScript APIs that reflect OpenAPI 3.1.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
