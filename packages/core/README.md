@@ -1,22 +1,25 @@
-**@openapi-adapter** is base class for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI</a> specifications. It is fast, lightweight and completely dependency-free. And all this with minimal bundle size.
+WARNING: This project is still WIP and is subject to changes. Everything should still work as expected.
+
+**@openapi-adapter** is base class for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI 3.x</a> specifications. 
+Thils library is fast, lightweight and completely dependency-free. All this with minimal bundle size on production builds.
 
 The code is [MIT-licensed](./LICENSE) and free for use.
 
 ## Project Goals
 
-1. Create fully typed and intellisensed apis from any valid OpenAPI specification.
-2. Use **runtime-free types**, to minimize bundle size on production builds.
+1. Create fully typed and intellisensed apis from any valid OpenAPI 3.x specification.
+2. Leverage TypeScript as much as possible to minimize bundle size on production builds.
 3. This library should never require any additional dependencies.
-
+4. Expect that OpenApi 3.x has all the valid information for every request. 
 
 ## Libraries in **@openapi-adapter** family:
 
-| Library                     | Type        | Dev Stage     | Description                                                                                                                                                |
-| :-------------------------- | :---------- | :-----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@openapi-adapter/core`     | `core`      | `beta`        | Core library for doing requests and infering API-types from OpenApi 3.x specification.                                                                     |
-| `@openapi-adapter/fetch`    | `handler`   | `beta`        | `OpenApiAdapter` class with `requestHandler` that is build around `fetch` library.                                                                         |
-| `@openapi-adapter/axios`    | `handler`   | `(To-Do)`     | `OpenApiAdapter` class with `requestHandler` that is build around `axios` library.                                                                         |
-| `@openapi-adapter/cli`      | `cli`       | `(To-Do)`     | Create generated type definitions for huge OpenApi specifications. _(not that big improvement in intellisense speed, no effect in production build)_ |
+| Library                     | Type        | Dev Stage     | Description                                                                                                                                                       |
+| :-------------------------- | :---------- | :-----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@openapi-adapter/core`     | `core`      | `beta`        | Core library for doing requests and infering API-types from OpenApi 3.x specification.                                                                            |
+| `@openapi-adapter/fetch`    | `handler`   | `beta`        | `OpenApiAdapter` class with `requestHandler` that is build around `fetch` library.                                                                                |
+| `@openapi-adapter/axios`    | `handler`   | `(To-Do)`     | `OpenApiAdapter` class with `requestHandler` that is build around `axios` library.                                                                                |
+| `@openapi-adapter/cli`      | `cli`       | `(To-Do)`     | Create generated type definitions for huge OpenApi specifications. _(likely not that big improvement in type intellisense speed, no effect in production build.)_ |
 
 
 ## What this library family does: 
@@ -24,8 +27,13 @@ The code is [MIT-licensed](./LICENSE) and free for use.
 This library family creates abstract classes what you can use to make your own fully typed apis. 
 
 ```typescript
+// create Api class for your openapi schema, more info about this can be found on `@openapi-adapter/fetch` or ´@openapi-adapter/axios` README.md
+class YourApi extends OpenApiAdapter<...> {
+  ...
+}
+
 const yourApi = new YourApi()
-// if authentication is needed somewhere, provide with (in this example 'basicAuth' is authId that is required in requests that need authorization):
+// if authorization is needed you have to call `initializeAuth` before calling `request`:
 yourApi.initializeAuth({ 
   basicAuth: {
     type: 'http',
@@ -37,11 +45,11 @@ yourApi.initializeAuth({
   }
 })
 const result = await yourapi.request(
-  // Full intellisense support.
+  // Full intellisense support, only available pathIds will be shown:
   'example/message/{messageId}/replies', 
-  // Full intellisense support.
+  // Full intellisense support, only http methods found in this pathId will be shown:
   'get', 
-  // Full intellisense support.
+  // Full intellisense support, fully typed request information for this path and method.
   { 
     // If operation.security exists in specification:
     security: ['basicAuth'],
@@ -82,86 +90,23 @@ result === {
   headers, // full intellisense support for available headers (can still have additional keys that are not defined in specification), partial support for header values. Value is still always extends string, so no deserialization here.
   data //full intellisense support
 }
-// You should catch additional cases when using switch, because responses might have unspecified response statuses.
+
+// Handle error status after request on your own.
+switch(result.code) {
+  case HttpStatus.OK:
+    ...
+    break
+
+  // You should catch additional cases when using switch, because responses might have unspecified response statuses _(it is very common that OpenApi specifications don't specify all edge cases for possible errors)_.
+  default:
+    ...
+    break
+}
+
 ```
 
 ## Creating api class for your OpenAPI specification:
 
 - **From:** [iterated.Definition](../../examples/iterated.Definition)
 - **From:** [generated.Definition]() (TODO)
-
-## Supported type safety features:
-`$ref` fields are supported everywhere.
-
-For OpenApi 3.1.x specification: 
-
-- security
-- components
-  - schemas
-    - ✅ type: `string, number, boolean, object, integer, null, array`
-    - ✅ oneOf
-    - ✅ allOf 
-    - ✅ not
-    - ✅ items 
-    - ✅ properties
-    - ✅ additionalProperties
-    - ✅ required
-    - ✅ enum
-    - ❗️ anyOf: `current: Partial of possible values` **_(it might be possible to do TS type that matches exaclty this specification)_**
-    - ❗️ type: `integer` => `number`: **_(no integer type in TypeScript)_**
-    - ❓ description: `not supported with iterated.Definition`
-    - ❌ type: `<array of types> (To-Do)`
-    - ❌ maxium: **_(no typing support in TypeScript)_**
-    - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
-    - ❌ minimum: **_(no typing support in TypeScript)_**
-    - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
-    - ❌ maxLength `(To-Do)`
-    - ❌ minLength `(To-Do)`
-    - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**
-    - ❌ maxItems `(To-Do)`
-    - ❌ minItems `(To-Do)`
-    - ❌ uniqueItems  `(To-Do)`
-    - ❌ maxProperties  `(To-Do)`
-    - ❌ minProperties  `(To-Do)`
-  - responses
-    - ✅ headers
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-  - parameters
-    - ✅ name
-    - ✅ in
-    - ✅ required
-    - ✅ explode
-    - ✅ allowReserved
-    - ✅ schema
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-  - requestBodies
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-    - ✅ required
-  - headers 
-    - ✅ required
-    - ✅ explode
-    - ✅ allowReserved
-    - ✅ schema
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-  - securitySchemes
-    - ✅ type: `apiKey, http`
-    - ❗️ type: `oauth2, openIdConnect`: _(you have to manage token fetching by yourself)_
--  paths
-    - `<api-path>`
-      - ✅ parameters
-      - `<http-method>: get, put, post, delete, options, head, patch, trace` 
-        -  ✅ security
-        -  ✅ parameters
-        -  ✅ requestBody
-        -  ✅ responses 
-
-
 

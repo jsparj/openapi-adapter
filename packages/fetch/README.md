@@ -28,13 +28,11 @@ The code is [MIT-licensed](./LICENSE) and free for use.
 
 
 
-
-
-## Supported type safety features:
-- security
+## Supported OpenApi 3.x features:
+- security ✅
 - components
   - schemas
-    - ✅ type: `string, number, boolean, object, integer, null, array`
+    - ✅ type: `string, number, boolean, object, null, array`
     - ✅ oneOf
     - ✅ anyOf 
     - ✅ not
@@ -45,7 +43,7 @@ The code is [MIT-licensed](./LICENSE) and free for use.
     - ✅ enum
     - ❗️ anyOf: `Partial of possible values` **_(really hard to do TS type that matches exaclty this specification)_**
     - ❗️ type: `integer` => `number`: **_(no integer type in TypeScript)_**
-    - ❌ type: `<array of types> (To-Do)`
+    - ❌ description: **_(TypeScript does not support adding document comments for inferred types dynamically)_**
     - ❌ maxium: **_(no typing support in TypeScript)_**
     - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
     - ❌ minimum: **_(no typing support in TypeScript)_**

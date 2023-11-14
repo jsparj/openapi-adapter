@@ -2,7 +2,7 @@
   "name": "@openapi-adapter/fetch",
   "version": "0.1.1",
   "private": true,
-  "description": "Fetch integration with @openapi-adapter - Create TypeScript APIs that reflect OpenAPI 3.1.x perfectly.",
+  "description": "Fetch integration with @openapi-adapter - Create TypeScript APIs that reflect OpenAPI 3.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
   "main": "dist/index.js",
