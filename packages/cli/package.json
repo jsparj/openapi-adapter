@@ -1,0 +1,43 @@
+{
+  "name": "@openapi-adapter/cli",
+  "version": "0.1.0",
+  "description": "Generate apis for @openapi-adapter from OpenAPI 3.x specification",
+  "author": "Joona Parjanen",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "api",
+    "client",
+    "openapi",
+    "rest",
+    "swagger",
+    "typescript",
+    "type validation"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsparj/openapi-adapter.git",
+    "directory": "packages/cli"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "bugs": {
+    "url": "https://github.com/jsparj/openapi-adapter/issues"
+  },
+  "homepage": "https://github.com/jsparj/openapi-adapter#readme",
+  "devDependencies": {
+    "@openapi-adapter/core": "^0.2.3",
+    "@types/node": "20.9.0",
+    "typescript": "5.2.2"
+  },
+  "dependencies": {
+    "commander": "11.1.0"
+  }
+}

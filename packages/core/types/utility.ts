@@ -12,6 +12,5 @@ export namespace utility {
     export type PickValues<T extends object, U> = Pick<T, PickKeysThat<T, U>>
     export type UnionToTuple<T, R extends any[] = [], U = T> = U extends infer A ? Exclude<T, A> extends never ? [T, ...R] : UnionToTuple<Exclude<T, A>, [A, ...R]> : R 
     export type IsUnion<T, True = true, False = false> = T extends unknown ? ([T] extends [T] ? False : True) : never;
-    export type Not<T,Compare,True = true,False = false> = T extends Compare?False:True
+    export type Not<T,Not> = T extends Not ? never:T
 }
-

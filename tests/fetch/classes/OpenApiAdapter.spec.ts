@@ -32,5 +32,6 @@ describe('fetch/classes/OpenApiAdapter', () => {
                 })
             })
         })
+
     })
 })
