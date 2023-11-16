@@ -1,6 +1,6 @@
 {
   "name": "@openapi-adapter/fetch",
-  "version": "0.1.2",
+  "version": "0.3.0",
   "description": "Fetch integration with @openapi-adapter - Create TypeScript APIs that reflect OpenAPI 3.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
@@ -32,10 +32,10 @@
   "scripts": {
     "build": "tsc"
   },
-  "peerDependencies": {
-    "@openapi-adapter/core": "^0.2.1"
-  },
   "devDependencies": {
     "typescript": "5.2.2"
+  },
+  "dependencies": {
+    "@openapi-adapter/core": "^0.3.0"
   }
 }

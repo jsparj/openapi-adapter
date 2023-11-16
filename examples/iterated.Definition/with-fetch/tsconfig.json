@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "noImplicitAny": true,
+    "outDir": "dist",
+    
+    "noLib": false,
+    "target": "es2017",
+    "sourceMap": false,
+    "allowJs": false,
+    "strict": true,
+    "baseUrl": "../../../",
+    "rootDir": "../../../",
+    "paths": {
+      "@openapi-adapter/core": ["./packages/core"],
+      "@openapi-adapter/fetch": ["./packages/fetch"]
+    }
+  },
+  "include": ["./src", "index.ts", "types"],
+  "exclude": ["node_modules", "dist"]
+}

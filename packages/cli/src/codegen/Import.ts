@@ -25,7 +25,7 @@ export class Import implements codegen.IObject<'import'>{
   }
 
   toString(...indents: string[]): string {
-    const indent = indents.join()
+    const indent = indents.join("")
     let content = indent
     content += "import "
     if(this.defaultImport){ content += `${this.defaultImport}, `}

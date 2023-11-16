@@ -1,8 +1,9 @@
 import {codegen} from '../types'
+import { Interface } from './Interface'
 import {TypeVariable} from './TypeVariable'
 
 export namespace Namespace {
-  export type Object = Namespace | TypeVariable
+  export type Object = Namespace | TypeVariable | Interface
 }
 
 export class Namespace implements codegen.IObject<'namespace'>{
@@ -12,7 +13,7 @@ export class Namespace implements codegen.IObject<'namespace'>{
   objects: Record<string,Namespace.Object>
 
   get id(): string {
-    return `${this.type}:${!!this.isExported?'export':'local'}:${this.name}`
+    return `${this.isExported?'export':'local'}:${this.type}:${this.name}`
   }
 
   constructor(
@@ -56,7 +57,7 @@ export class Namespace implements codegen.IObject<'namespace'>{
   }
 
   toString(...indents: string[]): string {
-    const indent = indents.join()
+    const indent = indents.join("")
     
     let content = indent
     content += indent

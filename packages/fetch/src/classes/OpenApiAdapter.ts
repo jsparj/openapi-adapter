@@ -3,14 +3,6 @@ import {
     specification,
     CoreOpenApiAdapter,
 } from '@openapi-adapter/core'
-import {
-    headerParamSerializer,
-    requestBodyStringSerializer,
-    queryParamSerializer,
-    pathParamSerializer,
-    cookieParamSerializer, 
-} from '../serializer'
-import { responseDataDeserializer } from '../deserializer'
 import { Serializer } from './Serializer'
 import { Deserializer } from './Deserializer'
 
@@ -89,7 +81,7 @@ export abstract class OpenApiAdapter<
         host: string,
         globalHeaders?: Record<string, adapter.component.Any>,
         requestInit?: Partial<Omit<RequestInit, 'method' | 'body' | 'headers'>>,
-    ) : OpenApiAdapter.Settings
+    )
     {
         return <const>{
             host,

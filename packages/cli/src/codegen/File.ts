@@ -53,7 +53,7 @@ export class File {
   }
 
   toString(...indents: string[]): string{
-    let indent = indents.join()
+    let indent = indents.join("")
 
     let content = "//[generated code]: DO NOT EDIT DIRECTLY\n\n"
 

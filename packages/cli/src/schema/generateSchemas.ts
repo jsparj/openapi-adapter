@@ -1,7 +1,7 @@
 
 import type {specification} from '@openapi-adapter/core'
 import {File, Namespace, TypeVariable} from '../codegen'
-import { schemaToType } from './schemaToType'
+import { schemaToTypeAndComments } from './schemaToTypeAndComments'
 
 
 
@@ -15,8 +15,8 @@ export function generateSchemas(oas: specification.OpenAPIObject, targetFile: Fi
     let nameParts = fullName.split('.')
     let parent = nameParts.slice(0,-1)
     let name = nameParts[nameParts.length-1]
-    let t = schemaToType(schema)
-    let typeVariable = new TypeVariable(name,true,t)
+    let {type,comments} = schemaToTypeAndComments(schema)
+    let typeVariable = new TypeVariable(name,true,type,...comments)
     addTypeToFile(parent,typeVariable,targetFile)
   })
 }

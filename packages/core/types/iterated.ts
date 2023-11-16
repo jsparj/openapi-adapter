@@ -52,7 +52,7 @@ export namespace iterated {
                 T extends specification.OpenAPIObject, RefId
             > = RefId extends `${infer componentType}/${infer objectKey}`?
                 componentType extends 'schemas' ? schema.Object<T, Raw<T, componentType, objectKey>> :
-                componentType extends 'parameters' | 'headers' ? parameter.Value<T, Raw<T, componentType, objectKey>> :
+                componentType extends 'parameters' | 'headers' ? parameter.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'responses' ? response.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'requestBodies' ? requestBody.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'securitySchemes' ? securityScheme.Object<T, Raw<T, componentType, objectKey>>
@@ -197,7 +197,6 @@ export namespace iterated {
         }
     
         export namespace parameter {
-
             export type Name<T extends specification.OpenAPIObject> =
                 T extends { components: infer componentsObject extends specification.ComponentsObject } ?
                 keyof componentsObject['parameters'] : never

@@ -3,14 +3,14 @@ WARNING: This project is still WIP and is subject to changes. Everything should 
 **@openapi-adapter** is base class for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI 3.x</a> specifications. 
 Thils library is fast, lightweight and completely dependency-free. All this with minimal bundle size on production builds.
 
-The code is [MIT-licensed](./LICENSE) and free for use.
+The code is [MIT-licensed](./LICENSE) and free for every use.
 
 ## Project Goals
 
 1. Create fully typed and intellisensed apis from any valid OpenAPI 3.x specification.
 2. Leverage TypeScript as much as possible to minimize bundle size on production builds.
 3. This library should never require any additional dependencies.
-4. Expect that OpenApi 3.x has all the valid information for every request. 
+4. Expect that OpenApi 3.x specification has all the valid information for every request. 
 
 ## Libraries in **@openapi-adapter** family:
 

@@ -14,11 +14,10 @@ export namespace adapter
     >{
         /**
          * This action lets you do requests against `adapter.Definition` that you have provided.
-         * <para>Have request parameters and response has full support for intellisence and matches perfectly to provided api definition.</para>
+         * <para>Request parameters and and response have full support for intellisence and matches perfectly to the source api definition.</para>
          * @param pathId Available pathIds to provided OpenApi 3.x path map in `paths/*`
          * @param method Available HttpMethods for provided `pathId`
          * @param requestParams Request parameters for provided `pathId` and `method`
-         * @param responseDeserialization (optional) Deserialization settings for response content and headers.
          */
         request<
             PathId extends path.Id<T>,
@@ -320,7 +319,7 @@ export namespace adapter
         }
 
         export type Item<RequestParams = ItemRequestParams> = {
-            requestParams: ItemRequestParams
+            requestParams: RequestParams
         }
 
         export type OperationMap<HttpMethod extends specification.HttpMethod = any> = {
@@ -426,27 +425,25 @@ export namespace adapter
             Settings extends settings.Serialization<any>
         > = path.Context<T, PathId, HttpMethod> extends { requestParams: infer requestParams }
             ? utility.Intersect<
-                | (requestParams extends { security: infer security } ? { security: security } : never)
-                | (requestParams extends { body: infer body } ? {body: body} : never)
+                | (requestParams extends {security: infer security}? {security: security } : never)
+                | (requestParams extends {body: infer body}        ? {body: body} : never)
+                | (requestParams extends {path: infer pathParams}  ? keyof pathParams extends never? never : {path: ExtractPathParams<pathParams,Settings['path']>} : never)
+                | (requestParams extends {query: infer query}      ? keyof query extends      never? never : {query: ExtractQueryParams<query, Settings['query']>}: never)
+                | (requestParams extends {cookie: infer cookie}    ? keyof cookie extends     never? never : {cookie:ExtractCookieParams<cookie, Settings['cookie']>} : never)
+                | (requestParams extends {header: infer headers}   ? keyof headers extends    never? never : {header:ExtractHeaderParams<headers, Settings['header']>} : never)
             >
-            & {
-                path: requestParams extends { path: infer pathParams } ? ExtractPathParams<pathParams, Settings['path']> : undefined
-                cookie: requestParams extends { cookie: infer headers } ? ExtractCookieParams<headers, Settings['cookie']> : undefined
-                header: requestParams extends { header: infer headers } ? ExtractHeaderParams<headers, Settings['header']> : undefined
-                query: requestParams extends { query: infer query } ? ExtractQueryParams<query, Settings['query']> : undefined
-            }
-            : never
-        
-        export type PathParams = Record<string, Param<serialization.PathSerialization>>
-        export type CookieParams = Record<string, Param<serialization.CookieSerialization>>
-        export type HeaderParams = Record<string, Param<serialization.HeaderSerialization>>
-        export type QueryParams = Record<string, Param<serialization.QuerySerialization>>
+            :{}
 
-        export type Params = {
+            export type PathParams = Record<string, Param<serialization.PathSerialization>>
+            export type CookieParams = Record<string, Param<serialization.CookieSerialization>>
+            export type HeaderParams = Record<string, Param<serialization.HeaderSerialization>>
+            export type QueryParams = Record<string, Param<serialization.QuerySerialization>>
+
+            export type Params = {
             security?: auth.Requirements
             path?: PathParams
-            cookies?: CookieParams
-            headers?: HeaderParams
+            cookie?: CookieParams
+            header?: HeaderParams
             query?: QueryParams
             body?: component.Media
         }
@@ -456,19 +453,20 @@ export namespace adapter
             value: component.Any
         }
 
-        type ExtractPathParams<
-            T,
-            Settings extends settings.PathSerialization
-        > = 
+        type ExtractPathParams<T,Settings extends settings.PathSerialization> = 
             Settings extends { default: infer defaultSerialization extends serialization.PathSerialization }
             ? {
-                [pathId in keyof T]: T[pathId] extends {
-                    serialization: infer serialization extends serialization.ParameterSerialization
+                [pathParamId in keyof T]: T[pathParamId] extends infer pathParam?
+                pathParam extends { 
+                    serialization:  defaultSerialization
                     value: infer value
                 }
-                ? serialization extends defaultSerialization
                 ? value
-                : {
+                : pathParam extends {
+                    serialization: infer serialization
+                    value: infer value
+                }
+                ? {
                     /** 
                      * Custom parameter serialization if this parameter needs different serialization than in 
                      * `adapter.settings.Object[serialization][path][default]` setting. 
@@ -481,24 +479,27 @@ export namespace adapter
                         )
                         | (
                             serialization extends { style: infer style }
-                            ? defaultSerialization extends { style: style } ? never :{ style: style } : never
+                                ? defaultSerialization extends { style: style } 
+                                    ? never :{ style: style } 
+                                : never
                         )
                         | (
                             serialization extends { explode: infer explode }
-                            ?  defaultSerialization extends { explode: explode } ? never :{ explode: explode } : never
+                                ? defaultSerialization extends { explode: explode } 
+                                    ? never 
+                                    :{ explode: explode } 
+                                : never
                         )
                     >
                     value: value
                 }
                 : never
-            
+                : never            
             }
             : never
 
-        type ExtractCookieParams<
-            T,
-            Settings extends settings.CookieSerialization
-        > = Settings extends { default: infer defaultSerialization extends serialization.CookieSerialization }
+        type ExtractCookieParams<T,Settings extends settings.CookieSerialization> = 
+            Settings extends { default: infer defaultSerialization extends serialization.CookieSerialization }
             ? {
                 [cookieId in keyof T]: T[cookieId] extends infer cookieParam
                 ? cookieParam extends {
@@ -533,10 +534,8 @@ export namespace adapter
             }
             : never
         
-        type ExtractHeaderParams<
-            T,
-            Settings extends settings.HeaderSerialization
-        > = Settings extends { default: infer defaultSerialization extends serialization.HeaderSerialization }
+        type ExtractHeaderParams<T,Settings extends settings.HeaderSerialization> = 
+            Settings extends { default: infer defaultSerialization extends serialization.HeaderSerialization }
             ? {
                 [headerId in keyof T]: T[headerId] extends infer headerParam
                 ? headerParam extends {

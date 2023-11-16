@@ -57,17 +57,17 @@ export abstract class CoreOpenApiAdapter<
         const {
             security,
             path,
-            cookies,
-            headers,
+            cookie,
+            header,
             query,
             body
         } = requestParams as adapter.request.Params;
 
-        const auth = this.getAuthParams(security)
-        const pathString = this.serializer.pathString(pathId, path)
+        const auth = this.getAuthParams(security??[])
+        const pathString = this.serializer.pathString(pathId, path??{})
         const queryString = this.serializer.queryString({ ...auth.query, ...query })
-        const serializedCookie = this.serializer.cookieParameters({ ...auth.cookie, ...cookies })
-        const serializedHeaders = this.serializer.headerParameters({ ...auth.headers, ...headers })
+        const serializedCookie = this.serializer.cookieParameters({ ...auth.cookie, ...cookie })
+        const serializedHeaders = this.serializer.headerParameters({ ...auth.headers, ...header })
         const serializedBody = await this.serializer.requestBody(body)
 
         if (serializedCookie) serializedHeaders['Cookie'] = serializedCookie
@@ -119,9 +119,9 @@ export abstract class CoreOpenApiAdapter<
             ...pathAuthRequirements
         ]
 
-        const cookie: adapter.request.CookieParams = {}
-        const headers: adapter.request.HeaderParams = {}
-        const query: adapter.request.QueryParams = {}
+        const cookie: Record<string,any> = {}
+        const headers: Record<string,any> = {}
+        const query: Record<string,any> = {}
 
         requirements.forEach(requirement => {
             const authItem = this.authItems[requirement]

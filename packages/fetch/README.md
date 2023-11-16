@@ -1,13 +1,13 @@
 **@openapi-adapter** is base class for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI</a> specifications. It is fast, lightweight and completely dependency-free. And all this with minimal bundle size.
 
-The code is [MIT-licensed](./LICENSE) and free for use.
+The code is [MIT-licensed](./LICENSE) and free for every use.
 
 ## Project Goals
 
 1. Create fully typed and intellisensed apis from any valid OpenAPI specification.
 2. Use **runtime-free types**, to minimize bundle size on production builds.
 3. This library should never require any additional dependencies.
-
+4. Expect that OpenApi 3.x specification has all the valid information for every request. 
 
 ## Libraries in **@openapi-adapter** family:
 
@@ -48,6 +48,7 @@ The code is [MIT-licensed](./LICENSE) and free for use.
     - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
     - ❌ minimum: **_(no typing support in TypeScript)_**
     - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
+    - ❌ discriminator `(To-Do)`
     - ❌ maxLength `(To-Do)`
     - ❌ minLength `(To-Do)`
     - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**

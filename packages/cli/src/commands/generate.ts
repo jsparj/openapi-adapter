@@ -1,8 +1,9 @@
 import fs from 'fs'
-import util from 'util'
+//import util from 'util'
 import type {specification} from '@openapi-adapter/core'
-import {File} from '../codegen'
+import {File,Namespace} from '../codegen'
 import { generateSchemas } from '../schema/generateSchemas'
+import { generatePaths } from '../path/generatePaths'
 
 export namespace generate {
   export type Options = {
@@ -33,8 +34,11 @@ export function generate(oasPath: string, outputPath: string, options: generate.
   let file = new File()
   generateSchemas(oas,file)
 
+  let generatedNS = new Namespace("__generated__", false)
+  file.tryAddObjects(generatedNS)
+  generatePaths(oas,generatedNS)
 
-  console.log(util.inspect(file, {showHidden: false, depth: null, colors: true}))
+  //console.log(util.inspect(file, {showHidden: false, depth: null, colors: true}))
 
   fs.writeFileSync(outputPath,file.toString())
   return oas

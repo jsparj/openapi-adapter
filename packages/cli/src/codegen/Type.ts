@@ -13,6 +13,7 @@ export namespace Type {
     | Undefined
     | Null
     | Never
+    | Unknown
 
   export type Complex = 
     | Array
@@ -39,13 +40,17 @@ export namespace Type {
     kind: 'null'
   }
 
+  export type Unknown = {
+    kind: 'unknown'
+  }
+
   export type Never = {
     kind: 'never'
   }
 
   export type Object = {
     kind: 'object'
-    fields: Record<string,Type<any>>
+    fields: Record<string,{type: Type<any>, comments: string[]}>
   }
 
   export type Array = {
@@ -133,6 +138,13 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
     })
   }
 
+
+  static newUnknown(): Type<'unknown'> {
+    return new Type({
+      kind:'unknown',
+    })
+  }
+
   static newArray(items: Type<any>): Type<'array'> {
     return new Type<'array'>({
       kind: 'array',
@@ -190,7 +202,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
     })
   }
   
-  static newObject(fields: Record<string,Type<any>>): Type<'object'> {
+  static newObject(fields: Record<string,{type: Type<any>, comments: string[]}>): Type<'object'> {
     return new Type({
       kind: 'object',
       fields,
@@ -205,9 +217,28 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
     })
   }
 
+  /**
+   * This method is only for object types.
+   */
+  tryAddField(fieldId: string, type: Type<any>, ...comments: string[]): boolean {
+    if (this.value.kind !== 'object') {
+      throw `type is not an object`
+    }
+
+    let changed = false
+    if (!this.value.fields[fieldId]) {
+      this.value.fields[fieldId] = {
+        type,
+        comments
+      }
+    }
+
+    return changed
+  }
+
 
   toString(...indents: string[]): string {
-    const indent = indents.join()
+    const indent = indents.join("")
     let v = this.value
     
     switch(v.kind) {
@@ -215,6 +246,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
       case "undefined":
       case "never":
       case "any":
+      case "unknown":
         return v.kind
 
       case "boolean":
@@ -223,7 +255,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
 
       case "number":
         if (v.literal !== undefined) return `${v.literal}`
-        return "boolean"
+        return "number"
 
       case "string":
         if (!!v.literal) return `"${v.literal}"`
@@ -253,8 +285,16 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
 
       case "object":
         let content = "{\n"
+        
         Object.entries(v.fields).forEach(([key,value])=>{
-          content += indent+ `\t${key}: ${value.toString(indent,"\t")}\n` 
+          if (value.comments.length>0) {
+            content += `${indent}\t/**\n` 
+            value.comments.forEach(comment => {
+              content += `${indent}\t * ${comment}\n`
+            })
+            content += `${indent}\t */\n` 
+          }
+          content += `${indent}\t${key}: ${value.type.toString(indent,"\t")}\n` 
         })
         content += indent+ "}"
         return content
