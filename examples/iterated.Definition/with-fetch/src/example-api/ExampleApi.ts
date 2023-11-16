@@ -14,7 +14,7 @@ class ExampleApi extends OpenApiAdapter<
     super('ExampleApi', settings)
   }
 }
-
+  
 const exampleApi = new ExampleApi()
 
 // initialize auth if required 
@@ -39,6 +39,7 @@ exampleApi.initializeAuth({
 })
 
 export default exampleApi
+
 
 // Then do some requests: 
 exampleApi.request(

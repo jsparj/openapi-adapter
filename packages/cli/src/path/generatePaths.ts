@@ -86,7 +86,7 @@ export function generatePaths(oas: specification.OpenAPIObject, generatedNS: Nam
           requestParams: {type: operationItemRequestParams, comments: []},
           responseObject: {type: responses, comments: []}
         })
-
+        
         operations.tryAddField(method,operation)
       }
     })
