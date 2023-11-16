@@ -2,20 +2,12 @@ import { OpenApiAdapter } from '@openapi-adapter/fetch'
 import { ExampleApiDefinition } from './ExampleApi.definition'
 
 
-const asd : ExampleApiDefinition['refs']['parameters/consumer_id'] = {
- serialization: {
-  explode: true,
-  style: "simple"
- },
- value: ""
-}
-
 const settings = OpenApiAdapter.createDefaultSettings('http://localhost:3000')
 
 class ExampleApi extends OpenApiAdapter<
   'ExampleApi',
   ExampleApiDefinition,
-  OpenApiAdapter.Settings
+  typeof settings
 >
 {
   constructor(){
@@ -55,9 +47,13 @@ exampleApi.request(
   {
     security: ["apiKey"],
     path: {
-      resource: "",
-      service_id: "",
-      unified_api: "",
+      // If OpenApi specification uses non-standard parameter serialization, you should define your own serialization settings to match that.
+      // In other cases the '__serialization__' field is required by type safety, this also triggers correct serialization method for parameters.
+      // You should create your own 'default' serialization settings for most used serialization styles used by the api. 
+      // WARNING: Remember to inject exact settings type to OpenApiAdapter, where all fields in the type are literals. Otherwise typesafety will be lost.
+      resource:"<resource>",
+      service_id: "<service_id>",
+      unified_api:"<unified_api>",
     },
     header: {
       "x-apideck-app-id": "xxx",

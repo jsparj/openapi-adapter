@@ -2,5 +2,8 @@
   "name": "with-fetch",
   "version": "1.0.0",
   "description": "Example project for using iterated.Definition from OpenApi 3.x specification",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@openapi-adapter/fetch": "^0.3.1"
+  }
 }

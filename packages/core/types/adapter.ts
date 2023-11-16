@@ -454,11 +454,11 @@ export namespace adapter
         }
 
         type ExtractPathParams<T,Settings extends settings.PathSerialization> = 
-            Settings extends { default: infer defaultSerialization extends serialization.PathSerialization }
+            Settings extends { default: infer defaultSerialization }
             ? {
                 [pathParamId in keyof T]: T[pathParamId] extends infer pathParam?
                 pathParam extends { 
-                    serialization:  defaultSerialization
+                    serialization: defaultSerialization
                     value: infer value
                 }
                 ? value
@@ -499,7 +499,7 @@ export namespace adapter
             : never
 
         type ExtractCookieParams<T,Settings extends settings.CookieSerialization> = 
-            Settings extends { default: infer defaultSerialization extends serialization.CookieSerialization }
+            Settings extends { default: infer defaultSerialization}
             ? {
                 [cookieId in keyof T]: T[cookieId] extends infer cookieParam
                 ? cookieParam extends {

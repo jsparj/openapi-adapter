@@ -64,8 +64,42 @@ export function responseToTypeAndComments(
     )
   }
 
+  let headersType = Type.newObject({})
+  let headers= {type: headersType, comments: []}
+
+  if (response.headers)
+  {
+    Object.entries(response.headers).map(([headerId,h])=>{
+
+      let comments: string[] = []
+      if (h.deprecated) comments = comments.concat("@deprecated")
+      if (h.summary) comments = comments.concat(`@summary ${h.summary}`)
+      if (h.description) comments = comments.concat(`@description ${h.description}`)
+      
+      let definition: string[] = []
+      if (h.allowEmptyValue !== undefined) definition = definition.concat(`- \`allowEmptyValue\`:${h.allowReserved}`)
+      if (h.allowReserved !== undefined) definition = definition.concat(`- \`allowReserved\`:${h.allowReserved}`)
+      if (h.explode !== undefined) definition = definition.concat(`- \`explode\`:${h.explode}`)
+      if (h.style !== undefined) definition = definition.concat(`- \`style\`:${h.style}`)
+      if (definition.length > 0) comments = comments.concat("@definition The schema has following definitions:", definition)
+      
+      if (h.content) {
+        throw "response content not yet supported"
+      }
+
+      let type = Type.newString()
+
+      if (h.schema) {
+        type = schemaToTypeAndComments(h.schema).type
+      }
+
+      headersType.tryAddField(headerId+(h.required === false?'?':''),type,...comments)
+    })
+  }
+
+
   return {
     data,
-    comments,
+    headers,
   }
 }

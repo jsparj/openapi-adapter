@@ -236,7 +236,7 @@ export namespace iterated {
                 : {
                     serialization: {
                         style: U extends { style: infer style } ? style : 'simple'
-                        explode: U extends { explode: infer explode } ? explode : true
+                        explode: U extends { explode: infer explode } ? explode : false
                     }
                     value: Value<T,U>
                 }
