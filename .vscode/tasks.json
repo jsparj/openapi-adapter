@@ -26,6 +26,18 @@
       }
     },
     {
+      "label": "Build: @openapi-adapter/cli",
+      "icon": {
+        "color": "terminal.ansiGreen"
+      },
+      "type": "shell",
+      "command": "cd ./packages/cli/ && npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
       "label": "Build: tool",
       "icon": {
         "color": "terminal.ansiGreen"

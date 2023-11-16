@@ -52,7 +52,7 @@ export namespace iterated {
                 T extends specification.OpenAPIObject, RefId
             > = RefId extends `${infer componentType}/${infer objectKey}`?
                 componentType extends 'schemas' ? schema.Object<T, Raw<T, componentType, objectKey>> :
-                componentType extends 'parameters' | 'headers' ? parameter.Value<T, Raw<T, componentType, objectKey>> :
+                componentType extends 'parameters' | 'headers' ? parameter.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'responses' ? response.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'requestBodies' ? requestBody.Object<T, Raw<T, componentType, objectKey>> :
                 componentType extends 'securitySchemes' ? securityScheme.Object<T, Raw<T, componentType, objectKey>>
@@ -81,9 +81,8 @@ export namespace iterated {
                 U extends { type: 'object' } ? ObjectFromObject<T, U> :
                 U extends { anyOf: infer anyOf extends readonly specification.SchemaObject[] } ? ObjectFromAnyOf<T, anyOf> :
                 U extends { allOf: infer allOf extends readonly specification.SchemaObject[] } ? utility.Intersect<Object<T, allOf[number]>> :
-                U extends { oneOf: infer oneOf extends readonly specification.SchemaObject[] } ? Object<T, oneOf[number]> :
-                never,
-                U extends { not: infer not extends readonly specification.SchemaObject[] } ? Object<T, not[number]> : never
+                U extends { oneOf: infer oneOf extends readonly specification.SchemaObject[] } ? Object<T, oneOf[number]> : never,
+                U extends { not: infer not extends specification.SchemaObject } ? Object<T, not> : never
             >
     
             type ObjectFromArray<T extends specification.OpenAPIObject, U extends specification.SchemaObject> =
@@ -198,7 +197,6 @@ export namespace iterated {
         }
     
         export namespace parameter {
-
             export type Name<T extends specification.OpenAPIObject> =
                 T extends { components: infer componentsObject extends specification.ComponentsObject } ?
                 keyof componentsObject['parameters'] : never

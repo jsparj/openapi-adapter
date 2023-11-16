@@ -153,7 +153,8 @@ export namespace specification {
         deprecated?: boolean;
         allowEmptyValue?: boolean;
 
-        style?: ParameterStyle; // "matrix" | "label" | "form" | "simple" | "spaceDelimited" | "pipeDelimited" | "deepObject";
+        /** matrix|label|form|simple|spaceDelimited|pipeDelimited|deepObject */
+        style?: ParameterStyle; 
         explode?: boolean;
         allowReserved?: boolean;
         schema?: SchemaObject;
