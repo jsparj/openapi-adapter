@@ -86,13 +86,13 @@ const result = await yourapi.request(
 // result is union objects of possible responses in intellisense support in format: 
 result === {
   status: number
-  code: `<api-namespace>/<http-label-or-status-code-if-non-standard>`
+  code: `<api-namespace>/<http-status-label-or-code-if-non-standard>`
   headers, // full intellisense support for available headers (can still have additional keys that are not defined in specification), partial support for header values. Value is still always extends string, so no deserialization here.
   data //full intellisense support
 }
 
 // Handle error status after request on your own.
-switch(result.code) {
+switch(result.status) {
   case HttpStatus.OK:
     ...
     break

@@ -3,7 +3,6 @@ import {Namespace,Interface,Type} from '../codegen'
 import { schemaToTypeAndComments } from '../schema/schemaToTypeAndComments'
 import { requestBodyToTypeAndComments } from '../requestBody/requestBodyToTypeAndComments'
 import { responseToTypeAndComments } from '../response/responseToTypeAndComments'
-import { stat } from 'fs'
 
 const HTTP_METHODS = <const>["get" , "put" , "post" , "delete" , "options" , "head" , "patch" , "trace"]
 
@@ -62,31 +61,31 @@ export function generatePaths(oas: specification.OpenAPIObject, generatedNS: Nam
 
 
         // responses:
-        let responses: Type<any>[] = []
+        let responses = Type.newObject({})
         Object.keys(m.responses).forEach(statusCode => {
           let r = m.responses[statusCode]
-          if(!r) throw `response with statusCode[${statusCode}] is undefined`
-          let code = Type.newNumber()
-
-          if (statusCode !== 'default') {
-            code = Type.newNumber(+statusCode)
+          if(!r) {
+            responses.tryAddField(statusCode, Type.newObject({
+              data: {type: Type.newAny(), comments: []},
+              headers: {type: Type.newMap(
+                Type.newString(),
+                Type.newUnion(Type.newUndefined(), Type.newString())
+              ), comments: []},
+            }))
+            return
           }
 
-          const response = responseToTypeAndComments(r)
-
-          responses = responses.concat(Type.newObject({
-            statusCode:{type: code, comments: []},
-            data: 
+          const {data, headers}= responseToTypeAndComments(r)
+          responses.tryAddField(statusCode, Type.newObject({
+            data,
+            headers,
           }))
         })
 
-
-
         let operation = Type.newObject({
           requestParams: {type: operationItemRequestParams, comments: []},
-          responseObject: {type: responseObject, comments: []}
+          responseObject: {type: responses, comments: []}
         })
-
         
         operations.tryAddField(method,operation)
       }
