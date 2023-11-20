@@ -16,13 +16,15 @@ export abstract class CoreOpenApiAdapter<
     protected readonly serializer: adapter.ISerializer<SerializedRequestBody>
     protected readonly deserializer: adapter.IDeserializer<RawResponseData>
     protected globalAuthRequirements: string[] = []
-    protected authItems: Record<string, adapter.auth.Item> = {}
+    protected authDependency: Record<string, adapter.auth.Item> = {}
 
     protected abstract handleRequest(
-        url: string,
+        path: string,
+        query: string,
         method: specification.HttpMethod,
         headers: Record<string, string>,
         body: SerializedRequestBody,
+        mutualTLS: adapter.auth.MutualTLS|undefined
     ): Promise<adapter.response.Result<RawResponseData>> 
 
     constructor(
@@ -63,20 +65,22 @@ export abstract class CoreOpenApiAdapter<
             body
         } = requestParams as adapter.request.Params;
 
-        const auth = this.getAuthParams(security??[])
-        const pathString = this.serializer.pathString(pathId, path??{})
-        const queryString = this.serializer.queryString({ ...auth.query, ...query })
+        const authRequirements = this.globalAuthRequirements.concat(security as string[])
+
+        const auth = this.getAuthParams(authRequirements)
         const serializedCookie = this.serializer.cookieParameters({ ...auth.cookie, ...cookie })
-        const serializedHeaders = this.serializer.headerParameters({ ...auth.headers, ...header })
+        const serializedHeaders = this.serializer.headerParameters({ ...auth.header, ...header })
         const serializedBody = await this.serializer.requestBody(body)
 
         if (serializedCookie) serializedHeaders['Cookie'] = serializedCookie
-        
+
         const responseResult = await this.handleRequest(
-            `${this.settings.host}${pathString}${queryString}`,
+            this.serializer.pathString(pathId, path??{}),
+            this.serializer.queryString({ ...auth.query, ...query }),
             method,
             serializedHeaders,
             serializedBody,
+            auth.mutualTLS
         )
 
         const responseDataMediaType = responseResult.headers['Content-Type'] as (specification.MediaType|undefined)
@@ -102,44 +106,48 @@ export abstract class CoreOpenApiAdapter<
 
     initializeAuth(authData: adapter.auth.RequiredAuthData<T>): void {
         this.globalAuthRequirements = Object.keys(authData);
-        this.authItems = authData
+        this.authDependency = authData
     }
 
-    updateAuthData(authData: adapter.auth.OptionalAuthData<T>): void {
-        this.authItems = {
-            ...this.authItems,
-            ...authData
+    updateAuthData(authDependencies: adapter.auth.OptionalAuthData<T>): void {
+        this.authDependency = {
+            ...this.authDependency,
+            ...authDependencies
         }
     }
 
-    private getAuthParams(pathAuthRequirements: string[])
+    private getAuthParams(requirements: readonly string[]): {
+        query: Record<string,string>
+        header: Record<string,string>
+        cookie: Record<string,string>
+        mutualTLS: adapter.auth.MutualTLS|undefined
+    }
     {
-        const requirements = [
-            ...this.globalAuthRequirements,
-            ...pathAuthRequirements
-        ]
-
-        const cookie: Record<string,any> = {}
-        const headers: Record<string,any> = {}
-        const query: Record<string,any> = {}
+        const cookie: Record<string,string> = {}
+        const header: Record<string,string> = {}
+        const query: Record<string,string> = {}
+        let mutualTLS: undefined|adapter.auth.MutualTLS = undefined
 
         requirements.forEach(requirement => {
-            const authItem = this.authItems[requirement]
+            const dependency = this.authDependency[requirement]
 
-            if (!authItem)
-                throw new Error(`Required AuthParam[${requirement}] not configured yet.`)    
+            if (!dependency)
+                throw new Error(`Required Auth[${requirement}] not configured yet.`)    
             
-            const {token} = authItem
-            
-            switch (token.in)
+            switch (dependency.token?.in)
             {
-                case 'cookie': cookie[token.name] = token.value; break
-                case 'header': headers[token.name] = token.value; break
-                case 'query': query[token.name] = token.value; break
+                case 'cookie': cookie[dependency.token.name] = dependency.token.value; break
+                case 'header': header[dependency.token.name] = dependency.token.value; break
+                case 'query': query[dependency.token.name] = dependency.token.value; break
+            }
+
+            if(dependency.mutualTLS) {
+                if(mutualTLS) throw "only one auth dependency with 'mutualTLS' field is supported"
+                mutualTLS = dependency.mutualTLS
             }
         })
 
-        return {cookie, headers, query}
+        return {cookie, header, query, mutualTLS}
     }
 
     private resolveStatusCode(statusCode: number): Pick<adapter.response.Generic,'status'|'code'>

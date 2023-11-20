@@ -1,20 +1,25 @@
 import type {specification} from '@openapi-adapter/core'
-import { Type } from "../codegen/Type";
+import { Type, Import } from "../codegen";
+import { refToTypename } from '../utils/refToTypename';
 
 
-export function schemaToTypeAndComments(
+export function schemaToMetadata(
   schema: specification.SchemaObject
 ): {
   type: Type<any> 
   comments: string[]
+  imports: Import[]
 }{
   if (!!schema.$ref) {
-    let parts = schema.$ref.split("/")
+    let typeName = refToTypename(schema.$ref)
     return {
-     type: Type.newRef(parts[parts.length-1]),
-     comments: []
+     type: Type.newRef("schema."+typeName),
+     comments: [],
+     imports: [new Import('./schemas',{schema:null},undefined,true)]
     }
   }
+
+  
 
   let comments: string[] = []
 
@@ -46,8 +51,8 @@ export function schemaToTypeAndComments(
   
 
   if (!!schema.enum) {
-    t = Type.newUnion(
-      ...schema.enum.map(e => Type.newString())
+    t = Type.newTuple(
+      ...schema.enum.map(e => Type.newString(e))
     )
   } else if (schema.type === 'string') {
     if (schema.pattern !== undefined) {
@@ -94,7 +99,7 @@ export function schemaToTypeAndComments(
     if (schema.maxItems) {
       definition = definition.concat(`- \`maxItems\`: ${schema.maxItems}`)
     }
-    t = Type.newArray(schemaToTypeAndComments(schema.items).type)
+    t = Type.newArray(schemaToMetadata(schema.items).type)
   } else if (schema.type === 'object'){
     if (schema.minProperties) {
       definition = definition.concat(`- \`minProperties\`: ${schema.minProperties}`)
@@ -107,7 +112,8 @@ export function schemaToTypeAndComments(
     if (!!schema.properties) {
       let fields: Record<string,{type: Type<any>, comments: string[]}> = {}
       Object.entries(schema.properties).forEach(([fieldId,field])=>{
-        fields[fieldId] = schemaToTypeAndComments(field)
+        let opt = schema.required?.includes(fieldId)? "": "?" 
+        fields[fieldId+opt] = schemaToMetadata(field)
       }) 
       properties = Type.newObject(fields)
     }
@@ -116,7 +122,7 @@ export function schemaToTypeAndComments(
     if (schema.additionalProperties === true) {
       additionalProperties = Type.newMap(Type.newString(),Type.newAny())
     } else if (schema.additionalProperties) {
-      additionalProperties = Type.newMap(Type.newString(),schemaToTypeAndComments(schema.additionalProperties).type)
+      additionalProperties = Type.newMap(Type.newString(),schemaToMetadata(schema.additionalProperties).type)
     }
 
     if (!properties  && !additionalProperties ){
@@ -125,29 +131,22 @@ export function schemaToTypeAndComments(
       t = Type.newIntersection(properties,additionalProperties)  
     }
   } else if (!!schema.anyOf) {
-    t = Type.newRef("Partial", Type.newIntersection(...schema.anyOf.map(t => schemaToTypeAndComments(t).type)))
+    t = Type.newRef("Partial", Type.newIntersection(...schema.anyOf.map(t => schemaToMetadata(t).type)))
   } else if (!!schema.allOf) {
-    t = Type.newIntersection(...schema.allOf.map(t => schemaToTypeAndComments(t).type))
+    t = Type.newIntersection(...schema.allOf.map(t => schemaToMetadata(t).type))
   } else if (!!schema.oneOf) {
-    t = Type.newUnion(...schema.oneOf.map(t => schemaToTypeAndComments(t).type))
+    t = Type.newUnion(...schema.oneOf.map(t => schemaToMetadata(t).type))
   } else {
-    throw `unspecified type in schema`
+    console.warn('warning: could not parse schema, treating following schema as unknown:',schema)
+    t = Type.newUnknown()
   }
 
   if (schema.default) {
-    let d = schema.default.split('\n')
-    definition = definition.concat(`- \`default\`: ${d[0]}`)
-    for (let i=1;i<d.length;i++) {
-      definition = definition.concat(`\t\t${d[i]}`)
-    }
+    definition = definition.concat(`- \`default\`: ${JSON.stringify(schema.default)}`)
   }
 
   if (schema.format) {
-    let f = schema.format.split('\n')
-    definition = definition.concat(`- \`format\`: ${f[0]}`)
-    for (let i=1;i<f.length;i++) {
-      definition = definition.concat(`\t\t${f[i]}`)
-    }
+    definition = definition.concat(`- \`format\`: ${JSON.stringify(schema.format)}`)
   }
 
   if (definition.length > 0) {
@@ -156,13 +155,15 @@ export function schemaToTypeAndComments(
   
   if (schema.not) {
     return {
-     type: Type.newRef("import('@openapi-adapter/core').utility.Not",t,schemaToTypeAndComments(schema.not).type),
-     comments: comments
+     type: Type.newRef("utility.Not",t,schemaToMetadata(schema.not).type),
+     comments: comments,
+     imports: [new Import('@openapi-adapter/core',{utility:null})]
     }
   } else {
     return {
       type: t,
-      comments: comments
+      comments: comments,
+      imports: []
     }
   }
 }

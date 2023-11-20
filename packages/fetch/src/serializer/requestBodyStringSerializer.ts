@@ -5,7 +5,7 @@ import { SerializerError } from "../classes";
 export function requestBodyStringSerializer(
     mediaType: specification.MediaType,
     body: adapter.component.Any,
-): Promise<string | undefined>
+): Promise<BodyInit | undefined>
 {
     switch (mediaType)
     {

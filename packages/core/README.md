@@ -1,7 +1,10 @@
-WARNING: This project is still WIP and is subject to changes. Everything should still work as expected.
 
-**@openapi-adapter** is base class for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI 3.x</a> specifications. 
-Thils library is fast, lightweight and completely dependency-free. All this with minimal bundle size on production builds.
+**WARNING**: This project is still WIP and is subject to breaking changes.
+
+---
+
+**@openapi-adapter** is library for making fully typed requests with intellisense against <a href="https://spec.openapis.org/oas/latest.html" target="_blank" rel="noopener noreferrer">OpenAPI 3.x</a> specifications. 
+This library is fast, lightweight and completely dependency-free. All this with minimal bundle size on production builds.
 
 The code is [MIT-licensed](./LICENSE) and free for every use.
 
@@ -14,12 +17,12 @@ The code is [MIT-licensed](./LICENSE) and free for every use.
 
 ## Libraries in **@openapi-adapter** family:
 
-| Library                     | Type        | Dev Stage     | Description                                                                                                                                                       |
-| :-------------------------- | :---------- | :-----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@openapi-adapter/core`     | `core`      | `beta`        | Core library for doing requests and infering API-types from OpenApi 3.x specification.                                                                            |
-| `@openapi-adapter/fetch`    | `handler`   | `beta`        | `OpenApiAdapter` class with `requestHandler` that is build around `fetch` library.                                                                                |
-| `@openapi-adapter/axios`    | `handler`   | `(To-Do)`     | `OpenApiAdapter` class with `requestHandler` that is build around `axios` library.                                                                                |
-| `@openapi-adapter/cli`      | `cli`       | `(To-Do)`     | Create generated type definitions for huge OpenApi specifications. _(likely not that big improvement in type intellisense speed, no effect in production build.)_ |
+| Library                                                                                    | Type        | Dev Stage      | Description                                                                                                                                                                                                   |
+| :----------------------------------------------------------------------------------------- | :---------- | :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`@openapi-adapter/core`](https://www.npmjs.com/package/@openapi-adapter/core)             | `core`      | `experimental` | Core library dependency for  this library family.                                                                                                                                                             |
+| [`@openapi-adapter/fetch`](https://www.npmjs.com/package/@openapi-adapter/fetch)           | `handler`   | `experimental` | `OpenApiAdapter` class with `requestHandler` that is build around native `fetch` library. Only supports mutualTLS in browsers.                                                                                |
+| [`@openapi-adapter/node-fetch`](https://www.npmjs.com/package/@openapi-adapter/node-fetch) | `handler`   | `experimental` | `OpenApiAdapter` class with `requestHandler` that is build around `node-fetch` library, supports **mutualTLS**                                                                                                |
+| [`@openapi-adapter/cli`](https://www.npmjs.com/package/@openapi-adapter/cli)               | `cli`       | `(To-Do)`      | Create generated type definitions for OpenApi specifications. _(not that big improvement in intellisense speed, no effect in production builds, but you can use component types from definition more easily)_ |
 
 
 ## What this library family does: 
@@ -37,7 +40,7 @@ const yourApi = new YourApi()
 yourApi.initializeAuth({ 
   basicAuth: {
     type: 'http',
-    payload: {
+    token: {
       in: 'header'
       name: 'Authorization',
       value: 'Basic <token>'
@@ -83,7 +86,7 @@ const result = await yourapi.request(
     }
   }
 )
-// result is union objects of possible responses in intellisense support in format: 
+// result is union of objects with all possible responses that are defined in specification: 
 result === {
   status: number
   code: `<api-namespace>/<http-status-label-or-code-if-non-standard>`
@@ -94,10 +97,11 @@ result === {
 // Handle error status after request on your own.
 switch(result.status) {
   case HttpStatus.OK:
+    // do something with fully typed data or headers...
     ...
     break
 
-  // You should catch additional cases when using switch, because responses might have unspecified response statuses _(it is very common that OpenApi specifications don't specify all edge cases for possible errors)_.
+  // You should always catch additional cases when using switch:
   default:
     ...
     break
@@ -108,5 +112,85 @@ switch(result.status) {
 ## Creating api class for your OpenAPI specification:
 
 - **From:** [iterated.Definition](../../examples/iterated.Definition)
-- **From:** [generated.Definition]() (TODO)
+- **From:** [generated.Definition](../../examples/generated.Definition) (TODO)
+
+## Supported OpenApi 3.x features: 
+
+### generated definition: 
+
+_(Coming soon...)_
+
+### iterated definition: 
+- security ✅
+- components
+  - schemas
+    - ✅ type: `string, number, boolean, object, null, array`
+    - ✅ oneOf
+    - ✅ anyOf 
+    - ✅ not
+    - ✅ items 
+    - ✅ properties
+    - ✅ additionalProperties
+    - ✅ required
+    - ✅ enum
+    - ❗️ anyOf: `Partial of possible values` **_(really hard to do TS type that matches exaclty this specification)_**
+    - ❗️ type: `integer` => `number`: **_(no integer type in TypeScript)_**
+    - ❌ description: **_(TypeScript does not support adding document comments for inferred types dynamically)_**
+    - ❌ maxium: **_(no typing support in TypeScript)_**
+    - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
+    - ❌ minimum: **_(no typing support in TypeScript)_**
+    - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
+    - ❌ discriminator `(To-Do)`
+    - ❌ maxLength `(To-Do)`
+    - ❌ minLength `(To-Do)`
+    - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**
+    - ❌ maxItems `(To-Do)`
+    - ❌ minItems `(To-Do)`
+    - ❌ uniqueItems  `(To-Do)`
+    - ❌ maxProperties  `(To-Do)`
+    - ❌ minProperties  `(To-Do)`
+    - ❌ prefixItems `(To-Do)`
+  - responses
+    - ✅ headers
+    - ✅ content
+      - `<media-type>` _(one or more)_
+        - ✅ schema
+        - ❌ encoding `(To-Do)`
+  - parameters
+    - ✅ name
+    - ✅ in
+    - ✅ required
+    - ✅ explode
+    - ✅ allowReserved
+    - ✅ schema
+    - ✅ content
+      - `<media-type>` _(one or more)_
+        - ✅ schema
+        - ❌ encoding `(To-Do)`
+  - requestBodies
+    - ✅ content
+      - `<media-type>` _(one or more)_
+        - ✅ schema
+        - ❌ encoding `(To-Do)`
+    - ✅ required
+  - headers 
+    - ✅ required
+    - ✅ explode
+    - ✅ allowReserved
+    - ✅ schema
+    - ✅ content
+      - `<media-type>` _(one or more)_
+        - ✅ schema
+        - ❌ encoding `(To-Do)`
+  - securitySchemes
+    - ✅ type: `apiKey, http`
+    - ❗️ type: `oauth2, openIdConnect`: _(you have to manage token fetching by yourself)_
+-  paths
+    - `<api-path>`
+      - ✅ parameters
+      - `<http-method>: get, put, post, delete, options, head, patch, trace` 
+        -  ✅ security
+        -  ✅ parameters
+        -  ✅ requestBody
+        -  ✅ responses 
 

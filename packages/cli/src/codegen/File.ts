@@ -1,4 +1,5 @@
 import {Import} from './Import'
+import { Interface } from './Interface'
 import {Namespace} from './Namespace'
 import {TypeVariable} from './TypeVariable'
 
@@ -6,6 +7,7 @@ export namespace File {
   export type Object =      
     | Namespace 
     | TypeVariable 
+    | Interface
 }
 
 export class File {
@@ -25,6 +27,8 @@ export class File {
       if (!this.imports[id]) {
         changed = true
         this.imports[id] = imports[i]
+      } else if (this.imports[id].tryMerge(imports[i])){
+        changed = true
       }
     }
     return changed
@@ -55,7 +59,7 @@ export class File {
   toString(...indents: string[]): string{
     let indent = indents.join("")
 
-    let content = "//[generated code]: DO NOT EDIT DIRECTLY\n\n"
+    let content = "//[generated code]: DO NOT EDIT DIRECTLY\n"
 
     let importKeys = Object.keys(this.imports).sort()
     importKeys.forEach(key=>{
