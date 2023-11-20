@@ -18,7 +18,7 @@ export class TypeVariable implements codegen.IObject<'type-variable'>{
     value: Type<any>,
     ...comments: string[]
   ) {
-    this.name = name
+    this.name =  name
     this.isExported = !!isExported
     this.value = value
     this.comments = comments

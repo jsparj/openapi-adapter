@@ -10,7 +10,6 @@ export namespace OpenApiAdapter {
     export type SerializedRequestBody = BodyInit | null | undefined
     export type RawResponseData = ReadableStream<Uint8Array> | null
     export type HandleRequestResult = adapter.response.Result<RawResponseData>
-    
     export type Settings = {
         /**@remarks Will get overridden if same headers exist in request params. */
         globalHeaders?: Record<string, adapter.component.Any>
@@ -19,7 +18,7 @@ export namespace OpenApiAdapter {
 }
 export abstract class OpenApiAdapter<
     NS extends string,
-    T extends adapter.Definition<any>,
+    T extends adapter.Definition,
     Settings extends OpenApiAdapter.Settings
     > extends CoreOpenApiAdapter<
         NS,
@@ -29,8 +28,11 @@ export abstract class OpenApiAdapter<
         Settings
     >
 {
+    private readonly host: string
+
     constructor(
         namespace: NS,
+        host: string,
         settings: Settings,
         serializer?: adapter.ISerializer<OpenApiAdapter.SerializedRequestBody>,
         deserializer?: adapter.IDeserializer<OpenApiAdapter.RawResponseData>,
@@ -42,49 +44,57 @@ export abstract class OpenApiAdapter<
             serializer = serializer ?? new Serializer(settings.serialization),
             deserializer = deserializer ?? new Deserializer(settings.deserialization)
         )
+        
+        this.host = host
     }
 
     protected override async handleRequest(
-        url: string,
+        path: string,
+        query: string,
         method: specification.HttpMethod,
         headers: Record<string, string>,
         body: OpenApiAdapter.SerializedRequestBody,
-    ): Promise<OpenApiAdapter.HandleRequestResult> {
+        mutualTLS?: adapter.auth.MutualTLS
+    ): Promise<OpenApiAdapter.HandleRequestResult> 
+    {
+        let credentialSource: RequestCredentials|undefined = undefined
+
+        if (mutualTLS){
+            if (typeof window === 'undefined')
+            throw `mutualTLS are only supported in browser environments with this library, use @openapi-adapter/node-fetch in node environments.`
+
+            if('credentialSource' in mutualTLS) credentialSource = mutualTLS.credentialSource
+            else throw `"adapter.auth.tls.SecureContextOptions" is only supported in node environments for mutualTLS.`
+        } 
         
-        const response = await fetch(
-            url,
+        const response = await window.fetch(
+            `${this.host}${path}${query}`,
             {
                 ...this.settings.requestInit,
                 method,
                 body,
+                credentials: credentialSource,
                 headers: {
                     ...this.serializer.headerParameters(this.settings.globalHeaders),
                     ...headers
                 },
             }
-        );
-
-        const responseHeaders: Record<string, string> = {}
+        );   
+        const responseHeaders: Record<string, string> = {}   
         response.headers.forEach((value, key) => responseHeaders[key] = value)
-
-        const responseResult = {
+        return {
             statusCode: response.status,
             headers: responseHeaders,
             data: response.body
         }
-
-        return responseResult
     }
 
-
     public static createDefaultSettings(
-        host: string,
         globalHeaders?: Record<string, adapter.component.Any>,
         requestInit?: Partial<Omit<RequestInit, 'method' | 'body' | 'headers'>>,
     )
     {
         return <const>{
-            host,
             globalHeaders,
             requestInit, 
             serialization: Serializer.defaultSettings,

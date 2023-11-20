@@ -60,7 +60,7 @@ export class Interface implements codegen.IObject<'interface'>{
       content += `${indent}\t${fieldId}: ${type.toString(indent,"\t")}\n` 
     })
 
-    content += "}"
+    content += indent+"}"
     return content
   }
 }

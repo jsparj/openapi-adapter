@@ -1,23 +1,29 @@
 import type {specification} from '@openapi-adapter/core'
-import { Type } from "../codegen/Type";
-import { schemaToTypeAndComments } from '../schema/schemaToTypeAndComments';
+import {Type,Import} from "../codegen";
+import {schemaToMetadata} from '../schema/schemaToMetadata';
 
 
-export function requestBodyToTypeAndComments(
+export function requestBodyToMetadata(
   requestBody: specification.RequestBodyObject
 ): {
   type: Type<any> 
   required: boolean
   comments: string[]
+  imports: Import[] 
 }{
   if (!!requestBody.$ref) {
     let parts = requestBody.$ref.split("/")
+    let name =  parts[parts.length-1]
+
     return {
-     type: Type.newRef(`requestBody.${parts[parts.length-1]}`),
+     type: Type.newRef(`requestBody.${name}`),
      required: !!requestBody.required,
-     comments: []
+     comments: [],
+     imports: [new Import("./requestBodies",{[name]:null})]
     }
   }
+
+  let imports: Import[] = []
 
   let comments : string[] = []
   if(requestBody.summary) {
@@ -44,18 +50,18 @@ export function requestBodyToTypeAndComments(
 
       if (!v || !v.schema) {
         return Type.newObject({
-          mediaType: {type: Type.newString(mt), comments: []},
-          value: {type: Type.newAny(), comments: []}
+          mediaType: {type: Type.newString(mt)},
+          value: {type: Type.newAny()}
         })
       } 
 
-      let fields: Record<string, {
-        type: Type<any>;
-        comments: string[];
-      }> = {
-        mediaType: {type: Type.newString(mt), comments: []},
-        value: schemaToTypeAndComments(v.schema)
+      let schema = schemaToMetadata(v.schema)
+    
+      let fields = {
+        mediaType: {type: Type.newString(mt)},
+        value: {type: schema.type, comments: schema.comments}
       }
+      imports = imports.concat(schema.imports)
 
       if(v.encoding) {
         throw "requestBody encoding not yet supported"
@@ -69,5 +75,6 @@ export function requestBodyToTypeAndComments(
     type,
     comments,
     required: !!requestBody.required,
+    imports,
   }
 }

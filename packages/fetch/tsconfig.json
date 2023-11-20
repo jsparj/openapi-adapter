@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
+    "rootDir": ".",
     "declaration": true,
     "noImplicitAny": true,
     "outDir": "dist",
-    "rootDir": ".",
-    "noLib": false,
-    "target": "es2017",
+    "target": "ES2022",
     "sourceMap": false,
     "allowJs": false,
     "strict": true,

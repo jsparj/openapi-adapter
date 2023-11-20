@@ -50,7 +50,7 @@ export namespace Type {
 
   export type Object = {
     kind: 'object'
-    fields: Record<string,{type: Type<any>, comments: string[]}>
+    fields: Record<string,{type: Type<any>, comments?: string[]}>
   }
 
   export type Array = {
@@ -202,7 +202,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
     })
   }
   
-  static newObject(fields: Record<string,{type: Type<any>, comments: string[]}>): Type<'object'> {
+  static newObject(fields: Record<string,{type: Type<any>, comments?: string[]}>): Type<'object'> {
     return new Type({
       kind: 'object',
       fields,
@@ -258,7 +258,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
         return "number"
 
       case "string":
-        if (!!v.literal) return `"${v.literal}"`
+        if (!!v.literal) return `'${v.literal}'`
         return "string"
 
       case "array":
@@ -287,7 +287,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
         let content = "{\n"
         
         Object.entries(v.fields).forEach(([key,value])=>{
-          if (value.comments.length>0) {
+          if (value.comments && value.comments.length>0) {
             content += `${indent}\t/**\n` 
             value.comments.forEach(comment => {
               content += `${indent}\t * ${comment}\n`

@@ -1,5 +1,5 @@
 export interface ExampleApiSpecification
-// Copy-Paste your OpenApi 3.x specification here: (this exampler uses: )
+// Copy and paste your OpenApi specification json here:
 {
   "openapi": "3.0.3",
   "servers": [

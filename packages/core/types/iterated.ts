@@ -7,7 +7,7 @@ export namespace iterated {
     export type Definition<T extends specification.OpenAPIObject> = {
         auth: auth.Object<T>
         path: path.Object<T>
-        refs: component.ref.ValueMap<T>
+        ref: component.ref.ValueMap<T>
     }
 
     export namespace component {
@@ -22,11 +22,11 @@ export namespace iterated {
         export namespace ref {
             export type Name<
                 T extends specification.OpenAPIObject
-            > = | `schemas/${schema.Name<T>}`
-                | `responses/${response.Name<T>}`
+            > = | `headers/${header.Name<T>}`
                 | `parameters/${parameter.Name<T>}`
                 | `requestBodies/${requestBody.Name<T>}`
-                | `headers/${header.Name<T>}`
+                | `responses/${response.Name<T>}`
+                | `schemas/${schema.Name<T>}`
                 | `securitySchemes/${securityScheme.Name<T>}`
 
             export type Raw<
@@ -319,33 +319,31 @@ export namespace iterated {
                     U extends { type: 'apiKey' }? 
                     {
                         type: 'apiKey'
-                        payload: {
-                            name: U['name']
+                        token: {
                             in: U['in']
-                            apiKey: string
+                            name: U['name']
+                            value: string
                         }
                     } :
                     U extends { type: 'http' }? 
                     {
                         type: 'http'
-                        payload: {
-                            scheme: U['scheme']
-                            token: string
+                        token: {
+                            in: 'header'
+                            name: 'Authorization',
+                            value: string
                         }
                     } :
-                    U extends { type: 'oauth2' }? 
+                    U extends { type: infer type }? 
                     {
-                        type: 'oauth2'
-                        payload: {
-                            accessToken: string
+                        type: type
+                        token?: {
+                            in:  "query" | "header" | "cookie"
+                            name: string
+                            value: string
                         }
-                    } :
-                    U extends { type: 'openIdConnect' }? 
-                    {
-                        type: 'openIdConnect'
-                        payload: {
-                            accessToken: string
-                        }
+                        /**@type https.AgentOptions */
+                        agent?: unknown
                     } :
                     never
                 )

@@ -4,7 +4,7 @@ import type { utility } from './utility';
 export namespace adapter
 {
     /** @summary */
-    export type Definition<T extends { auth: auth.Object, path: path.Object } = any> = T
+    export type Definition<T extends { auth: auth.Object, path: path.Object } = { auth: auth.Object, path: path.Object }> = T
 
     /** @summary */
     export interface IFetch<
@@ -17,7 +17,7 @@ export namespace adapter
          * <para>Request parameters and and response have full support for intellisence and matches perfectly to the source api definition.</para>
          * @param pathId Available pathIds to provided OpenApi 3.x path map in `paths/*`
          * @param method Available HttpMethods for provided `pathId`
-         * @param requestParams Request parameters for provided `pathId` and `method`
+         * @param requestParams Request parameters for provided          `pathId` and `method`
          */
         request<
             PathId extends path.Id<T>,
@@ -74,7 +74,6 @@ export namespace adapter
             Serialization extends settings.Serialization<SerializedRequestBody> = settings.Serialization<SerializedRequestBody>,
             Deserialization extends settings.Deserialization<RawResponseData> = settings.Deserialization<RawResponseData>
         > = {
-            host: string,
             serialization: Serialization
             deserialization: Deserialization
         }
@@ -258,10 +257,10 @@ export namespace adapter
     }
 
     /** @summary Types for authentication logics. */
-    export namespace auth
+    export namespace auth 
     {
         export type Object<
-            Schemes extends auth.Schemes<any> = auth.Schemes<any>,
+            Schemes extends auth.Schemes = auth.Schemes,
             Requirements extends auth.Requirements = auth.Requirements
         > = {
             schemes: Schemes
@@ -280,24 +279,16 @@ export namespace adapter
             ? { [authId in keyof schemes]?: schemes[authId] }
             : never
 
-        export type Schemes<U extends {[authId in string]: Item }> = U
+        export type Schemes<U extends {[authId in string]: Item } = {[authId in string]: Item }> = U
 
-
-
-        export type Item<
-            T extends specification.SecuritySchemeType = specification.SecuritySchemeType,
-        > = {
-            /**
-             * @full-support `apiKey`, `http`
-             * @limited-support `oauth2`, `openIdConnect`: 
-             * You will have to implement credential requests and refreshTokens yourself.
-             */
-            type: T
-            token: Token
+        export type Item = {
+            type: specification.SecuritySchemeType
+            token?: Token
+            mutualTLS?: MutualTLS
         }
 
         export type Token<
-            In extends Exclude<specification.ParameterLocation, 'path'> = Exclude<specification.ParameterLocation, 'path'>,
+            In extends "query" | "header" | "cookie" = "query" | "header" | "cookie",
             Name extends string = string
         > = {
             in: In
@@ -305,7 +296,205 @@ export namespace adapter
             value: string
         }
 
-        export type Requirements<Requirements extends readonly string[] = any> = Requirements
+        export type MutualTLS =  tls.SecureContextOptions | {
+            /**
+             * Only supported in browser environments.
+             */
+            credentialSource: "include" | "omit" | "same-origin"
+        }
+
+        export type Requirements<Requirements extends readonly string[] = readonly string[]> = Requirements
+
+        export namespace tls {
+            export type SecureVersion = "TLSv1.3" | "TLSv1.2" | "TLSv1.1" | "TLSv1";
+
+            export interface KeyObject {
+                /**
+                 * Private keys in PEM format.
+                 */
+                pem: string
+                /**
+                 * Optional passphrase.
+                 */
+                passphrase?: string 
+            }
+
+            export interface PxfObject {
+                /**
+                 * PFX or PKCS12 encoded private key and certificate chain.
+                 */
+                buf: string
+                /**
+                 * Optional passphrase.
+                 */
+                passphrase?: string 
+            }
+        
+            /**
+             * Only supported with `@openapi-adapter/node-fetch`
+             */
+            export interface SecureContextOptions {
+                /**
+                 * If set, this will be called when a client opens a connection using the ALPN extension.
+                 * One argument will be passed to the callback: an object containing `servername` and `protocols` fields,
+                 * respectively containing the server name from the SNI extension (if any) and an array of
+                 * ALPN protocol name strings. The callback must return either one of the strings listed in `protocols`,
+                 * which will be returned to the client as the selected ALPN protocol, or `undefined`,
+                 * to reject the connection with a fatal alert. If a string is returned that does not match one of
+                 * the client's ALPN protocols, an error will be thrown.
+                 * This option cannot be used with the `ALPNProtocols` option, and setting both options will throw an error.
+                 */
+                ALPNCallback?: ((arg: { servername: string; protocols: string[] }) => string | undefined) 
+                /**
+                 * Optionally override the trusted CA certificates. Default is to trust
+                 * the well-known CAs curated by Mozilla. Mozilla's CAs are completely
+                 * replaced when CAs are explicitly specified using this option.
+                 */
+                ca?: string | Array<string> 
+                /**
+                 *  Cert chains in PEM format. One cert chain should be provided per
+                 *  private key. Each cert chain should consist of the PEM formatted
+                 *  certificate for a provided private key, followed by the PEM
+                 *  formatted intermediate certificates (if any), in order, and not
+                 *  including the root CA (the root CA must be pre-known to the peer,
+                 *  see ca). When providing multiple cert chains, they do not have to
+                 *  be in the same order as their private keys in key. If the
+                 *  intermediate certificates are not provided, the peer will not be
+                 *  able to validate the certificate, and the handshake will fail.
+                 */
+                cert?: string | Array<string> 
+                /**
+                 *  Colon-separated list of supported signature algorithms. The list
+                 *  can contain digest algorithms (SHA256, MD5 etc.), public key
+                 *  algorithms (RSA-PSS, ECDSA etc.), combination of both (e.g
+                 *  'RSA+SHA384') or TLS v1.3 scheme names (e.g. rsa_pss_pss_sha512).
+                 */
+                sigalgs?: string 
+                /**
+                 * Cipher suite specification, replacing the default. For more
+                 * information, see modifying the default cipher suite. Permitted
+                 * ciphers can be obtained via tls.getCiphers(). Cipher names must be
+                 * uppercased in order for OpenSSL to accept them.
+                 */
+                ciphers?: string 
+                /**
+                 * Name of an OpenSSL engine which can provide the client certificate.
+                 */
+                clientCertEngine?: string 
+                /**
+                 * PEM formatted CRLs (Certificate Revocation Lists).
+                 */
+                crl?: string | Array<string> 
+                /**
+                 * `'auto'` or custom Diffie-Hellman parameters, required for non-ECDHE perfect forward secrecy.
+                 * If omitted or invalid, the parameters are silently discarded and DHE ciphers will not be available.
+                 * ECDHE-based perfect forward secrecy will still be available.
+                 */
+                dhparam?: string 
+                /**
+                 * A string describing a named curve or a colon separated list of curve
+                 * NIDs or names, for example P-521:P-384:P-256, to use for ECDH key
+                 * agreement. Set to auto to select the curve automatically. Use
+                 * crypto.getCurves() to obtain a list of available curve names. On
+                 * recent releases, openssl ecparam -list_curves will also display the
+                 * name and description of each available elliptic curve. Default:
+                 * tls.DEFAULT_ECDH_CURVE.
+                 */
+                ecdhCurve?: string 
+                /**
+                 * Attempt to use the server's cipher suite preferences instead of the
+                 * client's. When true, causes SSL_OP_CIPHER_SERVER_PREFERENCE to be
+                 * set in secureOptions
+                 */
+                honorCipherOrder?: boolean 
+                /**
+                 * Private keys in PEM format. PEM allows the option of private keys
+                 * being encrypted. Encrypted keys will be decrypted with
+                 * options.passphrase. Multiple keys using different algorithms can be
+                 * provided either as an array of unencrypted key strings or buffers,
+                 * or an array of objects in the form {pem: <string|buffer>[,
+                 * passphrase: <string>]}. The object form can only occur in an array.
+                 * object.passphrase is optional. Encrypted keys will be decrypted with
+                 * object.passphrase if provided, or options.passphrase if it is not.
+                 */
+                key?: string | Array<string | KeyObject> 
+                /**
+                 * Name of an OpenSSL engine to get private key from. Should be used
+                 * together with privateKeyIdentifier.
+                 */
+                privateKeyEngine?: string 
+                /**
+                 * Identifier of a private key managed by an OpenSSL engine. Should be
+                 * used together with privateKeyEngine. Should not be set together with
+                 * key, because both options define a private key in different ways.
+                 */
+                privateKeyIdentifier?: string 
+                /**
+                 * Optionally set the maximum TLS version to allow. One
+                 * of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
+                 * `secureProtocol` option, use one or the other.
+                 * **Default:** `'TLSv1.3'`, unless changed using CLI options. Using
+                 * `--tls-max-v1.2` sets the default to `'TLSv1.2'`. Using `--tls-max-v1.3` sets the default to
+                 * `'TLSv1.3'`. If multiple of the options are provided, the highest maximum is used.
+                 */
+                maxVersion?: SecureVersion 
+                /**
+                 * Optionally set the minimum TLS version to allow. One
+                 * of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
+                 * `secureProtocol` option, use one or the other.  It is not recommended to use
+                 * less than TLSv1.2, but it may be required for interoperability.
+                 * **Default:** `'TLSv1.2'`, unless changed using CLI options. Using
+                 * `--tls-v1.0` sets the default to `'TLSv1'`. Using `--tls-v1.1` sets the default to
+                 * `'TLSv1.1'`. Using `--tls-min-v1.3` sets the default to
+                 * 'TLSv1.3'. If multiple of the options are provided, the lowest minimum is used.
+                 */
+                minVersion?: SecureVersion 
+                /**
+                 * Shared passphrase used for a single private key and/or a PFX.
+                 */
+                passphrase?: string 
+                /**
+                 * PFX or PKCS12 encoded private key and certificate chain. pfx is an
+                 * alternative to providing key and cert individually. PFX is usually
+                 * encrypted, if it is, passphrase will be used to decrypt it. Multiple
+                 * PFX can be provided either as an array of unencrypted PFX buffers,
+                 * or an array of objects in the form {buf: <string|buffer>[,
+                 * passphrase: <string>]}. The object form can only occur in an array.
+                 * object.passphrase is optional. Encrypted PFX will be decrypted with
+                 * object.passphrase if provided, or options.passphrase if it is not.
+                 */
+                pfx?: string | Array<string | PxfObject> 
+                /**
+                 * Optionally affect the OpenSSL protocol behavior, which is not
+                 * usually necessary. This should be used carefully if at all! Value is
+                 * a numeric bitmask of the SSL_OP_* options from OpenSSL Options
+                 */
+                secureOptions?: number  // Value is a numeric bitmask of the `SSL_OP_*` options
+                /**
+                 * Legacy mechanism to select the TLS protocol version to use, it does
+                 * not support independent control of the minimum and maximum version,
+                 * and does not support limiting the protocol to TLSv1.3. Use
+                 * minVersion and maxVersion instead. The possible values are listed as
+                 * SSL_METHODS, use the function names as strings. For example, use
+                 * 'TLSv1_1_method' to force TLS version 1.1, or 'TLS_method' to allow
+                 * any TLS protocol version up to TLSv1.3. It is not recommended to use
+                 * TLS versions less than 1.2, but it may be required for
+                 * interoperability. Default: none, see minVersion.
+                 */
+                secureProtocol?: string 
+                /**
+                 * Opaque identifier used by servers to ensure session state is not
+                 * shared between applications. Unused by clients.
+                 */
+                sessionIdContext?: string 
+                /**
+                 * The number of seconds after which a TLS session created by the
+                 * server will no longer be resumable. See Session Resumption for more
+                 * information. Default: 300.
+                 */
+                sessionTimeout?: number 
+            }
+        }
     }
 
     /** @summary Base schema for types that are needed for infering request types. */
@@ -334,12 +523,12 @@ export namespace adapter
             responseObject: ResponseObject
         }
 
-        export type Id<T extends Definition> =
+        export type Id<T> =
             T extends { path: Object<infer pathId> }
             ? pathId
             : never
         
-        export type HttpMethod<T extends Definition, PathId extends Id<T>> =
+        export type HttpMethod<T, PathId extends Id<T>> =
             T extends { path: infer pathObject extends Object<PathId> }
             ? pathObject[PathId] extends { operations: path.OperationMap<infer httpMethod>}
             ? httpMethod
@@ -399,10 +588,10 @@ export namespace adapter
         export type QueryParameter = Parameter<serialization.QuerySerialization>
 
         export type ItemRequestParams = {
-            //path: Record<string, PathParameter>
-            //header: Record<string, HeaderParameter>
-            //cookie: Record<string, CookieParameter>
-            //query: Record<string, QueryParameter>
+            path?: Record<string, PathParameter>
+            header?: Record<string, HeaderParameter>
+            cookie?: Record<string, CookieParameter>
+            query?: Record<string, QueryParameter>
         }
         
         export type OperationRequestParams = {    
@@ -679,10 +868,13 @@ export namespace adapter
         > =
             ResponseItem extends { data: infer data extends component.Media<infer _mediaType> }
             ? (
-                Settings extends { defaultMediaType: infer mediaType extends _mediaType }
-                    ? data extends component.Media<mediaType, infer value>
-                    ? value : never
-                : never
+                Settings extends { responseData: infer responseDataSettings extends settings.ResponseDataDeserialization<any> }
+                    ? responseDataSettings extends { defaultMediaType: infer mediaType extends specification.MediaType }
+                        ? data extends component.Media<mediaType, infer value>
+                            ? value 
+                            : never
+                        : never
+                    : never
             )
             : undefined
 

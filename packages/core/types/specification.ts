@@ -312,7 +312,7 @@ export namespace specification {
         attribute?: boolean;
         wrapped?: boolean;
     }
-    export type SecuritySchemeType = 'apiKey' | 'http' | 'oauth2' | 'openIdConnect';
+    export type SecuritySchemeType = 'apiKey' | 'http' | 'oauth2' | 'openIdConnect' | 'mutualTLS';
 
     export type SecuritySchemeObject = {
         $ref?: string;
