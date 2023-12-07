@@ -1,1 +1,1 @@
-export * from './HttpStatus'
+export {HttpStatus,HttpStatusLabels} from './HttpStatus'

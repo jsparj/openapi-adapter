@@ -1,0 +1,106 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Mutual TLS Example API",
+    "description": "An example API that uses mutual TLS for secure communication."
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    }
+  ],
+  "security":[
+    {
+      "mutualTLS":[]
+    }
+  ],
+  "paths": {
+    "/resource/{resourceId}": {
+      "parameters": [
+        {
+          "in":"path",
+          "name":"resourceId",
+          "description": "Resource identifier.",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get resource",
+        "description": "Retrieve a protected resource using mutual TLS",
+        "security":[{"authorization":[]}],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "content-type": {
+                "description": "Resource media type",
+                "schema": {
+                  "type":"string",
+                  "enum": ["application/json"]
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create resource",
+        "description": "Create a new resource using mutual TLS",
+        "security":[{"authorization":[]}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource created successfully."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Resource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "mutualTLS": {
+        "type": "mutualTLS"
+      },
+      "authorization": {
+        "type": "apiKey",
+        "description": "Request authorization",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}

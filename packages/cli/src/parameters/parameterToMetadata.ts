@@ -9,17 +9,15 @@ export function parameterToMetadata(
 ): {
   parameter: specification.ParameterObject
   type: Type<any> 
-  comments: string[]
   imports: Import[]
 }{
-  let imports: Import[] = [new Import('@openapi-adapter/core',{adapter:null},undefined,true)]
+  let imports: Import[] = []
 
   if (parameter.$ref) {
     const {object,typeName} = getParameterReference(oas,parameter.$ref)
     return {
       parameter: object,
-      type: Type.newRef("parameter."+typeName),
-      comments: [],
+      type: Type.newRef("parameter."+typeName,[]),
       imports: [new Import('./parameters',{parameter:null},undefined,true)],
     }
   }
@@ -36,39 +34,36 @@ export function parameterToMetadata(
     comments = comments.concat(`@description ${parameter.description}`)
   }
 
-  let serialization: {
-    type: Type<"ref">;
-    comments: never[];
-  } 
+  let serialization: Type<"ref">
 
   switch(parameter.in){
     case 'cookie':
-      serialization = { 
-        type: Type.newRef(`adapter.serialization.CookieSerialization`),
-        comments: [],
-      }
+      serialization = Type.newObject({
+        explode: Type.newBoolean(parameter.explode??false)
+      })
       break
 
     case 'header':
-      serialization = { 
-        type: Type.newRef(`adapter.serialization.HeaderSerialization`),
-        comments: [],
-      }
+      serialization = Type.newObject({
+        explode: Type.newBoolean(parameter.explode??false)
+      })
       break
 
     case 'path':
-      serialization = { 
-        type: Type.newRef(`adapter.serialization.PathSerialization`),
-        comments: [],
-      }
+      serialization = Type.newObject({
+        explode: Type.newBoolean(parameter.explode??false),
+        style: Type.newString(parameter.style??'simple')
+      })
       break
     
     case 'query':
-      serialization = { 
-        type: Type.newRef(`adapter.serialization.QuerySerialization`),
-        comments: [],
-      }
+      serialization = Type.newObject({
+        explode: Type.newBoolean(parameter.explode??true),
+        style: Type.newString(parameter.style??'form'),
+        allowReserved: Type.newBoolean(parameter.allowReserved??false),
+      })
       break
+
     default:
       throw `unknown parameter location: ${parameter.in}`
   }
@@ -80,9 +75,11 @@ export function parameterToMetadata(
     parameter,
     type: Type.newObject({
       serialization,
-      value: {type: schema.type, comments: schema.comments}
+      value: schema.type,
+    }, {
+      comments,
+      optional: !parameter.required
     }), 
-    comments,
     imports,
   }
 }

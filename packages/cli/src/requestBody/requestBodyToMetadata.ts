@@ -7,8 +7,6 @@ export function requestBodyToMetadata(
   requestBody: specification.RequestBodyObject
 ): {
   type: Type<any> 
-  required: boolean
-  comments: string[]
   imports: Import[] 
 }{
   if (!!requestBody.$ref) {
@@ -16,9 +14,7 @@ export function requestBodyToMetadata(
     let name =  parts[parts.length-1]
 
     return {
-     type: Type.newRef(`requestBody.${name}`),
-     required: !!requestBody.required,
-     comments: [],
+     type: Type.newRef(`requestBody.${name}`,[],{comments: [], optional: !requestBody.required}),
      imports: [new Import("./requestBodies",{[name]:null})]
     }
   }
@@ -44,22 +40,22 @@ export function requestBodyToMetadata(
   }
 
   let type = Type.newUnion(
-    ...mediaTypes.map(mt => {
+    mediaTypes.map(mt => {
 
       let v = content![mt as specification.MediaType]
 
       if (!v || !v.schema) {
         return Type.newObject({
-          mediaType: {type: Type.newString(mt)},
-          value: {type: Type.newAny()}
+          mediaType:  Type.newString(mt),
+          value: Type.newAny()
         })
       } 
 
       let schema = schemaToMetadata(v.schema)
     
       let fields = {
-        mediaType: {type: Type.newString(mt)},
-        value: {type: schema.type, comments: schema.comments}
+        mediaType:  Type.newString(mt),
+        value: schema.type
       }
       imports = imports.concat(schema.imports)
 
@@ -68,13 +64,15 @@ export function requestBodyToMetadata(
       }
 
       return Type.newObject(fields)
-    })
+    }),
+    {
+      optional: !requestBody.required,
+      comments,
+    }
   )
 
   return {
     type,
-    comments,
-    required: !!requestBody.required,
     imports,
   }
 }

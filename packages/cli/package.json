@@ -1,10 +1,12 @@
 {
   "name": "@openapi-adapter/cli",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "Generate apis for @openapi-adapter from OpenAPI 3.x specification",
   "author": "Joona Parjanen",
   "license": "MIT",
-  "main": "dist/index.js",
+  "bin": {
+    "openapi-adapter": "./dist/index.js"
+  },
   "files": [
     "dist"
   ],
@@ -33,12 +35,14 @@
   },
   "homepage": "https://github.com/jsparj/openapi-adapter#readme",
   "devDependencies": {
-    "@openapi-adapter/core": "^0.2.3",
-    "@types/node": "20.9.0",
-    "typescript": "5.2.2"
+    "@openapi-adapter/core": "^0.6.0"
   },
   "dependencies": {
-    "@openapi-adapter/fetch": "^0.3.1",
-    "commander": "11.1.0"
+    "commander": "11.1.0",
+    "js-yaml": "^4.1.0"
+  },
+  "optionalDependencies": {
+    "@openapi-adapter/fetch": "^0.6.0",
+    "@openapi-adapter/node-fetch": "^0.5.0"
   }
 }

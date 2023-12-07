@@ -1,0 +1,7 @@
+{
+  "name": "serverside-mtls",
+  "version": "1.0.0",
+  "dependencies": {
+    "@openapi-adapter/node-fetch": "0.7.0"
+  }
+}

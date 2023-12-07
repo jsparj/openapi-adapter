@@ -254,17 +254,8 @@ export namespace specification {
         deprecated?: boolean;
 
         type?: SchemaObjectType | readonly SchemaObjectType[];
-        format?:
-        | 'int32'
-        | 'int64'
-        | 'float'
-        | 'double'
-        | 'byte'
-        | 'binary'
-        | 'date'
-        | 'date-time'
-        | 'password'
-        | string;
+        nullable?: boolean;
+        format?: string;
         allOf?: readonly SchemaObject[];
         oneOf?: readonly SchemaObject[];
         anyOf?: readonly SchemaObject[];
@@ -274,14 +265,11 @@ export namespace specification {
         additionalProperties?: SchemaObject | boolean;
         description?: string;
         default?: any;
-
         title?: string;
         multipleOf?: number;
         maximum?: number;
-        /** @desc In OpenAPI 3.1: number */
         exclusiveMaximum?: number;
         minimum?: number;
-        /** @desc In OpenAPI 3.1: number */
         exclusiveMinimum?: number;
         maxLength?: number;
         minLength?: number;

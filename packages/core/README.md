@@ -22,7 +22,7 @@ The code is [MIT-licensed](./LICENSE) and free for every use.
 | [`@openapi-adapter/core`](https://www.npmjs.com/package/@openapi-adapter/core)             | `core`      | `experimental` | Core library dependency for  this library family.                                                                                                                                                             |
 | [`@openapi-adapter/fetch`](https://www.npmjs.com/package/@openapi-adapter/fetch)           | `handler`   | `experimental` | `OpenApiAdapter` class with `requestHandler` that is build around native `fetch` library. Only supports mutualTLS in browsers.                                                                                |
 | [`@openapi-adapter/node-fetch`](https://www.npmjs.com/package/@openapi-adapter/node-fetch) | `handler`   | `experimental` | `OpenApiAdapter` class with `requestHandler` that is build around `node-fetch` library, supports **mutualTLS**                                                                                                |
-| [`@openapi-adapter/cli`](https://www.npmjs.com/package/@openapi-adapter/cli)               | `cli`       | `(To-Do)`      | Create generated type definitions for OpenApi specifications. _(not that big improvement in intellisense speed, no effect in production builds, but you can use component types from definition more easily)_ |
+| [`@openapi-adapter/cli`](https://www.npmjs.com/package/@openapi-adapter/cli)               | `cli`       | `experimental`      | Create generated type definitions for OpenApi specifications. _(not that big improvement in intellisense speed, no effect in production builds, but you can use component types from definition more easily)_ |
 
 
 ## What this library family does: 
@@ -30,11 +30,6 @@ The code is [MIT-licensed](./LICENSE) and free for every use.
 This library family creates abstract classes what you can use to make your own fully typed apis. 
 
 ```typescript
-// create Api class for your openapi schema, more info about this can be found on `@openapi-adapter/fetch` or ´@openapi-adapter/axios` README.md
-class YourApi extends OpenApiAdapter<...> {
-  ...
-}
-
 const yourApi = new YourApi()
 // if authorization is needed you have to call `initializeAuth` before calling `request`:
 yourApi.initializeAuth({ 
@@ -47,7 +42,7 @@ yourApi.initializeAuth({
     }
   }
 })
-const result = await yourapi.request(
+const result = await yourApi.request(
   // Full intellisense support, only available pathIds will be shown:
   'example/message/{messageId}/replies', 
   // Full intellisense support, only http methods found in this pathId will be shown:
@@ -57,7 +52,7 @@ const result = await yourapi.request(
     // If operation.security exists in specification:
     security: ['basicAuth'],
 
-    // Following parameters support all common serialization methods from OpenApi parameter serialization, but you have to set your own media serializers in settings if you need parameter content serialization by mediaType.
+    // Following parameters support all common serialization methods from OpenApi parameter serialization. You'll have to set your own media serializers in settings if you need parameter content serialization by mediaType.
     path: { 
       messageId: 3435264363457
     },
@@ -65,12 +60,12 @@ const result = await yourapi.request(
       someRequiredCookie: 'Hello world!'
     },
     headers: { 
-      'Uncommon-Test-Header-With-Special-Serialization': {
+      'Header-With-Special-Serialization': {
         // Full intellisense support also for this. (you should set correct default serizalization method for specific parameter type in settings to minimize need for custom __serialization__ definitions)
-        __serializarion__: {mediaType: 'application/some-not-default-media-type'},
+        __serializarion__: {mediaType: 'application/some-media-type'},
         value: ['some','header','as','array','from','specification']
       },
-      'Some-Other-Array-Header-With-Default-Serialization': ['some','header','as','array','from','specification']
+      'Normal-Header': "some-header-value"
     },
     query: { 
       replyQuery: { 
@@ -109,88 +104,5 @@ switch(result.status) {
 
 ```
 
-## Creating api class for your OpenAPI specification:
-
-- **From:** [iterated.Definition](../../examples/iterated.Definition)
-- **From:** [generated.Definition](../../examples/generated.Definition) (TODO)
-
-## Supported OpenApi 3.x features: 
-
-### generated definition: 
-
-_(Coming soon...)_
-
-### iterated definition: 
-- security ✅
-- components
-  - schemas
-    - ✅ type: `string, number, boolean, object, null, array`
-    - ✅ oneOf
-    - ✅ anyOf 
-    - ✅ not
-    - ✅ items 
-    - ✅ properties
-    - ✅ additionalProperties
-    - ✅ required
-    - ✅ enum
-    - ❗️ anyOf: `Partial of possible values` **_(really hard to do TS type that matches exaclty this specification)_**
-    - ❗️ type: `integer` => `number`: **_(no integer type in TypeScript)_**
-    - ❌ description: **_(TypeScript does not support adding document comments for inferred types dynamically)_**
-    - ❌ maxium: **_(no typing support in TypeScript)_**
-    - ❌ exclusiveMaximum: **_(no typing support in TypeScript)_**
-    - ❌ minimum: **_(no typing support in TypeScript)_**
-    - ❌ exclusiveMinimum: **_(no typing support in TypeScript)_**
-    - ❌ discriminator `(To-Do)`
-    - ❌ maxLength `(To-Do)`
-    - ❌ minLength `(To-Do)`
-    - ❌ pattern:  **_(no typing support in TypeScript that can be inferred easily from regex)_**
-    - ❌ maxItems `(To-Do)`
-    - ❌ minItems `(To-Do)`
-    - ❌ uniqueItems  `(To-Do)`
-    - ❌ maxProperties  `(To-Do)`
-    - ❌ minProperties  `(To-Do)`
-    - ❌ prefixItems `(To-Do)`
-  - responses
-    - ✅ headers
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-        - ❌ encoding `(To-Do)`
-  - parameters
-    - ✅ name
-    - ✅ in
-    - ✅ required
-    - ✅ explode
-    - ✅ allowReserved
-    - ✅ schema
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-        - ❌ encoding `(To-Do)`
-  - requestBodies
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-        - ❌ encoding `(To-Do)`
-    - ✅ required
-  - headers 
-    - ✅ required
-    - ✅ explode
-    - ✅ allowReserved
-    - ✅ schema
-    - ✅ content
-      - `<media-type>` _(one or more)_
-        - ✅ schema
-        - ❌ encoding `(To-Do)`
-  - securitySchemes
-    - ✅ type: `apiKey, http`
-    - ❗️ type: `oauth2, openIdConnect`: _(you have to manage token fetching by yourself)_
--  paths
-    - `<api-path>`
-      - ✅ parameters
-      - `<http-method>: get, put, post, delete, options, head, patch, trace` 
-        -  ✅ security
-        -  ✅ parameters
-        -  ✅ requestBody
-        -  ✅ responses 
-
+## Creating your own OpenApiAdapter:
+[[see examples]](examples)

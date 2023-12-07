@@ -1,11 +1,11 @@
 import fs from 'fs'
 import type {specification} from '@openapi-adapter/core'
-import { File, TypeVariable } from '../codegen'
+import { File, Export, TypeVariable} from '../codegen'
 import { securitySchemeToMetadata } from './securitySchemesToMetadata'
 import { addTypeToFile } from '../utils/addTypeToFile'
 import { nameToTypename } from '../utils/nameToTypename'
 
-export function generateSecuritySchemes(oas: specification.OpenAPIObject, filePath: string) {
+export function generateSecuritySchemes(oas: specification.OpenAPIObject, filePath: string, indexFile: File) {
   let file = new File()
 
   let securitySchemes = oas.components?.securitySchemes
@@ -21,6 +21,7 @@ export function generateSecuritySchemes(oas: specification.OpenAPIObject, filePa
     let typeVariable = new TypeVariable(nameToTypename(name),true,type)
     addTypeToFile(parent,typeVariable,file)
     file.tryAddImports(...imports)
+    indexFile.tryAddExports(new Export('./securitySchemes',{securityScheme:null},undefined,true))
   })
 
   fs.writeFileSync(filePath,file.toString())

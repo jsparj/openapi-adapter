@@ -1,20 +1,17 @@
 import fs from 'fs'
 import type {specification} from '@openapi-adapter/core'
-import { File, Namespace, TypeVariable } from '../codegen'
+import { File, Export, TypeVariable } from '../codegen'
 import { responseToMetadata } from './responseToMetadata'
 import { addTypeToFile } from '../utils/addTypeToFile'
 import { nameToTypename } from '../utils/nameToTypename'
 
-export function generateResponses(oas: specification.OpenAPIObject, filePath: string) {
+export function generateResponses(oas: specification.OpenAPIObject, filePath: string, indexFile: File) {
   let file = new File()
 
   let responses = oas.components?.responses
   if(!responses){
     return
   }
-
-  let responsesNS = new Namespace("response",true) 
-  file.tryAddObjects(responsesNS)
 
   Object.entries(responses).forEach(([fullName,response])=>{
     let nameParts = fullName.split('.')
@@ -24,6 +21,7 @@ export function generateResponses(oas: specification.OpenAPIObject, filePath: st
     let typeVariable = new TypeVariable(nameToTypename(name),true,type)
     addTypeToFile(parent,typeVariable,file)
     file.tryAddImports(...imports)
+    indexFile.tryAddExports(new Export('./responses',{response:null},undefined,true))
   })
 
   fs.writeFileSync(filePath,file.toString())

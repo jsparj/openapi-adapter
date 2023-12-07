@@ -1,4 +1,5 @@
 export {File} from './File'
+export {Export} from './Export'
 export {Import} from './Import'
 export {Interface} from './Interface'
 export {Namespace} from './Namespace'

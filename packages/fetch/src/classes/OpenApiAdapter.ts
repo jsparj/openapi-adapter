@@ -53,7 +53,7 @@ export abstract class OpenApiAdapter<
         query: string,
         method: specification.HttpMethod,
         headers: Record<string, string>,
-        body: OpenApiAdapter.SerializedRequestBody,
+        body?: adapter.component.Media,
         mutualTLS?: adapter.auth.MutualTLS
     ): Promise<OpenApiAdapter.HandleRequestResult> 
     {
@@ -66,14 +66,15 @@ export abstract class OpenApiAdapter<
             if('credentialSource' in mutualTLS) credentialSource = mutualTLS.credentialSource
             else throw `"adapter.auth.tls.SecureContextOptions" is only supported in node environments for mutualTLS.`
         } 
-        
+        const serializedBody = await this.serializer.requestBody(body)
+
         const response = await window.fetch(
             `${this.host}${path}${query}`,
             {
                 ...this.settings.requestInit,
                 method,
-                body,
                 credentials: credentialSource,
+                body: serializedBody,
                 headers: {
                     ...this.serializer.headerParameters(this.settings.globalHeaders),
                     ...headers

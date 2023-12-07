@@ -15,46 +15,46 @@ export function responseToMetadata(
   if (!!response.$ref) {
     let typeName = refToTypename(response.$ref)
     return {
-     type: Type.newRef("response."+typeName),
+     type: Type.newRef("response."+typeName,[]),
      imports: [new Import('./responses', {response:null},undefined,true)]
     }
   }
 
   let imports : Import[] = []
 
-  let dataComments : string[] = []
+  let comments : string[] = []
   if(response.summary) {
-    dataComments = dataComments.concat(`@summary ${response.summary}`)
+    comments = comments.concat(`@summary ${response.summary}`)
   }
   if(response.description) {
-    dataComments = dataComments.concat(`@description ${response.description}`)
+    comments = comments.concat(`@description ${response.description}`)
   }
 
   let content = response.content
-  let data = {type: Type.newAny(), comments: dataComments}
+  let data = Type.newUndefined({optional: false, comments})
 
   if (content) {
     const mediaTypes = Object.keys(content)
-    if (mediaTypes.length ==0) {
+    if (mediaTypes.length===0) {
       throw "response does not have any mediaTypes, but it still has 'content' field"
     }
 
-    data.type = Type.newUnion(
-      ...mediaTypes.map(mt => {
+    data = Type.newUnion(
+      mediaTypes.map(mt => {
 
         let v = content![mt as specification.MediaType]
 
         if (!v || !v.schema) {
           return Type.newObject({
-            mediaType: {type: Type.newString(mt)},
-            value: {type: Type.newAny()}
+            mediaType: Type.newString(mt),
+            value: Type.newAny()
           })
         } 
 
         const schema = schemaToMetadata(v.schema)
         let fields = {
-          mediaType: {type: Type.newString(mt)},
-          value: { comments: schema.comments, type: schema.type}
+          mediaType: Type.newString(mt),
+          value: schema.type
         }
 
         imports = imports.concat(schema.imports)
@@ -64,22 +64,24 @@ export function responseToMetadata(
         }
 
         return Type.newObject(fields)
-      })
+      }),
+      {
+        optional: false,
+        comments: comments
+      }
     )
   }
 
-  let headersType = Type.newObject({})
-  let headers= {type: headersType}
-
+  let headers = Type.newObject({})
+  
   if (response.headers)
   {
     Object.entries(response.headers).map(([headerId,h])=>{
       const m = headerToMetadata(oas,h)
-      const opt = m.header.required === false?'?':''
-      headersType.tryAddField(`'${headerId}'${opt}`,m.type,...m.comments)
+      headers.tryAddField(headerId,m.type)
+      imports = imports.concat(m.imports)
     })
   }
-
 
   return {
     type: Type.newObject({data,headers}),

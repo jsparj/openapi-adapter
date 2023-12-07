@@ -1,1 +1,1 @@
-export * from './CoreOpenApiAdapter'
+export {CoreOpenApiAdapter} from './CoreOpenApiAdapter'
