@@ -1,6 +1,6 @@
 {
   "name": "@openapi-adapter/node-fetch",
-  "version": "0.5.0",
+  "version": "0.8.1",
   "description": "Fetch integration with @openapi-adapter - Create TypeScript APIs that reflect OpenAPI 3.x perfectly.",
   "author": "Joona Parjanen",
   "license": "MIT",
@@ -17,6 +17,8 @@
     "client",
     "deserialization",
     "fetch",
+    "node",
+    "request",
     "openapi",
     "rest",
     "serialization",
@@ -33,11 +35,11 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@openapi-adapter/core": "^0.5.0",
+    "@openapi-adapter/core": "0.8.1",
     "node-fetch": "^3.3.2"
   },
-  "peerDependencies": {
-    "@types/node": "^20.9.2",
-    "typescript": "^5.2.2"
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "typescript": "^5.0.0"
   }
 }

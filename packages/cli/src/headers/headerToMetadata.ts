@@ -8,8 +8,6 @@ export function headerToMetadata(
   header: specification.HeaderObject
 ): {
   type: Type<any>
-  header: specification.HeaderObject
-  comments: string[]
   imports: Import[]
 }{
   let imports: Import[] = []
@@ -18,9 +16,7 @@ export function headerToMetadata(
     let {typeName,object} = getHeaderReference(oas,header.$ref)
     
     return {
-      type: Type.newRef("header."+typeName),
-      comments: [],
-      header: object,
+      type: Type.newRef("header."+typeName,[],{optional: !!object.required, comments: []}),
       imports: [new Import('./headers',{header:null},undefined,true)]
     }
   }
@@ -50,8 +46,6 @@ export function headerToMetadata(
 
   return {
     type,
-    header: header,
-    comments,
     imports,
   }
 }

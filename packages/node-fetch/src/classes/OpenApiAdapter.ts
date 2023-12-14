@@ -57,8 +57,8 @@ export abstract class OpenApiAdapter<
         query: string,
         method: specification.HttpMethod,
         headers: Record<string, string>,
-        body: OpenApiAdapter.SerializedRequestBody,
-        mutualTLS: adapter.auth.MutualTLS | undefined
+        body?: adapter.component.Media,
+        mutualTLS?: adapter.auth.MutualTLS
     ): Promise<OpenApiAdapter.HandleRequestResult> 
     {
         if(mutualTLS && !this.agent) {
@@ -67,12 +67,13 @@ export abstract class OpenApiAdapter<
             })
         }
 
-        let response = await fetch(
+        const serializedBody = await this.serializer.requestBody(body)
+        const response = await fetch(
             `${this.host}${path}${query}`,
             {
                 ...this.settings.requestInit,
                 method,
-                body,
+                body: serializedBody,
                 agent: this.agent,
                 headers: {
                     ...this.serializer.headerParameters(this.settings.globalHeaders),

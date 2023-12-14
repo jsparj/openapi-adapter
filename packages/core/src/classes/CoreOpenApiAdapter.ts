@@ -23,8 +23,8 @@ export abstract class CoreOpenApiAdapter<
         query: string,
         method: specification.HttpMethod,
         headers: Record<string, string>,
-        body: SerializedRequestBody,
-        mutualTLS: adapter.auth.MutualTLS|undefined
+        body?: adapter.component.Media,
+        mutualTLS?: adapter.auth.MutualTLS
     ): Promise<adapter.response.Result<RawResponseData>> 
 
     constructor(
@@ -52,8 +52,7 @@ export abstract class CoreOpenApiAdapter<
         NS,
         T,
         PathId,
-        HttpMethod,
-        Settings['deserialization']
+        HttpMethod
     >> {
 
         const {
@@ -70,7 +69,6 @@ export abstract class CoreOpenApiAdapter<
         const auth = this.getAuthParams(authRequirements)
         const serializedCookie = this.serializer.cookieParameters({ ...auth.cookie, ...cookie })
         const serializedHeaders = this.serializer.headerParameters({ ...auth.header, ...header })
-        const serializedBody = await this.serializer.requestBody(body)
 
         if (serializedCookie) serializedHeaders['Cookie'] = serializedCookie
 
@@ -79,7 +77,7 @@ export abstract class CoreOpenApiAdapter<
             this.serializer.queryString({ ...auth.query, ...query }),
             method,
             serializedHeaders,
-            serializedBody,
+            body,
             auth.mutualTLS
         )
 
@@ -95,12 +93,11 @@ export abstract class CoreOpenApiAdapter<
             )
         }
 
-        return response as adapter.response.Object<
+        return response as unknown as adapter.response.Object<
             NS,
             T,
             PathId,
-            HttpMethod,
-            Settings['deserialization']
+            HttpMethod
         >
     }
 

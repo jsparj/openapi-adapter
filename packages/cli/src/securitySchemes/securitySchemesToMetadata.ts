@@ -10,19 +10,19 @@ export function securitySchemeToMetadata(securityScheme: specification.SecurityS
   if (!!securityScheme.$ref) {
     let typeName = refToTypename(securityScheme.$ref)
     return {
-     type: Type.newRef("securityScheme."+typeName),
+     type: Type.newRef("securityScheme."+typeName,[]),
      imports: [new Import('./securitySchemes', {securityScheme:null},undefined,true)]
     }
   }
   
   return {
     type: Type.newObject({
-      type: {type: Type.newString(securityScheme.type)},
-      payload: {type: Type.newObject({
-        in: {type: Type.newString(securityScheme.in)},
-        name: {type: Type.newString(securityScheme.name)},
-        value: {type: Type.newString()},
-      })},
+      type: Type.newString(securityScheme.type),
+      payload: Type.newObject({
+        in: Type.newString(securityScheme.in),
+        name: Type.newString(securityScheme.name),
+        value: Type.newString(),
+      })
     }),
     imports: []
   }

@@ -1,2 +1,2 @@
-export * from './isObject'
-export * from './overrideDeep'
+export {isObject} from './isObject'
+export {overrideDeep} from './overrideDeep'

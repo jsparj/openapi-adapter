@@ -4,7 +4,6 @@ import {Type} from './Type'
 export class TypeVariable implements codegen.IObject<'type-variable'>{
   readonly type: 'type-variable' = 'type-variable'
   name: string
-  comments:string[]
   isExported: boolean
   value: Type<any>
 
@@ -16,21 +15,19 @@ export class TypeVariable implements codegen.IObject<'type-variable'>{
     name: string,
     isExported: boolean,
     value: Type<any>,
-    ...comments: string[]
   ) {
     this.name =  name
     this.isExported = !!isExported
     this.value = value
-    this.comments = comments
   }
 
   toString(...indents: string[]): string {
     const indent = indents.join("")
 
     let comment = ""
-    if (this.comments.length > 0) {
+    if (this.value.metadata.comments.length > 0) {
       comment = `${indent}/**\n` 
-      comment += this.comments.map(line=>`${indent} * ${line}\n`).join("")
+      comment += this.value.metadata.comments.map(line=>`${indent} * ${line}\n`).join("")
       comment += `${indent} */\n`
     }
 

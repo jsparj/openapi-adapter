@@ -1,3 +1,6 @@
+import { Class } from './Class'
+import { Const } from './Const'
+import { Export } from './Export'
 import {Import} from './Import'
 import { Interface } from './Interface'
 import {Namespace} from './Namespace'
@@ -5,17 +8,21 @@ import {TypeVariable} from './TypeVariable'
 
 export namespace File {
   export type Object =      
-    | Namespace 
+    | Namespace
+    | Const 
+    | Class
     | TypeVariable 
     | Interface
 }
 
 export class File {
   imports: Record<string,Import>
+  exports: Record<string,Export>
   objects: Record<string,File.Object>
 
   constructor() {
     this.imports = {}
+    this.exports = {}
     this.objects = {}
   }
 
@@ -28,6 +35,21 @@ export class File {
         changed = true
         this.imports[id] = imports[i]
       } else if (this.imports[id].tryMerge(imports[i])){
+        changed = true
+      }
+    }
+    return changed
+  }
+
+
+  tryAddExports(...exports: Export[]): boolean {
+    let changed = false
+    for(let i=0;i<exports.length;i++){
+      let id = exports[i].id
+      if (!this.exports[id]) {
+        changed = true
+        this.exports[id] = exports[i]
+      } else if (this.exports[id].tryMerge(exports[i])){
         changed = true
       }
     }
@@ -64,6 +86,12 @@ export class File {
     let importKeys = Object.keys(this.imports).sort()
     importKeys.forEach(key=>{
       let value = this.imports[key]
+      content += `${indent}${value.toString(indent)}\n`
+    })
+
+    let exportKeys = Object.keys(this.exports).sort()
+    exportKeys.forEach(key=>{
+      let value = this.exports[key]
       content += `${indent}${value.toString(indent)}\n`
     })
 

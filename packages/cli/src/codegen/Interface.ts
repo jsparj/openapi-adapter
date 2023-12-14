@@ -6,7 +6,7 @@ export class Interface implements codegen.IObject<'interface'>{
   name: string
   comments:string[]
   isExported: boolean
-  fields: Record<string,{type: Type<any>, comments: string[]}>
+  fields: Record<string,Type<any>>
 
   get id(): string {
     return `${this.isExported?'export':'local'}:${this.type}:${this.name}`
@@ -23,13 +23,10 @@ export class Interface implements codegen.IObject<'interface'>{
     this.fields = {}
   }
 
-  tryAddField(fieldId: string, type: Type<any>,...comments: string[]): boolean{
+  tryAddField(fieldId: string, type: Type<any>): boolean{
     let changed = false
     if (!this.fields[fieldId]) {
-      this.fields[fieldId] = {
-        type,
-        comments
-      }
+      this.fields[fieldId] = type
       changed = true
     }
     return changed
@@ -49,15 +46,15 @@ export class Interface implements codegen.IObject<'interface'>{
 
     let fieldKeys = Object.keys(this.fields).sort()
     fieldKeys.forEach(fieldId => {
-      let {type, comments} = this.fields[fieldId]
-      if (comments.length>0) {
+      let field = this.fields[fieldId]
+      if (field.metadata.comments.length>0) {
         content += `${indent}\t/**\n` 
-        comments.forEach(comment => {
+        field.metadata.comments.forEach(comment => {
           content += `${indent}\t * ${comment}\n`
         })
         content += `${indent}\t */\n` 
       }
-      content += `${indent}\t${fieldId}: ${type.toString(indent,"\t")}\n` 
+      content += `${indent}\t${fieldId}: ${field.toString(indent,"\t")}\n` 
     })
 
     content += indent+"}"

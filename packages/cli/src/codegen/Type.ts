@@ -1,4 +1,5 @@
 import { codegen } from "../types";
+import { toShorthandPropertyKey } from "../utils/toShorthandPropertyKey";
 
 
 export namespace Type {
@@ -50,7 +51,7 @@ export namespace Type {
 
   export type Object = {
     kind: 'object'
-    fields: Record<string,{type: Type<any>, comments?: string[]}>
+    fields: Record<string,Type<any>>
   }
 
   export type Array = {
@@ -99,138 +100,145 @@ export namespace Type {
     kind: 'tuple'
     types: Type<any>[]
   }
+
+  export type Metadata = {
+    optional: boolean
+    comments: string[]
+  }
 }  
 
 
 export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
   readonly type: 'type' = 'type'
   readonly value: Type.Universal | Type.Complex
-
+  readonly metadata: Type.Metadata
 
   get id(): string {
     return `${this.type}:${this.value.kind}`
   }
 
-  private constructor(value: Type.Value<T>) {
+  private constructor(value: Type.Value<T>, metadata?: Type.Metadata) {
     this.value = value
+    this.metadata = {
+      optional: false,
+      comments: [],
+      ...metadata,
+    }
   }
 
-  static newAny(): Type<'any'> {
+  static newAny(metadata?: Type.Metadata): Type<'any'> {
     return new Type({
       kind:'any',
-    })
+    },metadata)
   }
 
-  static newUndefined(): Type<'undefined'> {
+  static newUndefined(metadata?: Type.Metadata): Type<'undefined'> {
     return new Type({
       kind:'undefined',
-    })
+    },metadata)
   }
 
-  static newNull(): Type<'null'> {
+  static newNull( metadata?: Type.Metadata): Type<'null'> {
     return new Type({
       kind:'null',
-    })
+    },metadata)
   }
-  static newNever(): Type<'never'> {
+  static newNever(metadata?: Type.Metadata): Type<'never'> {
     return new Type({
       kind:'never',
-    })
+    },metadata)
   }
 
 
-  static newUnknown(): Type<'unknown'> {
+  static newUnknown(metadata?: Type.Metadata): Type<'unknown'> {
     return new Type({
       kind:'unknown',
-    })
+    },metadata)
   }
 
-  static newArray(items: Type<any>): Type<'array'> {
+  static newArray(items: Type<any>, metadata?: Type.Metadata): Type<'array'> {
     return new Type<'array'>({
       kind: 'array',
       items: items
-    })
+    },metadata)
   }
 
-  static newBoolean(literal: boolean|undefined = undefined): Type<'boolean'> {
+  static newBoolean(literal?: boolean, metadata?: Type.Metadata): Type<'boolean'> {
     return new Type({
       kind: 'boolean',
       literal: literal
-    })
+    },metadata)
   }
 
-  static newString(literal: string|undefined = undefined): Type<'string'> {
+  static newString(literal?: string, metadata?: Type.Metadata): Type<'string'> {
     return new Type({
       kind: 'string',
       literal: literal
-    })
+    },metadata)
   }
 
-  static newNumber(literal: number|undefined = undefined): Type<'number'> {
+  static newNumber(literal?: number, metadata?: Type.Metadata): Type<'number'> {
     return new Type({
       kind: 'number',
       literal: literal
-    })
+    },metadata)
   }
 
-  static newIntersection(...types: (Type<any>|undefined)[]): Type<'intersection'> {
+  static newIntersection(types: (Type<any>|undefined)[], metadata?: Type.Metadata): Type<'intersection'> {
     return new Type({
       kind: 'intersection',
       types: types.filter(t => !!t) as Type<any>[]
-    })
+    },metadata)
   }
 
-  static newUnion(...types: (Type<any>|undefined)[]): Type<'union'> {
+  static newUnion(types: (Type<any>|undefined)[], metadata?: Type.Metadata): Type<'union'> {
     return new Type({
       kind: 'union',
       types: types.filter(t => !!t) as Type<any>[]
-    })
+    },metadata)
   }
 
-  static newTuple(...types:(Type<any>|undefined)[]): Type<'tuple'> {
+  static newTuple(types:(Type<any>|undefined)[], metadata?: Type.Metadata): Type<'tuple'> {
     return new Type({
       kind: 'tuple',
       types: types.filter(t => !!t) as Type<any>[]
-    })
+    },metadata)
   }
   
-  static newRef(literal: string, ...generics: Type<any>[]): Type<'ref'> {
+  static newRef(literal: string, generics: Type<any>[], metadata?: Type.Metadata): Type<'ref'> {
     return new Type({
       kind: 'ref',
       literal: literal,
       generics: generics
-    })
+    },metadata)
   }
   
-  static newObject(fields: Record<string,{type: Type<any>, comments?: string[]}>): Type<'object'> {
+  static newObject(fields: Record<string,Type<any>>, metadata?: Type.Metadata): Type<'object'> {
     return new Type({
       kind: 'object',
       fields,
-    })
+    },metadata)
   }
 
-  static newMap(keys: Type<any>, values: Type<any>): Type<'map'> {
+  static newMap(keys: Type<any>, values: Type<any>, metadata?: Type.Metadata): Type<'map'> {
     return new Type({
       kind: 'map',
       keys,
       values,
-    })
+    },metadata)
   }
 
   /**
    * This method is only for object types.
    */
-  tryAddField(fieldId: string, type: Type<any>, ...comments: string[]): boolean {
+  tryAddField(fieldId: string, type: Type<any>): boolean {
     if (this.value.kind !== 'object') {
       throw `type is not an object`
     }
 
     let changed = false
     if (!this.value.fields[fieldId]) {
-      this.value.fields[fieldId] = {
-        type,
-        comments
-      }
+      this.value.fields[fieldId] = type
     }
 
     return changed
@@ -258,7 +266,7 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
         return "number"
 
       case "string":
-        if (!!v.literal) return `'${v.literal}'`
+        if (!!v.literal) return `\`${v.literal}\``
         return "string"
 
       case "array":
@@ -287,14 +295,17 @@ export class Type<T extends Type.Kind> implements codegen.IObject<'type'>{
         let content = "{\n"
         
         Object.entries(v.fields).forEach(([key,value])=>{
-          if (value.comments && value.comments.length>0) {
+          key = toShorthandPropertyKey(key)
+          if (value.metadata.comments && value.metadata.comments.length>0) {
             content += `${indent}\t/**\n` 
-            value.comments.forEach(comment => {
+            value.metadata.comments.forEach(comment => {
               content += `${indent}\t * ${comment}\n`
             })
             content += `${indent}\t */\n` 
           }
-          content += `${indent}\t${key}: ${value.type.toString(indent,"\t")}\n` 
+
+          const optional = value.metadata.optional?"?":""
+          content += `${indent}\t${key}${optional}: ${value.toString(indent,"\t")}\n` 
         })
         content += indent+ "}"
         return content

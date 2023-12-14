@@ -31,8 +31,7 @@ export namespace adapter
             NS,
             T,
             PathId,
-            HttpMethod,
-            Settings['deserialization']
+            HttpMethod
         >>
     }
 
@@ -64,6 +63,17 @@ export namespace adapter
         getCookie(name: string): string
         getAllCookies(): Record<string, string>
         setCookie(name: string, value: string): void
+    }
+
+    export interface IRequestHandler<RawResponseData> {
+        handleRequest(
+            path: string,
+            query: string,
+            method: specification.HttpMethod,
+            headers: Record<string, string>,
+            body?: adapter.component.Media,
+            mutualTLS?: adapter.auth.MutualTLS
+        ): Promise<adapter.response.Result<RawResponseData>> 
     }
 
     /** @summary Settings for OpenApiAdapter. */
@@ -517,7 +527,7 @@ export namespace adapter
                 
         export type Operation<
             RequestParams extends OperationRequestParams,
-            ResponseObject extends response.Map<any>
+            ResponseObject extends response.Responses
         > = {
             requestParams: RequestParams
             responseObject: ResponseObject
@@ -614,8 +624,8 @@ export namespace adapter
             Settings extends settings.Serialization<any>
         > = path.Context<T, PathId, HttpMethod> extends { requestParams: infer requestParams }
             ? utility.Intersect<
-                | (requestParams extends {security: infer security}? {security: security } : never)
-                | (requestParams extends {body: infer body}        ? {body: body} : never)
+                | (requestParams extends {security: infer security}? keyof security extends   never? never : {security: security } : never)
+                | (requestParams extends {body: infer body}        ? keyof body extends       never? never : {body: body} : never)
                 | (requestParams extends {path: infer pathParams}  ? keyof pathParams extends never? never : {path: ExtractPathParams<pathParams,Settings['path']>} : never)
                 | (requestParams extends {query: infer query}      ? keyof query extends      never? never : {query: ExtractQueryParams<query, Settings['query']>}: never)
                 | (requestParams extends {cookie: infer cookie}    ? keyof cookie extends     never? never : {cookie:ExtractCookieParams<cookie, Settings['cookie']>} : never)
@@ -817,26 +827,25 @@ export namespace adapter
             NS extends string,
             T extends Definition,
             PathId extends path.Id<T>,
-            HttpMethod extends path.HttpMethod<T, PathId>,
-            Settings extends settings.Deserialization<any,any>
-        > = path.Context<T, PathId, HttpMethod> extends {responseObject: infer responseObject extends response.Map<any>}
+            HttpMethod extends path.HttpMethod<T, PathId>
+        > = path.Context<T, PathId, HttpMethod> extends {responseObject: infer responseObject extends response.Responses}
             ? utility.Intersect<{
                 [statusCode in keyof responseObject]: statusCode extends 'default'
                 ? {
                     status: number,
                     code: response.StatusLabel<NS, keyof response.HttpStatusLabels>,
                     headers: response.Headers<responseObject[statusCode]>,
-                    data: response.Data<responseObject[statusCode], Settings>,
+                    data: response.Data<responseObject[statusCode]>,
                 }
                 : statusCode extends `${infer code extends number}`
                 ? {
                     status: code,
                     code: response.StatusLabel<NS, code>,
                     headers: response.Headers<responseObject[statusCode]>,
-                    data: response.Data<responseObject[statusCode], Settings>,
+                    data: response.Data<responseObject[statusCode]>,
                 }
                 : never
-            }> extends infer responses ? responses[keyof responses]: never
+            }> 
             : never
 
         export type Result<RawResponseData> = {
@@ -862,20 +871,8 @@ export namespace adapter
             : never
             : { [untyped: string]: string | undefined }
         
-        export type Data<
-            ResponseItem,
-            Settings extends settings.Deserialization<any,any>
-        > =
-            ResponseItem extends { data: infer data extends component.Media<infer _mediaType> }
-            ? (
-                Settings extends { responseData: infer responseDataSettings extends settings.ResponseDataDeserialization<any> }
-                    ? responseDataSettings extends { defaultMediaType: infer mediaType extends specification.MediaType }
-                        ? data extends component.Media<mediaType, infer value>
-                            ? value 
-                            : never
-                        : never
-                    : never
-            )
+        export type Data<ResponseItem> = ResponseItem extends { data: infer data }
+            ? data
             : undefined
 
         export type Generic = {
@@ -909,10 +906,7 @@ export namespace adapter
             data?: Data
         }
         
-        export type Map<T extends {
-            default: Item
-            [statusCode: number]: Item
-        }> = T
+        export type Responses<T extends {[statusCode: string]: Item} = {[statusCode: string]: Item}> = T
 
         export type HttpStatusLabels = import('../src/enums').HttpStatusLabels;
     }
