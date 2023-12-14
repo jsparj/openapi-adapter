@@ -8,7 +8,7 @@ Use this if:
 
 This adapter will use native fetch found in browser or node.js environment.
 
-You will also need to install '@openapi-adapter/fetch' to your project.
+You will also need to install `@openapi-adapter/fetch` to your project.
 
 ## Serverside MutualTLS: `node-fetch`
 Use this if: 

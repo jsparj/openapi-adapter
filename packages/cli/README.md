@@ -105,4 +105,4 @@ switch(result.status) {
 ```
 
 ## Creating your own OpenApiAdapter:
-[[see examples]](examples)
+[[see examples]](../../examples)
