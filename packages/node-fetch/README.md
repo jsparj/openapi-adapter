@@ -25,4 +25,4 @@ The code is [MIT-licensed](./LICENSE) and free for every use.
 
 
 ## Creating your own OpenApiAdapter:
-[[see examples]](examples)
+[[see examples]](../../examples)
